@@ -15,7 +15,7 @@ RUN apk --no-cache --virtual build-dependencies add \
 COPY . /app/build
 RUN npx quasar build -m pwa
 
-FROM nginx as nginx-astral
+FROM nginx as nginx-hamstr
 
 COPY ./nginx/conf.d/default.conf /etc/nginx/conf.d/default.conf
 

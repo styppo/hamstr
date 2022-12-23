@@ -34,34 +34,36 @@
           </template>
         </q-input>
       </q-form>
-    <div v-if='domainMode'>
-      <div class='flex row justify-between no-wrap'>
-        <h2 class='text-h6 text-bold q-my-none'> {{ domain }} {{ $t('users') }}</h2>
-        <q-btn icon='close' @click.stop='domainMode = false' />
-      </div>
-      <div v-if='domainDefaultPubkey'>
-        <h2 class='text-caption text-bold q-my-none'> {{ $t('nip05Maintainer') }} </h2>
-        <BaseUserCard :pubkey='domainDefaultPubkey'/>
-      </div>
-        <q-list class='q-pt-xs q-pl-sm' style='overflow-y: auto; max-height: 40vh;'>
-          <div v-for="user in domainUsers" :key="user.pubkey">
-            <BaseUserCard :pubkey="user.pubkey" />
-          </div>
-        </q-list>
-        <q-separator color='accent' />
-    </div>
-    </q-card-section>
-      <div v-if='$store.state.keys.pub' class='flex row justify-between no-wrap'>
-        <h2 class='text-h5 text-bold q-my-none'> {{ $t('follows') }} </h2>
-        <div>
-          <q-btn v-if='!reordering' flat icon='reorder' @click.stop='reorderFollows'>
-            <q-tooltip>{{ $t('reorderFollows') }}</q-tooltip>
-          </q-btn>
-          <q-btn v-if='reordering' flat icon='close' @click.stop='cancelReorder'>
-            <q-tooltip>{{ $t('cancel') }}</q-tooltip>
-          </q-btn>
+      <div v-if='domainMode'>
+        <div class='flex row justify-between no-wrap'>
+          <h2 class='text-h6 text-bold q-my-none'> {{ domain }} {{ $t('users') }}</h2>
+          <q-btn icon='close' @click.stop='domainMode = false' />
         </div>
+        <div v-if='domainDefaultPubkey'>
+          <h2 class='text-caption text-bold q-my-none'> {{ $t('nip05Maintainer') }} </h2>
+          <BaseUserCard :pubkey='domainDefaultPubkey'/>
+        </div>
+          <q-list class='q-pt-xs q-pl-sm' style='overflow-y: auto; max-height: 40vh;'>
+            <div v-for="user in domainUsers" :key="user.pubkey">
+              <BaseUserCard :pubkey="user.pubkey" />
+            </div>
+          </q-list>
+          <q-separator color='accent' />
       </div>
+    </q-card-section>
+
+    <div v-if='$store.state.keys.pub' class='flex row justify-between no-wrap'>
+      <h2 class='text-h5 text-bold q-my-none'> {{ $t('follows') }} </h2>
+      <div>
+        <q-btn v-if='!reordering' flat icon='reorder' @click.stop='reorderFollows'>
+          <q-tooltip>{{ $t('reorderFollows') }}</q-tooltip>
+        </q-btn>
+        <q-btn v-if='reordering' flat icon='close' @click.stop='cancelReorder'>
+          <q-tooltip>{{ $t('cancel') }}</q-tooltip>
+        </q-btn>
+      </div>
+    </div>
+
     <q-card-section v-if='$store.state.keys.pub' class='no-padding' style='overflow-y: auto;'>
       <div v-if='$store.state.follows.length' class='q-mt-xs q-pl-sm'>
         <q-list v-if="!reordering">

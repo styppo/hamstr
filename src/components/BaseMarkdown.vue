@@ -1,7 +1,7 @@
 <template>
   <div ref="src" class="hidden break-word-wrap"><slot /></div>
   <div ref="append" class="hidden break-word-wrap"><slot name="append" /></div>
-  <div v-html="html" ref="html" class="break-word-wrap dynamic-content" @click='handleClicks' :class='longForm ? "long-form" : ""'/>
+  <div v-html="html" ref="html" class="break-word-wrap dynamic-content markdown" @click='handleClicks' :class='longForm ? "long-form" : ""'/>
   <q-btn
     v-if='longForm'
     id='long-form-button'
@@ -300,42 +300,51 @@ export default {
 </script>
 
 <style lang='scss'>
-a {
-  text-decoration: underline;
-  color: #448195;
-}
-p {
-  margin-block-end: .5rem;
-}
-ul {
-  list-style-type: disc;
-}
-ol {
-  list-style-type: decimal;
-}
-ul,
-ol {
-  list-style-position: outside;
-  padding-inline-start: 1.5rem;
-  margin-block-start: .5rem;
-  margin-block-end: .5rem;
-  text-align: left;
-}
-.post-highlighted ul,
-.post-highlighted ol {
-  padding-inline-start: 2rem;
-}
-ul ul,
-ol ul {
-  list-style-type: circle;
-  list-style-position: outside;
-  margin-left: .5rem;
-}
-ol ol,
-ul ol {
-  list-style-type: lower-latin;
-  list-style-position: outside;
-  margin-left: .5rem;
+.markdown {
+  a {
+    text-decoration: underline;
+    color: #448195;
+  }
+
+  p {
+    margin-block-end: .5rem;
+  }
+
+  ul {
+    list-style-type: disc;
+  }
+
+  ol {
+    list-style-type: decimal;
+  }
+
+  ul,
+  ol {
+    list-style-position: outside;
+    padding-inline-start: 1.5rem;
+    margin-block-start: .5rem;
+    margin-block-end: .5rem;
+    text-align: left;
+  }
+
+  .post-highlighted ul,
+  .post-highlighted ol {
+    padding-inline-start: 2rem;
+  }
+
+  ul ul,
+  ol ul {
+    list-style-type: circle;
+    list-style-position: outside;
+    margin-left: .5rem;
+  }
+
+  ol ol,
+  ul ol {
+    list-style-type: lower-latin;
+    list-style-position: outside;
+    margin-left: .5rem;
+  }
 }
 
 .break-word-wrap p:last-of-type {

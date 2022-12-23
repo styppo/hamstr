@@ -925,7 +925,7 @@ const methods = {
     let interval = setInterval(() => {
       if (!saving) {
         closeDb()
-        let broadcastChannel = new BroadcastChannel('astral')
+        let broadcastChannel = new BroadcastChannel('hamstr')
         broadcastChannel.postMessage({ type: 'done' })
         clearInterval(interval)
       }

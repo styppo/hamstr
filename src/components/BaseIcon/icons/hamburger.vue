@@ -1,0 +1,20 @@
+<template>
+  <svg
+    viewBox="0 0 75 40"
+  >
+    <rect
+      width="75"
+      height="6"
+    />
+    <rect
+      y="20"
+      width="75"
+      height="6"
+    />
+    <rect
+      y="40"
+      width="75"
+      height="6"
+    />
+  </svg>
+</template>

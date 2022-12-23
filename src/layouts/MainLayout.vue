@@ -1,142 +1,92 @@
 <template>
   <q-layout>
-    <link v-if='!updatingFont' id='font-link' rel="stylesheet" :href="`https://fonts.googleapis.com/css2?family=${googleFontsName}`" crossorigin/>
-    <q-dialog v-if='!$store.state.keys.pub' v-model='initializeKeys' persistent>
-    <TheKeyInitializationDialog style='max-height: 85vh' @look-around='setLookingAroundMode'/>
+    <q-dialog v-if="!$store.state.keys.pub" v-model="initializeKeys" persistent>
+      <TheKeyInitializationDialog style="max-height: 85vh" @look-around="setLookingAroundMode"/>
     </q-dialog>
-    <div id='layout-container' :ripple='false'>
-      <div id='left-drawer' class='flex justify-end'>
-        <TheUserMenu
-          :item-mode='$q.screen.width < 1023'
-          :show-compact-mode-items='$q.screen.width < 700'
-          :posting='postEntryOpen'
-          @toggle-post-entry='togglePostEntry'
-          @scroll-to-rect='scrollToRect'
-          @set-user='lookingAround=false'
-        />
+
+    <div class="layout">
+      <div class="layout-menu">
+        <div class="layout-menu-fixed">
+          <main-menu />.
+<!--          <TheUserMenu-->
+<!--            :item-mode="$q.screen.width < 1023"-->
+<!--            :show-compact-mode-items="$q.screen.width < 700"-->
+<!--            :posting="postEntryOpen"-->
+<!--            @toggle-post-entry="togglePostEntry"-->
+<!--            @scroll-to-rect="scrollToRect"-->
+<!--            @set-user="lookingAround=false"-->
+<!--          />-->
+        </div>
       </div>
 
-      <div id='middle-page'>
-        <q-page-container ref='pageContainer'>
-          <!-- <TheKeyInitializationDialog v-if='!$store.state.keys.pub && !lookingAround' @look-around='lookingAround=true'/> -->
+      <div class="layout-flow">
+        <q-page-container ref="pageContainer">
           <router-view v-slot="{ Component }">
-            <keep-alive :include='["Feed", "Messages", "Notifications"]'>
-              <component :is="Component" :key='$route.path' :looking-around='lookingAround' @scroll-to-rect='scrollToRect' @reply-event='setReplyEvent' @update-font='updateFont'/>
+            <keep-alive :include="['Feed', 'Messages', 'Notifications']">
+              <component :is="Component" :key="$route.path" :looking-around="lookingAround" @scroll-to-rect="scrollToRect" @reply-event="setReplyEvent"/>
             </keep-alive>
           </router-view>
         </q-page-container>
-        <!-- <div v-if='postEntryOpen || messageMode' id='post-entry' unelevated class='gt-xs flex column align-self relative-position'> -->
-        <div v-if='($q.screen.width >= 600) && postEntryOpen' id='post-entry' unelevated class='gt-xs flex column align-self relative-position'>
-          <!-- <q-separator color='primary'/> -->
-          <!-- <q-btn v-if='!messageMode' icon="close" flat dense @click='togglePostEntry' class='self-end' style='position: absolute; top: 0; right: 0; z-index: 1;'/> -->
-          <q-btn icon="close" flat dense @click='togglePostEntry' class='self-end' style='position: absolute; top: 0; right: 0; z-index: 1;'/>
-            <!-- :message-mode='messageMode' -->
+
+        <!-- <div v-if="postEntryOpen || messageMode" id="post-entry" unelevated class="gt-xs flex column align-self relative-position"> -->
+        <div v-if="($q.screen.width >= 600) && postEntryOpen" id="post-entry" unelevated class="gt-xs flex column align-self relative-position">
+          <!-- <q-separator color="primary"/> -->
+          <!-- <q-btn v-if="!messageMode" icon="close" flat dense @click="togglePostEntry" class="self-end" style="position: absolute; top: 0; right: 0; z-index: 1;"/> -->
+          <q-btn icon="close" flat dense @click="togglePostEntry" class="self-end" style="position: absolute; top: 0; right: 0; z-index: 1;"/>
+            <!-- :message-mode="messageMode" -->
           <BasePostEntry
-            :event='replyEvent'
-            @clear-event='replyEvent=null'
-            @sent='togglePostEntry'
-            class='q-px-md q-pt-sm'
+            :event="replyEvent"
+            @clear-event="replyEvent=null"
+            @sent="togglePostEntry"
+            class="q-px-md q-pt-sm"
           />
         </div>
-        <div id='bottom-drawer-placeholder' />
-        <!-- <div id='bottom-post-entry-placeholder' />
-        <div id='bottom-message-entry-placeholder' />
-        <div id='bottom-menu-placeholder' /> -->
+
+        <div id="bottom-drawer-placeholder" />
+        <!-- <div id="bottom-post-entry-placeholder" />
+        <div id="bottom-message-entry-placeholder" />
+        <div id="bottom-menu-placeholder" /> -->
       </div>
 
-      <div id='right-drawer' class='flex justify-start'>
-        <TheSearchMenu/>
+      <div class="layout-sidebar">
+        <div class="layout-sidebar-fixed">
+          <TheSearchMenu/>
+        </div>
       </div>
     </div>
-    <q-page-sticky v-if='($q.screen.width < 600)' @click.stop='resizePostEntryPlaceholder' id='bottom-drawer' position="bottom" class='z-top xs lt-sm'>
-      <!-- <q-separator color='primary'/> -->
-      <!-- <div  v-if='postEntryOpen || messageMode' id='bottom-post-entry' unelevated class='flex column align-self relative-position'> -->
-      <div  v-if='messageMode' id='bottom-message-entry' unelevated class='flex column align-self relative-position q-px-md'>
+
+    <q-page-sticky v-if="($q.screen.width < 600)" @click.stop="resizePostEntryPlaceholder" id="bottom-drawer" position="bottom" class="z-top xs lt-sm">
+      <!-- <q-separator color="primary"/> -->
+      <!-- <div  v-if="postEntryOpen || messageMode" id="bottom-post-entry" unelevated class="flex column align-self relative-position"> -->
+      <div  v-if="messageMode" id="bottom-message-entry" unelevated class="flex column align-self relative-position q-px-md">
         <BasePostEntry
-          :event='replyEvent'
-          :message-mode='messageMode'
-          @clear-event='replyEvent=null'
-          @sent='replyEvent=null'
-          @resized='resizePostEntryPlaceholder'
-          :auto-focus='false'
+          :event="replyEvent"
+          :message-mode="messageMode"
+          @clear-event="replyEvent=null"
+          @sent="replyEvent=null"
+          @resized="resizePostEntryPlaceholder"
+          :auto-focus="false"
         />
       </div>
-      <div v-if='messageMode' id='bottom-post-entry-top-border'></div>
-      <div v-if='postEntryOpen' id='bottom-post-entry' unelevated class='flex column align-self relative-position q-px-md'>
-        <!-- <q-btn v-if='!messageMode' icon="close" flat dense @click='togglePostEntry' class='self-end' style='position: absolute; top: 0; right: 0; z-index: 1;'/> -->
+      <div v-if="messageMode" id="bottom-post-entry-top-border"></div>
+      <div v-if="postEntryOpen" id="bottom-post-entry" unelevated class="flex column align-self relative-position q-px-md">
+        <!-- <q-btn v-if="!messageMode" icon="close" flat dense @click="togglePostEntry" class="self-end" style="position: absolute; top: 0; right: 0; z-index: 1;"/> -->
         <BasePostEntry
-          @sent='togglePostEntry'
-          @resized='resizePostEntryPlaceholder'
-          :auto-focus='false'
+          @sent="togglePostEntry"
+          @resized="resizePostEntryPlaceholder"
+          :auto-focus="false"
 
         />
       </div>
+
       <TheUserMenu
-        id='bottom-menu'
-        :compact-mode='true'
-        :posting='postEntryOpen'
-        @toggle-post-entry='togglePostEntry'
-        @scroll-to-rect='scrollToRect'
-        @set-user='lookingAround=false'
+        id="bottom-menu"
+        :compact-mode="true"
+        :posting="postEntryOpen"
+        @toggle-post-entry="togglePostEntry"
+        @scroll-to-rect="scrollToRect"
+        @set-user="lookingAround=false"
       />
-    </q-page-sticky>
-    <q-page-sticky position="top-right" :offset="fabPos" id='navagation-buttons'>
-      <q-fab
-        direction="left"
-        color="accent"
-        class='no-margin no-padding z-top'
-        :model-value='true'
-        persistent
-        flat
-        padding='xs'
-        :disable="draggingFab"
-        v-touch-pan.prevent.mouse="moveFab"
-      >
-        <template #tooltip>
-          <q-tooltip>
-            click to collapse/expand or drag to move
-          </q-tooltip>
-        </template>
-        <template #icon>
-          <q-icon name='drag_indicator'/>
-        </template>
-        <template #active-icon>
-          <q-icon name='drag_indicator'/>
-        </template>
-        <q-btn
-          @click.stop="forward"
-          color="primary"
-          unelevated
-          round
-          outline
-          icon="keyboard_arrow_right"
-          :disable="draggingFab"
-        >
-          <q-tooltip>forward</q-tooltip>
-        </q-btn>
-        <q-btn
-          @click.stop="scrollToTop"
-          color="primary"
-          unelevated
-          round
-          outline
-          icon="keyboard_double_arrow_up"
-          :disable='draggingFab || $route.name === "inbox" || $route.name === "messages"'
-        >
-          <q-tooltip>scroll to top</q-tooltip>
-        </q-btn>
-        <q-btn
-          @click.stop="back"
-          color="primary"
-          unelevated
-          round
-          outline
-          icon="keyboard_arrow_left"
-          :disable="draggingFab"
-        >
-          <q-tooltip>back</q-tooltip>
-        </q-btn>
-      </q-fab>
     </q-page-sticky>
   </q-layout>
 </template>
@@ -146,6 +96,7 @@ import { defineComponent} from 'vue'
 import { scroll, useQuasar, LocalStorage } from 'quasar'
 const { getVerticalScrollPosition, setVerticalScrollPosition} = scroll
 import { activateSub, deactivateSub, destroyStreams } from '../query'
+import MainMenu from 'components/MainMenu/index.vue'
 import TheUserMenu from 'components/TheUserMenu.vue'
 import TheSearchMenu from 'components/TheSearchMenu.vue'
 import TheKeyInitializationDialog from 'components/TheKeyInitializationDialog.vue'
@@ -154,6 +105,7 @@ import { setCssVar, getCssVar } from 'quasar'
 export default defineComponent({
   name: 'MainLayout',
   components: {
+    MainMenu,
     TheUserMenu,
     TheSearchMenu,
     TheKeyInitializationDialog,
@@ -170,16 +122,12 @@ export default defineComponent({
     return {
       cachedPages: ['Feed', 'Notifications', 'Messages'],
       middlePagePos: {},
-      fabPos: [0, 10],
-      draggingFab: false,
-      broadcastChannel: new BroadcastChannel('astral'),
+      broadcastChannel: new BroadcastChannel('hamstr'),
       activeWindow: false,
       timeout: null,
       hasLaunched: false,
       postEntryOpen: false,
       replyEvent: null,
-      googleFontsName: '',
-      updatingFont: true,
       lookingAround: false,
     }
   },
@@ -206,7 +154,7 @@ export default defineComponent({
   },
 
   mounted() {
-    // coordinate closing/opening of db if multiple astral windows
+    // coordinate closing/opening of db if multiple hamstr windows
     this.broadcastChannel.onmessage = (event) => {
       let {type} = event.data
 
@@ -219,23 +167,20 @@ export default defineComponent({
     window.onfocus = this.activateWindow
 
     // setup scrolling
-    document.querySelector('#left-drawer').addEventListener('wheel', this.redirectScroll)
+    // document.querySelector('#left-drawer').addEventListener('wheel', this.redirectScroll)
     this.$router.beforeEach((to, from) => { this.preserveScrollPos(to, from) })
     this.$router.afterEach((to, from) => { this.restoreScrollPos(to, from) })
-    let pageRect = this.$refs.pageContainer?.$el.getBoundingClientRect()
-    if (pageRect) this.fabPos[0] = pageRect.right - pageRect.width
 
     // destroy streams before unloading window
     window.onbeforeunload = async () => {
       await destroyStreams()
     }
     // TODO Shoudl this go in the function?
-    this.updatingFont = false
     this.resizePostEntryPlaceholder()
   },
 
   beforeUnmount() {
-    document.querySelector('#left-drawer').removeEventListener('wheel', this.redirectScroll)
+    // document.querySelector('#left-drawer').removeEventListener('wheel', this.redirectScroll)
   },
 
   methods: {
@@ -324,13 +269,6 @@ export default defineComponent({
       }, 1000)
     },
 
-    updateFont(font) {
-      this.updatingFont = true
-      setCssVar('font', font)
-      // let font = getCssVar('font') || ''
-      this.googleFontsName = font.replace(' ', '+')
-      this.updatingFont = false
-    },
     lightOrDark(color) {
       // Variables for red, green, blue values
       var r, g, b, hsp
@@ -386,19 +324,10 @@ export default defineComponent({
         setCssVar('background', background)
         this.$q.dark.set(this.lightOrDark(background) === 'dark')
       }
-      let font = preferences.font || 'Roboto'
-      this.updateFont(font)
-      // if (!font) {
-      //   font = 'Roboto'
-      //   // else setCssVar('font', 'Roboto')
-      //   // else font = getCssVar('font')
-      // }
     } else {
         let background = getCssVar('background') || getCssVar('dark')
         setCssVar('background', background)
         this.$q.dark.set(this.lightOrDark(background) === 'dark')
-        let font = 'Roboto'
-        this.updateFont(font)
       // config.preferences = {
       //   color: {
       //     primary: getCssVar('primary'),
@@ -417,28 +346,107 @@ export default defineComponent({
 
 </script>
 
-<style lang='css'>
-body {
-  display: block;
-  height: 100vh;
-  overflow: auto;
-}
-#layout-container {
-  display: flex;
-  justify-content: center;
+<style lang='scss'>
+@import '../assets/theme/colors.scss';
+@import '../assets/variables.scss';
+
+.layout {
+  min-height: 100%;
+  max-width: 1290px;
   width: 100%;
-  position: relative;
-  flex-wrap: nowrap;
-  background: var(--q-background);
-  font-family: var(--q-font), "Helvetica Neue", Helvetica, Arial, sans-serif;
+  margin: 0 auto;
+  display: flex;
+  &-menu {
+    width: 100%;
+    max-width: 300px;
+    &-fixed {
+      position: fixed;
+      width: 100%;
+      max-width: inherit;
+    }
+  }
+  &-flow {
+    border-right: $border-dark;
+    border-left: $border-dark;
+    width: 100%;
+    max-width: 660px;
+    min-height: 100vh;
+    .page-header {
+      border-bottom: $border-dark;
+      padding: .5rem;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      h2 {
+        margin: 1rem 0;
+      }
+      .back-button {
+        width: 2.5rem;
+        height: 2.5rem;
+        margin-right: 20px;
+        padding: 6px;
+        border-radius: 999px;
+        cursor: pointer;
+        &:hover {
+          background-color: rgba($color: $color-blue, $alpha: 0.3);
+        }
+        svg {
+          width: 100%;
+          height: 100%;
+          transform: translateX(-3px);
+          fill: $color-blue;
+        }
+      }
+      .profile-info {
+        h2 {
+          margin: 0;
+          margin-bottom: 3px;
+        }
+        span {
+          color: $color-dark-gray;
+          font-size: 12px;
+        }
+      }
+    }
+  }
+  &-sidebar {
+    width: 100%;
+    max-width: 330px;
+    margin-left: 1rem;
+    margin-top: 1rem;
+    &-fixed {
+      position: fixed;
+      width: 100%;
+      max-width: inherit;
+    }
+  }
+  .mobile-menu-toggler {
+    display: none;
+  }
 }
+
+//body {
+//  display: block;
+//  height: 100vh;
+//  overflow: auto;
+//}
+
+//#layout-container {
+//  display: flex;
+//  justify-content: center;
+//  width: 100%;
+//  position: relative;
+//  flex-wrap: nowrap;
+//  background: var(--q-background);
+//}
+
+
 #left-drawer, #right-drawer {
   display: none;
   transition: all 1s linear;
   margin: .5rem;
 }
-#left-drawer {
-}
+
 #middle-page {
   width: 700px;
   max-width: 100%;
@@ -449,8 +457,11 @@ body {
   display: flex;
   flex-direction: column;
 }
+
 #middle-page .q-page-container {
 }
+
+
 #post-entry {
   border-top: 1px solid var(--q-accent);
 }

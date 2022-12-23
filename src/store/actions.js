@@ -180,7 +180,7 @@ export async function addEvent(store, {event, relay = null}) {
 
 export async function sendPost(store, {message, tags = [], kind = 1}) {
   if (message.length === 0) return
-  tags.push(['client', 'astral'])
+  tags.push(['client', 'hamstr'])
 
   try {
     const unpublishedEvent = {
@@ -211,7 +211,7 @@ export async function sendPost(store, {message, tags = [], kind = 1}) {
 
 export async function sendChatMessage(store, {now, pubkey, text, tags}) {
   if (text.length === 0) return
-  tags.push(['client', 'astral'])
+  tags.push(['client', 'hamstr'])
 
   let ciphertext = '???'
   try {

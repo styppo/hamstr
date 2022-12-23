@@ -19,17 +19,17 @@
       </div>
     </q-card>
   </q-dialog>
-    <q-btn
-      v-if="$store.getters.NIP05Id(pubkey)"
-      icon="verified"
-      color="accent"
-      flat
-      dense
-      :size='buttonSize'
-      class='no-padding'
-      clickable
-      @click.stop="openNIP05"
-    >
+  <q-btn
+    v-if="$store.getters.NIP05Id(pubkey)"
+    icon="verified"
+    color="accent"
+    flat
+    dense
+    :size='buttonSize'
+    class='no-padding'
+    clickable
+    @click.stop="openNIP05"
+  >
     <q-tooltip>
       NIP05 verified
     </q-tooltip>

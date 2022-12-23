@@ -1,9 +1,9 @@
 {
-  "name": "astral",
-  "version": "0.0.9",
-  "description": "decentralized social platform (nostr client)",
-  "productName": "astral",
-  "author": "monica <monlovesmango@protonmail.com>",
+  "name": "hamstr",
+  "version": "0.1.0",
+  "description": "Hamstr: a Nostr web client",
+  "productName": "hamstr",
+  "author": "styppo <me@styppo.com>",
   "private": true,
   "scripts": {
     "lint": "eslint --ext .js,.vue ./",
@@ -30,6 +30,7 @@
     "markdown-it-sup": "1.0",
     "markdown-it-task-lists": "2.1",
     "mergebounce": "^0.1.1",
+    "moment": "^2.29.4",
     "nayuki-qr-code-generator": "^1.8.0",
     "nostr-tools": "^0.24.1",
     "quasar": "2.5.5",

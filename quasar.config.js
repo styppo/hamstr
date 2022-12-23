@@ -180,9 +180,9 @@ module.exports = configure(function (ctx) {
       },
 
       manifest: {
-        name: `astral`,
-        short_name: `astral`,
-        description: `decentralized social platform (nostr client)`,
+        name: `hamstr`,
+        short_name: `hamstr`,
+        description: `Hamstr: a Nostr web client`,
         display: 'standalone',
         orientation: 'portrait',
         background_color: '#ffffff',
@@ -199,23 +199,8 @@ module.exports = configure(function (ctx) {
             type: 'image/png',
           },
           {
-            src: 'icons/android-chrome-192x192.png',
-            sizes: '192x192',
-            type: 'image/png',
-          },
-          {
             src: 'icons/favicon-256x256.png',
             sizes: '256x256',
-            type: 'image/png',
-          },
-          {
-            src: 'icons/favicon-384x384.png',
-            sizes: '384x384',
-            type: 'image/png',
-          },
-          {
-            src: 'icons/android-chrome-512x512.png',
-            sizes: '512x512',
             type: 'image/png',
           },
         ],

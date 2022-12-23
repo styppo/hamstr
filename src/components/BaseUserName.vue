@@ -1,33 +1,27 @@
 <template>
-  <div
-    class='cursor-pointer flex'
-    :class="(alignRight ? ' justify-end' : ' justify-start') +
-      (headerMode ? ' column items-start' : ' row items-center') +
-      (wrap ? '' : ' no-wrap')"
+  <span
+    class="cursor-pointer username"
     @click.stop="toProfile(pubkey)"
-    style='gap: .1rem'
-    :style="alignRight ? 'text-align: right;' : 'text-align: left'"
   >
-    <div
+    <span
       v-if="$store.getters.name(pubkey)"
-      class='text-bold flex row no-wrap items-center'
-      style='gap: .2rem;'
-      clickable
+      class="text-bold"
     >
       {{ $store.getters.name(pubkey) }}
-      <q-icon v-if='showFollowing && isFollow' name='visibility' :size="headerMode ? 'sm' : 'xs'" color='secondary'>
+      <q-icon v-if="showFollowing && isFollow" name="visibility" color="secondary">
         <q-tooltip>
           following
         </q-tooltip>
       </q-icon>
-    </div>
-    <div class='flex row no-wrap items-center'>
-      <BaseButtonNIP05 :pubkey='pubkey' :button-size="headerMode ? 'sm' : 'xs'"/>
-      <div v-if='$store.getters.NIP05Id(pubkey)' style='opacity: .9; font-size: 90%; font-weight: 300; line-height: 90%'>
+    </span>
+    <span v-else class="text-italic">anonymous</span>
+    <span v-if="$store.getters.NIP05Id(pubkey)">
+      <BaseButtonNIP05 :pubkey="pubkey" />
+      <span style="opacity: .9; font-size: 90%; font-weight: 300; line-height: 90%">
         {{ niceNIP05 }}
-      </div>
-    </div>
-  </div>
+      </span>
+    </span>
+  </span>
 </template>
 
 <script>
@@ -41,12 +35,9 @@ export default {
   },
   props: {
     pubkey: {type: String, required: true},
-    // fallback: {type: Boolean, default: false}, // if the shortened pubkey should be displayed
     wrap: {type: Boolean, default: false},
-    alignRight: {type: Boolean, default: false},
-    headerMode: {type: Boolean, default: false},
     showFollowing: {type: Boolean, default: false},
-    // showVerified: {type: Boolean, default: false},
+    showVerified: {type: Boolean, default: false},
   },
   computed: {
     niceNIP05() {
@@ -72,3 +63,11 @@ export default {
   // }
 }
 </script>
+
+<style lang="scss">
+.username {
+  > span + span {
+    margin-left: 8px;
+  }
+}
+</style>

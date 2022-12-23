@@ -42,7 +42,7 @@ import { createMetaMixin } from 'quasar'
 
 const metaData = {
   // sets document title
-  title: 'astral - thread',
+  title: 'hamstr - thread',
 
   // meta tags
   meta: {

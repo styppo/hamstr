@@ -39,11 +39,11 @@ import { createMetaMixin } from 'quasar'
 
 const metaData = {
   // sets document title
-  title: 'astral - dev tools',
+  title: 'hamstr - dev tools',
 
   // meta tags
   meta: {
-    description: { name: 'description', content: 'dev tools for astral Nostr client' },
+    description: { name: 'description', content: 'dev tools for hamstr Nostr client' },
     keywords: { name: 'keywords', content: 'nostr decentralized social media' },
     equiv: { 'http-equiv': 'Content-Type', content: 'text/html; charset=UTF-8' },
   },

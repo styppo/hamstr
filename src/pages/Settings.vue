@@ -82,19 +82,6 @@
           </BaseSelect>
         <!-- </div> -->
       </div>
-      <div class="text-bold flex justify-between no-wrap" style='font-size: 1rem;'>
-        {{ $t('font') }}
-      </div>
-      <BaseSelect v-if='preferences.font' :allow-selection='editingPreferences' :selecting='choosingFont' style='width: 200px;' @toggle='choosingFont= !choosingFont'>
-        <template #default>{{ preferences.font }}</template>
-        <template #list-items>
-          <li v-for='(font, index) in fonts' :key='index' class='font-item' @click.stop='updateFont(font)'>
-            <link :href="`https://fonts.googleapis.com/css2?family=${googleFontsName(font)}`" rel="stylesheet" crossorigin/>
-            <span :style="`font-family: '${font}';`">{{font}}</span>
-          </li>
-        </template>
-      </BaseSelect>
-
     </div>
     <q-separator color='accent'/>
     <div class='section'>
@@ -266,11 +253,11 @@ import { createMetaMixin } from 'quasar'
 
 const metaData = {
   // sets document title
-  title: 'astral - settings',
+  title: 'hamstr - settings',
 
   // meta tags
   meta: {
-    description: { name: 'description', content: 'Nostr and astral user configuration' },
+    description: { name: 'description', content: 'Nostr and hamstr user configuration' },
     keywords: { name: 'keywords', content: 'nostr decentralized social media' },
     equiv: { 'http-equiv': 'Content-Type', content: 'text/html; charset=UTF-8' },
   },
@@ -512,7 +499,6 @@ export default {
       this.editingRelays = false
     },
     savePreferences() {
-      // this.loadFont(this.preferences.font)
       let config = LocalStorage.getItem('config') || {}
       config.preferences = this.preferences
       LocalStorage.set('config', config)
@@ -525,14 +511,6 @@ export default {
     },
     updateTheme(theme) {
       for (let colorName of Object.keys(theme)) this.updateColor(theme[colorName], colorName)
-    },
-    updateFont(font) {
-      // this.loadFont(font)
-      // await fetch(`https://fonts.googleapis.com/css2?family=${this.googleFontsName(font)}`)
-      // setCssVar('font', font)
-      this.preferences.font = font
-      this.$emit('update-font', font)
-          // <link :href="`https://fonts.googleapis.com/css2?family=${googleFontsName(preferences.font)}`" rel="stylesheet" crossorigin/>
     },
     cancel(section) {
       if (section === 'metadata') {
@@ -549,7 +527,6 @@ export default {
         this.editingPreferences = false
         this.clonePreferences()
         for (let [colorName, color] of Object.entries(this.preferences.color)) this.updateColor(color, colorName)
-        this.updateFont(this.preferences.font)
         return
       }
     },

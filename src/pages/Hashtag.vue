@@ -17,7 +17,7 @@ export default defineComponent({
   mixins: [helpersMixin, createMetaMixin(() => {
     return {
       // sets document title
-      title: `astral - #${window.location.pathname.split('/')[2]}`,
+      title: `hamstr - #${window.location.pathname.split('/')[2]}`,
 
       // meta tags
       meta: {

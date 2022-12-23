@@ -1,7 +1,7 @@
 <template>
   <div
-    color='accent'
-    class='post-padding cursor-pointer no-hover flex row no-wrap'
+    color="accent"
+    class="post-padding cursor-pointer no-hover flex row no-wrap"
     clickable
     manual-focus
     :class='(hasReply ? "post-has-reply" : "") +
@@ -15,7 +15,7 @@
       clickable
       avatar
       top
-      class='relative-position'
+      class="relative-position"
     >
       <div v-if="isReply" class="is-reply-connector"></div>
         <BaseUserAvatar

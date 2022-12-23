@@ -49,7 +49,7 @@ export default {
     },
 
     toProfile(pubkey) {
-      this.$router.push('/' + pubkey)
+      this.$router.push('/profile/' + pubkey)
     },
 
     toEvent(id) {

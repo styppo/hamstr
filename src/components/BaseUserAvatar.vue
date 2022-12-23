@@ -1,12 +1,12 @@
 <template>
-  <div :class='(bordered ? "bordered-avatar" : "") + (hoverEffect ? " hovered-avatar" : "")'>
-    <q-avatar :rounded='!round' class='relative-position' :size='size' @click.stop="toProfile(pubkey)">
-      <img :src="$store.getters.avatar(pubkey)" loading='lazy' crossorigin async/>
-      <div :class='alignRight ? "icon-right" : "icon-left"' class='q-pt-xs'>
+  <div :class="(bordered ? 'bordered-avatar' : '') + (hoverEffect ? ' hovered-avatar' : '')">
+    <q-avatar :rounded="!round" class="relative-position" :size="size" @click.stop="toProfile(pubkey)">
+      <img :src="$store.getters.avatar(pubkey)" loading="lazy" crossorigin async />
+      <div :class="alignRight ? 'icon-right' : 'icon-left'" class="q-pt-xs">
         <BaseButtonNIP05
-          v-if='showVerified'
-          :pubkey='pubkey'
-          button-size='xs'
+          v-if="showVerified"
+          :pubkey="pubkey"
+          button-size="xs"
         />
       </div>
     </q-avatar>

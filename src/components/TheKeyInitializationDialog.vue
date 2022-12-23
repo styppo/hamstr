@@ -3,7 +3,7 @@
   <!-- <div v-if="showKeyInitialization"> -->
     <q-card class='relative-position full-width'>
       <q-btn icon='close' size='md' flat round class='absolute-top-right z-top' @click='$emit("look-around")'/>
-      <h1 class="text-h6 q-pr-md">welcome to astral</h1>
+      <h1 class="text-h6 q-pr-md">welcome to hamstr</h1>
       <q-expansion-item
         dense
         expand-icon='help'
@@ -12,7 +12,7 @@
         header-class='items-center'
       >
         <template #header>
-          <span class='full-width'>click here to learn about Nostr, your keys, and how to use astral</span>
+          <span class='full-width'>click here to learn about Nostr, your keys, and how to use hamstr</span>
         </template>
         <BaseInformation/>
         <span style='padding: .2rem 0 0 .2rem;'>note: after login this same information can be found in
@@ -58,7 +58,7 @@
                 extension)
               </p>
               <p v-if="!key && !watchOnly">
-                entering private key means astral will automatically sign with
+                entering private key means hamstr will automatically sign with
                 your private key each time you post content
               </p>
               <p v-if="key && !isKeyValid">not a valid key</p>
@@ -114,7 +114,7 @@
             <q-icon name='info'>
               <q-tooltip>
               the selected relays below will be queried to load your user profile, follows, and relay data from Nostr network.
-              please ensure the list of selected relays includes relays you publish your Nostr data to, otherwise astral may
+              please ensure the list of selected relays includes relays you publish your Nostr data to, otherwise hamstr may
               not be able to find your data.
               </q-tooltip>
             </q-icon>
