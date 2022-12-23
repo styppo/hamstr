@@ -13,6 +13,9 @@
           <span>&#183;</span>
           <span class="created-at">{{ moment(post.createdAt).fromNow() }}</span>
         </p>
+        <p v-if="post.inReplyTo" class="in-reply-to">
+          Replying to <a @click.stop="toEvent(post.inReplyTo)">{{ shorten(post.inReplyTo) }}</a>
+        </p>
       </div>
       <div class="post-content-body">
         <p>
@@ -84,11 +87,15 @@ function countRepliesRecursive(event) {
 
 function postFromEvents(events) {
   const event = events[0]
+  if (event.interpolated.replyEvents.length) {
+    console.log(event.content, event.interpolated.replyEvents)
+  }
   return {
     id: event.id,
     author: event.pubkey,
     createdAt: event.created_at * 1000,
     content: event.content,
+    inReplyTo: event.interpolated.replyEvents[event.interpolated.replyEvents.length - 1],
     images: [],
     stats: {
       comments: countRepliesRecursive(event),
@@ -153,8 +160,22 @@ export default {
     margin-left: 12px;
     flex-grow: 1;
     &-header {
+      .in-reply-to {
+        color: $color-dark-gray;
+        a {
+          color: $color-blue;
+          &:hover {
+            text-decoration: underline;
+          }
+        }
+      }
       p {
-        margin: 0 0 8px;
+        &:first-child {
+          margin: 0;
+        }
+        &:last-child {
+          margin: 0 0 8px;
+        }
         > span {
           color: $color-dark-gray;
           &:first-child {
