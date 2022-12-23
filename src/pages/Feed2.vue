@@ -23,18 +23,20 @@
       <q-icon name="info" color="accent" size="sm"/>
       <div>to chat with the AI bot create a new post and mention it by typing '@gpt3' and selecting the AI bot from the user list</div>
     </div>
-    <BaseButtonLoadMore
-      v-if='unreadFeed[tab].length'
-      :loading-more="loadingUnread"
-      :label="'load ' + unreadFeed[tab].length + ' unread'"
-      @click="loadUnread"
-    />
-    <Post v-for="(item, index) in items" :key="index" :events="item" class="full-width" @add-event="processEvent"/>
-    <BaseButtonLoadMore
-      :loading-more="loadingMore"
-      :label="items.length === feed[tab].length ? 'load another day' : 'load 100 more'"
-      @click="loadMore"
-    />
+    <div class="feed">
+      <BaseButtonLoadMore
+        v-if="unreadFeed[tab].length"
+        :loading="loadingUnread"
+        :label="'load ' + unreadFeed[tab].length + ' unread'"
+        @click="loadUnread"
+      />
+      <Post v-for="item in items" :key="item[0].id" :events="item" class="full-width" @add-event="processEvent"/>
+      <BaseButtonLoadMore
+        :loading="loadingMore"
+        :label="items.length === feed[tab].length ? 'load another day' : 'load 100 more'"
+        @click="loadMore"
+      />
+    </div>
   </q-page>
 </template>
 
@@ -47,6 +49,7 @@ import {dbFeed, dbUserFollows} from '../query'
 import BaseButtonLoadMore from 'components/BaseButtonLoadMore.vue'
 import { createMetaMixin } from 'quasar'
 import Post from 'components/Post/index.vue'
+//import BasePostThread from 'components/BasePostThread.vue'
 
 
     // const debouncedAddToThread = mergebounce(
@@ -76,6 +79,7 @@ export default defineComponent({
   mixins: [helpersMixin, createMetaMixin(metaData)],
 
   components: {
+    //BasePostThread,
     Post,
     BaseButtonLoadMore,
   },
@@ -269,12 +273,24 @@ export default defineComponent({
   }
 })
 </script>
-<style lang='css' scoped>
+<style lang="scss" scoped>
+@import 'assets/theme/colors.scss';
+
 .q-tabs {
-  border-bottom: 1px solid var(--q-accent)
+  border-bottom: $border-dark;
 }
 
 .q-page::-webkit-scrollbar {
   width: 0px;
 }
+
+.feed {
+  .load-more:first-child {
+    border-bottom: $border-dark;
+  }
+  .load-more:last-child {
+    border-bottom: 0;
+  }
+}
+
 </style>

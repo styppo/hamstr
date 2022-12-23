@@ -14,9 +14,7 @@
           <span class="created-at">{{ moment(post.createdAt).fromNow() }}</span>
         </p>
       </div>
-      <div
-        class="post-content-body"
-      >
+      <div class="post-content-body">
         <p>
           <base-markdown :content="post.content" />
         </p>
@@ -71,18 +69,21 @@ function countRepliesRecursive(event) {
   if (!event.replies) {
     return 0
   }
-  let count = event.replies.length
-  for (const reply of event.replies) {
-    count += countRepliesRecursive(reply)
+  let count = 0
+  for (const thread of event.replies) {
+    if (!thread || !Array.isArray(thread)) {
+      continue
+    }
+    count += thread.length
+    for (const reply of thread) {
+      count += countRepliesRecursive(reply)
+    }
   }
   return count
 }
 
 function postFromEvents(events) {
   const event = events[0]
-  if (event.replies.length) {
-    console.log(event)
-  }
   return {
     id: event.id,
     author: event.pubkey,
@@ -149,22 +150,22 @@ export default {
     }
   }
   &-content {
-    margin-left: 10px;
+    margin-left: 12px;
     flex-grow: 1;
     &-header {
       p {
-        margin: 8px 0;
-        font-weight: bold;
-        color: #fff;
+        margin: 0 0 8px;
         > span {
           color: $color-dark-gray;
+          &:first-child {
+            color: #fff;
+          }
           & + span {
             margin-left: 8px;
           }
           &.nip05 {
           }
           &.created-at {
-            font-weight: normal;
           }
         }
       }
@@ -197,6 +198,7 @@ export default {
       justify-content: space-between;
       max-width: 450px;
       width: 100%;
+      margin-left: -9px;
       .action-item {
         display: flex;
         align-items: center;

@@ -1,33 +1,15 @@
 <template>
-  <div>
-    <!-- <q-separator color='accent'/> -->
-    <q-btn-group
-    spread
-    dense
-    outline
-    rounded
-    text-color="accent"
-    >
-      <q-btn
-        dense
-        :loading='loadingMore'
-        outline
-        rounded
-        color="accent"
-        class='text-weight-light q-ma-sm'
-        style='letter-spacing: .1rem;'
-        :label='reachedEnd ? "reached end" : label'
-        :disable='reachedEnd'
-        @click="$emit('click')"
-      >
-        <template #loading>
-          <div class='row justify-center'>
-            <q-spinner-orbit color="accent" size='sm' />
-          </div>
-        </template>
-      </q-btn>
-    </q-btn-group>
-    <!-- <q-separator color='accent'/> -->
+  <div class="load-more">
+    <q-btn
+      flat
+      size="md"
+      :loading="loading"
+      color="accent"
+      style="letter-spacing: .1rem;"
+      :label="reachedEnd ? 'reached end' : label"
+      :disable="reachedEnd"
+      @click="$emit('click')"
+    />
   </div>
 </template>
 
@@ -38,7 +20,7 @@ export default defineComponent({
   name: 'BaseButtonLoadMore',
   emits: ['click'],
   props: {
-    loadingMore: {
+    loading: {
       type: Boolean,
       required: true
     },
@@ -54,8 +36,8 @@ export default defineComponent({
 })
 </script>
 
-<style lang='css' scoped>
-.q-btn-group {
-  background: var(--q-background);
+<style lang="scss">
+.load-more button {
+  width: 100%;
 }
 </style>

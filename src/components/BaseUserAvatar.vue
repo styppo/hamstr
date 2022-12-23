@@ -1,7 +1,17 @@
 <template>
   <div :class="(bordered ? 'bordered-avatar' : '') + (hoverEffect ? ' hovered-avatar' : '')">
-    <q-avatar :rounded="!round" class="relative-position" :size="size" @click.stop="toProfile(pubkey)">
-      <img :src="$store.getters.avatar(pubkey)" loading="lazy" crossorigin async />
+    <q-avatar
+      :rounded="!round"
+      :size="size"
+      @click.stop="toProfile(pubkey)"
+      class="relative-position"
+    >
+      <img
+        :src="$store.getters.avatar(pubkey)"
+        loading="lazy"
+        crossorigin
+        @error.once="setDefaultAvatar"
+      />
       <div :class="alignRight ? 'icon-right' : 'icon-left'" class="q-pt-xs">
         <BaseButtonNIP05
           v-if="showVerified"
@@ -16,6 +26,7 @@
 <script>
 import helpersMixin from '../utils/mixin'
 import BaseButtonNIP05 from 'components/BaseButtonNIP05.vue'
+import Identicon from 'identicon.js'
 
 export default {
   mixins: [helpersMixin],
@@ -31,6 +42,11 @@ export default {
     showVerified: {type: Boolean, default: false},
     hoverEffect: {type: Boolean, default: false},
   },
+  methods: {
+    setDefaultAvatar(event) {
+      event.target.src = 'data:image/png;base64,' + new Identicon(this.pubkey, 40).toString()
+    }
+  }
 }
 </script>
 
