@@ -1,10 +1,8 @@
 <template>
   <q-page>
     <div>
-      <BaseHeader :separator="false">{{ $t('feed') }}</BaseHeader>
-      <!-- <div class="text-h5 text-bold q-py-md q-px-sm full-width flex row justify-start">
-        {{ $t('feed') }}
-      </div> -->
+      <PageHeader />
+
       <q-tabs
         v-model="tab"
         dense
@@ -48,8 +46,8 @@ import {isValidEvent} from '../utils/event'
 import {dbFeed, dbUserFollows} from '../query'
 import BaseButtonLoadMore from 'components/BaseButtonLoadMore.vue'
 import { createMetaMixin } from 'quasar'
+import PageHeader from 'components/PageHeader.vue'
 import Post from 'components/Post/index.vue'
-//import BasePostThread from 'components/BasePostThread.vue'
 
 
     // const debouncedAddToThread = mergebounce(
@@ -79,7 +77,7 @@ export default defineComponent({
   mixins: [helpersMixin, createMetaMixin(metaData)],
 
   components: {
-    //BasePostThread,
+    PageHeader,
     Post,
     BaseButtonLoadMore,
   },
@@ -273,7 +271,7 @@ export default defineComponent({
   }
 })
 </script>
-<style lang="scss" scoped>
+<style lang="scss">
 @import 'assets/theme/colors.scss';
 
 .q-tabs {
@@ -284,11 +282,20 @@ export default defineComponent({
   width: 0px;
 }
 
+.q-tab {
+  padding: 0 1rem;
+}
+
 .feed {
-  .load-more:first-child {
+  > .load-more {
+    button {
+      padding: 1rem 0;
+    }
+  }
+  > .load-more:first-child {
     border-bottom: $border-dark;
   }
-  .load-more:last-child {
+  > .load-more:last-child {
     border-bottom: 0;
   }
 }

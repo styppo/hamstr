@@ -1,6 +1,7 @@
 <template>
   <q-page>
-    <BaseHeader>{{ $t('notifications') }}</BaseHeader>
+    <page-header :title="$t('notifications')" />
+
     <q-infinite-scroll
       :disable="reachedEnd"
       @load="loadMore"

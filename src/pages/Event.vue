@@ -1,7 +1,8 @@
 <template>
 
   <q-page ref='page'>
-    <BaseHeader>{{ $t('thread') }}</BaseHeader>
+    <PageHeader :title="$t('thread')" back-button />
+
     <div ref='ancestors' v-if="ancestorsCompiled.length || rootAncestor">
       <BasePostThread :events="ancestorsCompiled" is-ancestors @add-event='addEventAncestors'/>
     </div>
@@ -38,6 +39,7 @@ import {dbStreamEvent, dbStreamTagKind} from '../query'
 import helpersMixin from '../utils/mixin'
 import {addToThread} from '../utils/threads'
 import BaseRelayList from 'components/BaseRelayList.vue'
+import PageHeader from 'components/PageHeader.vue'
 import { createMetaMixin } from 'quasar'
 
 const metaData = {
@@ -57,6 +59,7 @@ export default defineComponent({
   emits: ['scroll-to-rect'],
   mixins: [helpersMixin, createMetaMixin(metaData)],
   components: {
+    PageHeader,
     BaseRelayList
   },
 

@@ -1,6 +1,6 @@
 <template>
   <q-page>
-    <BaseHeader>{{ $t('devTools') }}</BaseHeader>
+    <PageHeader :title="$t('devTools')" />
     <div class='q-py-md q-px-sm'>
       <div class="text-bold">sql query</div>
 

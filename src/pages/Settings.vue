@@ -1,6 +1,7 @@
 <template>
   <q-page id='settings-page' @click='closeSelects'>
-    <BaseHeader>{{ $t('settings') }}</BaseHeader>
+    <PageHeader :title="$t('settings')" />
+
     <q-form class="q-gutter-md section" @submit="setMetadata">
       <div v-if='editingMetadata' class='flex justify-between' style='display: flex; gap: .2rem;'>
         <q-btn label="save" color="primary" outline size="sm" type="submit"/>

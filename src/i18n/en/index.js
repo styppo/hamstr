@@ -69,14 +69,14 @@ export default {
   searchPosts: 'search posts',
 
   // pages
-  feed: 'feed',
-  notifications: 'notifications',
-  messages: 'messages',
-  inbox: 'inbox',
-  settings: 'settings',
-  thread: 'thread',
-  event: 'event',
-  devTools: 'dev tools',
+  feed: 'Feed',
+  notifications: 'Notifications',
+  messages: 'Messages',
+  inbox: 'Inbox',
+  settings: 'Settings',
+  thread: 'Thread',
+  event: 'Event',
+  devTools: 'Dev Tools',
   notFound: 'Oops. Nothing here...',
 
   // sections

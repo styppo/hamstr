@@ -1,7 +1,7 @@
 <template>
   <q-page>
     <div>
-      <BaseHeader :separator='false'>{{ $t('feed') }}</BaseHeader>
+      <PageHeader :title="$t('feed')" />
       <!-- <div class="text-h5 text-bold q-py-md q-px-sm full-width flex row justify-start">
         {{ $t('feed') }}
       </div> -->

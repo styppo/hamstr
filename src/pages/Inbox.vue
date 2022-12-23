@@ -1,6 +1,6 @@
 <template>
   <q-page>
-    <BaseHeader>{{ $t('inbox') }}</BaseHeader>
+    <PageHeader :title="$t('inbox')" />
 
     <q-list class='q-py-sm q-pr-sm q-gutter-sm'>
       <div v-if="loading" class='flex row justify-center items-start q-my-md'>

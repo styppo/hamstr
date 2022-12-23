@@ -7,15 +7,7 @@
     <div class="layout">
       <div class="layout-menu">
         <div class="layout-menu-fixed">
-          <main-menu />.
-<!--          <TheUserMenu-->
-<!--            :item-mode="$q.screen.width < 1023"-->
-<!--            :show-compact-mode-items="$q.screen.width < 700"-->
-<!--            :posting="postEntryOpen"-->
-<!--            @toggle-post-entry="togglePostEntry"-->
-<!--            @scroll-to-rect="scrollToRect"-->
-<!--            @set-user="lookingAround=false"-->
-<!--          />-->
+          <main-menu />
         </div>
       </div>
 
@@ -347,8 +339,8 @@ export default defineComponent({
 </script>
 
 <style lang='scss'>
-@import '../assets/theme/colors.scss';
-@import '../assets/variables.scss';
+@import 'assets/theme/colors.scss';
+@import 'assets/variables.scss';
 
 .layout {
   min-height: 100%;
@@ -371,43 +363,6 @@ export default defineComponent({
     width: 100%;
     max-width: 660px;
     min-height: 100vh;
-    .page-header {
-      border-bottom: $border-dark;
-      padding: .5rem;
-      color: #fff;
-      display: flex;
-      align-items: center;
-      h2 {
-        margin: 1rem 0;
-      }
-      .back-button {
-        width: 2.5rem;
-        height: 2.5rem;
-        margin-right: 20px;
-        padding: 6px;
-        border-radius: 999px;
-        cursor: pointer;
-        &:hover {
-          background-color: rgba($color: $color-blue, $alpha: 0.3);
-        }
-        svg {
-          width: 100%;
-          height: 100%;
-          transform: translateX(-3px);
-          fill: $color-blue;
-        }
-      }
-      .profile-info {
-        h2 {
-          margin: 0;
-          margin-bottom: 3px;
-        }
-        span {
-          color: $color-dark-gray;
-          font-size: 12px;
-        }
-      }
-    }
   }
   &-sidebar {
     width: 100%;
@@ -424,6 +379,57 @@ export default defineComponent({
     display: none;
   }
 }
+
+@media screen and (max-width: $phone) {
+  .layout-menu-fixed-container{
+    background-color: $color-bg;
+    transform: translateX(-100%);
+    box-shadow: $shadow-white;
+    transition: 200ms ease;
+    padding-left: 20px;
+    &.active {
+      transform: translateX(0%);
+      z-index: 666;
+    }
+  }
+  .layout-sidebar {
+    &-fixed {
+      display: none;
+    }
+  }
+
+  .layout {
+    &-sidebar {
+      display: none;
+      max-width: unset;
+    }
+    &-menu {
+      max-width: 300px;
+      width: unset;
+    }
+    .mobile-menu-toggler {
+      position: fixed;
+      bottom: 1rem;
+      left: 1rem;
+      width: 3rem;
+      height: 3rem;
+      padding: 8px;
+      border-radius: 999px;
+      background-color: $color-blue;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 555;
+      svg {
+        width: 100%;
+        height: 100%;
+        fill: #fff;
+      }
+    }
+  }
+}
+
+// >>>> OLD CSS
 
 //body {
 //  display: block;

@@ -1,6 +1,6 @@
 <template>
   <q-page>
-    <BaseHeader>{{ '#' + this.$route.params.hashtagId }}</BaseHeader>
+    <PageHeader :title="'#' + this.$route.params.hashtagId" />
     <BasePostThread v-for="thread in threads" :key="thread[0].id" :events="thread" @add-event='processEvent'/>
   </q-page>
 </template>
