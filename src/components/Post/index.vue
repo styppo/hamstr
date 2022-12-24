@@ -159,6 +159,7 @@ export default {
   &-content {
     margin-left: 12px;
     flex-grow: 1;
+    max-width: 570px;
     &-header {
       .in-reply-to {
         color: $color-dark-gray;

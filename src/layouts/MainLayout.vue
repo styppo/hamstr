@@ -42,7 +42,8 @@
 
       <div class="layout-sidebar">
         <div class="layout-sidebar-fixed">
-          <TheSearchMenu/>
+          <search-box />
+          <trends />
         </div>
       </div>
     </div>
@@ -90,16 +91,18 @@ const { getVerticalScrollPosition, setVerticalScrollPosition} = scroll
 import { activateSub, deactivateSub, destroyStreams } from '../query'
 import MainMenu from 'components/MainMenu/index.vue'
 import TheUserMenu from 'components/TheUserMenu.vue'
-import TheSearchMenu from 'components/TheSearchMenu.vue'
 import TheKeyInitializationDialog from 'components/TheKeyInitializationDialog.vue'
+import SearchBox from 'components/SearchBox/index.vue'
+import Trends from 'components/Trends/index.vue'
 import { setCssVar, getCssVar } from 'quasar'
 
 export default defineComponent({
   name: 'MainLayout',
   components: {
     MainMenu,
+    SearchBox,
+    Trends,
     TheUserMenu,
-    TheSearchMenu,
     TheKeyInitializationDialog,
   },
 
@@ -338,7 +341,7 @@ export default defineComponent({
 
 </script>
 
-<style lang='scss'>
+<style lang="scss">
 @import 'assets/theme/colors.scss';
 @import 'assets/variables.scss';
 

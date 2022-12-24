@@ -287,21 +287,21 @@ export default {
       return false
     },
 
-    isBeck32Key(key) {
+    isBech32Key(key) {
       if (typeof key !== 'string') return false
       try {
         let { prefix } = decode(key.toLowerCase())
         if (!['npub', 'nsec'].includes(prefix)) return false
         if (prefix === 'npub') this.watchOnly = true
         if (prefix === 'nsec') this.watchOnly = false
-        if (!this.isKey(this.beck32ToHex(key))) return false
+        if (!this.isKey(this.bech32ToHex(key))) return false
       } catch (error) {
         return false
       }
       return true
     },
 
-    beck32ToHex(key) {
+    bech32ToHex(key) {
       let { data } = decode(key.toLowerCase())
       return data.reduce((s, byte) => {
         let hex = byte.toString(16)

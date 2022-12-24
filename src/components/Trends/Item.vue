@@ -1,7 +1,7 @@
 <template>
   <div class="trends-item">
     <h3>{{ data.name }}</h3>
-    <span>{{ normalizedTweetCount }} Tweets</span>
+    <span>{{ nicePostCount }} posts</span>
   </div>
 </template>
 
@@ -15,10 +15,10 @@ export default {
     }
   },
   computed: {
-    normalizedTweetCount(){
-      const stringNumber = this.data.tweetsCount.toString();
-      if(stringNumber.length > 4){
-        return stringNumber.substring(0, stringNumber.length - 3) + "K"
+    nicePostCount() {
+      const stringNumber = this.data.postCount.toString()
+      if (stringNumber.length > 4) {
+        return stringNumber.substring(0, stringNumber.length - 3) + 'K'
       }
       return stringNumber
     }
@@ -27,15 +27,16 @@ export default {
 </script>
 
 <style lang="scss">
-@import '@/assets/theme/colors.scss';
-.trends-item{
+@import 'assets/theme/colors.scss';
+
+.trends-item {
   padding: 1rem;
   border-top: $border-dark;
-  h3{
+  h3 {
     margin: 0;
     color: #fff;
   }
-  span{
+  span {
     color: $color-dark-gray;
   }
 }

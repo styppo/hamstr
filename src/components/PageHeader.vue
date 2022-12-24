@@ -54,10 +54,6 @@ export default defineComponent({
   display: flex;
   align-items: center;
   h2 {
-    font-size: 1.5em;
-    font-weight: bold;
-    line-height: unset;
-    letter-spacing: unset;
     margin: .5rem 0;
   }
   .back-button {

@@ -19,58 +19,50 @@
 </template>
 
 <script>
-import TrendsItem from '@/components/Trends/Item'
-import { getTrends } from '@/services/api'
+import TrendsItem from 'components/Trends/Item'
 
 export default {
   name: 'Trends',
-  components:{
+  components: {
     TrendsItem,
   },
-  data(){
-    return{
-      trends: []
+  data() {
+    return {
+      trends: [
+        {
+          name: '#nostr',
+          postCount: 58
+        }
+      ]
     }
   },
   computed: {
-    sortedTrends(){
-      const trendsArray = this.trends;
-      trendsArray.sort((a,b) => a.tweetsCount > b.tweetsCount ? -1 : 1, 0)
+    sortedTrends() {
+      const trendsArray = this.trends
+      trendsArray.sort((a, b) => a.postCount > b.postCount ? -1 : 1)
       return trendsArray
-    }
-  },
-  async mounted(){
-    try{
-      const response = await getTrends();
-      const trends = response.data.trends;
-      this.trends = trends;
-    } catch(err){
-      this.$notification({
-        type: 'error',
-        message: 'Error when fetching trends'
-      })
     }
   },
 }
 </script>
 
 <style lang="scss">
-@import '@/assets/theme/colors.scss';
-.trends{
+@import 'assets/theme/colors.scss';
+
+.trends {
   background-color: rgba($color: $color-dark-gray, $alpha: 0.1);
   border-radius: 1rem;
-  &-wrapper{
+  &-wrapper {
   }
-  &-header{
+  &-header {
     padding: 1rem;
-    h3{
+    h3 {
       margin: 0;
       font-size: 1.5rem;
       color: #fff;
     }
   }
-  &-body{
-
+  &-body {
   }
 }
 </style>
