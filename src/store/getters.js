@@ -1,5 +1,3 @@
-import Identicon from 'identicon.js'
-
 export function namedProfiles(state, getters) {
   return Object.entries(state.profilesCache).reduce(
     (result, [pubkey, profile]) =>
@@ -44,7 +42,7 @@ export function NIP05Id(state) {
 export function avatar(state) {
   return pubkey => {
     let {
-      picture = 'data:image/png;base64,' + new Identicon(pubkey, 40).toString()
+      picture = null //'data:image/png;base64,' + new Identicon(pubkey, 40).toString()
     } = state.profilesCache[pubkey] || {}
     return picture
   }

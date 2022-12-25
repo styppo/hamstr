@@ -94,7 +94,7 @@ function postFromEvents(events) {
     id: event.id,
     author: event.pubkey,
     createdAt: event.created_at * 1000,
-    content: event.content,
+    content: event.interpolated.text,
     inReplyTo: event.interpolated.replyEvents[event.interpolated.replyEvents.length - 1],
     images: [],
     stats: {

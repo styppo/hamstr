@@ -1,64 +1,72 @@
 <template>
-  <div :class="(bordered ? 'bordered-avatar' : '') + (hoverEffect ? ' hovered-avatar' : '')">
-    <q-avatar
-      :rounded="!round"
-      :size="size"
-      @click.stop="toProfile(pubkey)"
-      class="relative-position"
-    >
-      <img
-        :src="$store.getters.avatar(pubkey)"
-        loading="lazy"
-        crossorigin
-        @error.once="setDefaultAvatar"
+  <q-avatar
+    :size="size"
+    @click.stop="toProfile(pubkey)"
+    class="relative-position"
+  >
+    <img
+      v-if="hasAvatar(pubkey) && !avatarFetchFailed"
+      :src="avatarUrl(pubkey)"
+      ref="image"
+      loading="lazy"
+      crossorigin
+      @error.once="onFetchFailed"
+    />
+    <identicon
+      v-if="!hasAvatar(pubkey) || avatarFetchFailed"
+      :pubkey="pubkey"
+    />
+    <div :class="alignRight ? 'icon-right' : 'icon-left'" class="q-pt-xs">
+      <BaseButtonNIP05
+        v-if="showVerified"
+        :pubkey="pubkey"
+        button-size="xs"
       />
-      <div :class="alignRight ? 'icon-right' : 'icon-left'" class="q-pt-xs">
-        <BaseButtonNIP05
-          v-if="showVerified"
-          :pubkey="pubkey"
-          button-size="xs"
-        />
-      </div>
-    </q-avatar>
-  </div>
+    </div>
+  </q-avatar>
 </template>
 
 <script>
 import helpersMixin from '../utils/mixin'
 import BaseButtonNIP05 from 'components/BaseButtonNIP05.vue'
-import Identicon from 'identicon.js'
+import Identicon from 'components/Identicon.vue'
 
 export default {
   mixins: [helpersMixin],
   components: {
     BaseButtonNIP05,
+    Identicon,
   },
   props: {
     pubkey: {type: String, required: true},
     alignRight: {type: Boolean, default: false},
     size: {type: String, default: ''},
-    round: {type: Boolean, default: false},
-    bordered: {type: Boolean, default: false},
     showVerified: {type: Boolean, default: false},
     hoverEffect: {type: Boolean, default: false},
   },
-  methods: {
-    setDefaultAvatar(event) {
-      event.target.src = 'data:image/png;base64,' + new Identicon(this.pubkey, 40).toString()
+  data() {
+    return {
+      avatarFetchFailed: false,
     }
+  },
+  methods: {
+    hasAvatar(pubkey) {
+      return !!this.avatarUrl(pubkey)
+    },
+    avatarUrl(pubkey) {
+      return this.$store.getters.avatar(pubkey)
+    },
+    onFetchFailed(event) {
+      this.avatarFetchFailed = true
+    }
+  },
+  mounted() {
+    //console.log(this.$refs.image)
   }
 }
 </script>
 
-<style lang='css' scoped>
-.bordered-avatar .q-avatar img {
-  border: 2px solid var(--q-accent);
-  background: var(--q-background);
-  z-index: 1;
-}
-.hovered-avatar .q-avatar:hover {
-  transform: scale(1.5) translateX(.25rem);
-}
+<style lang="scss" scoped>
 .icon-right {
   position: absolute;
   top: -.4rem;

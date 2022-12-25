@@ -432,45 +432,6 @@ export default defineComponent({
   }
 }
 
-// >>>> OLD CSS
-
-//body {
-//  display: block;
-//  height: 100vh;
-//  overflow: auto;
-//}
-
-//#layout-container {
-//  display: flex;
-//  justify-content: center;
-//  width: 100%;
-//  position: relative;
-//  flex-wrap: nowrap;
-//  background: var(--q-background);
-//}
-
-
-#left-drawer, #right-drawer {
-  display: none;
-  transition: all 1s linear;
-  margin: .5rem;
-}
-
-#middle-page {
-  width: 700px;
-  max-width: 100%;
-  height: auto;
-  padding-bottom: 2rem;
-  border-right: 1px solid var(--q-accent);
-  border-left: 1px solid var(--q-accent);
-  display: flex;
-  flex-direction: column;
-}
-
-#middle-page .q-page-container {
-}
-
-
 #post-entry {
   border-top: 1px solid var(--q-accent);
 }

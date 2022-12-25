@@ -1,280 +1,301 @@
 <template>
-  <q-item unelevated class='q-pa-none post-entry-form flex coloumn' ref='postEntry' @click.stop @mouseup.stop @keypress.enter.stop @keydown.stop @keyup.stop>
+  <div class="create-post">
+    <div class="create-post-avatar">
+      <BaseUserAvatar :pubkey="$store.state.keys.pub" />
+    </div>
 
-    <div
-      v-if='replyMode === "quote" || replyMode === "repost"'
-      class='reposts flex column q-px-sm q-py-xs'
-      :class='replyMode === "quote" ? "q-mb-sm" : ""'
-      :clickable='false'
-    >
-      <BasePost
-        :event='event'
-        :clickable='false'
-        :is-embeded='true'
-        :reply-depth='-1'
-      />
-    </div>
-    <div
-      v-if='messageMode === "reply" && event'
-      :clickable='false'
-      class='embeded-message q-px-sm q-py-xs'
-    >
-      <div class='relative-position'>
-        <q-btn icon="close" flat dense @click.stop='$emit("clear-event")' size='xs' class='absolute-top-right z-top'/>
-      </div>
-      <BaseMessage
-        v-if='event'
-        :event='event'
-        :clickable='false'
-        :is-embeded='true'
-      />
-    </div>
-    <div
-      v-show='replyMode !== "repost"'
-      class='relative-position full-width'
-      style='gap: 5px;'
+    <q-item
+      unelevated
+      class="create-post-content q-pa-none post-entry-form flex coloumn"
+      ref="postEntry"
       @click.stop
+      @mouseup.stop
+      @keypress.enter.stop
+      @keydown.stop
+      @keyup.stop
     >
-      <q-list id='tribute-wrapper' class='overflow-auto flex row z-top' style='max-height: 70vh' @click.stop='focusInput'>
-      </q-list>
-      <div class="input-area">
-        <BaseUserAvatar :pubkey='$store.state.keys.pub' class='avatar-image' />
-        <span id="input-placeholder"> {{ placeholderText }}</span>
-        <div v-show='!longForm' id="input-readonly-highlight" contenteditable="true" spellcheck="false"></div>
-        <div
-          id="input-editable"
-          :contenteditable="!sending && !mentionsUpdating"
-          :style='mentionsUpdating ? "opacity: .7;" : ""'
-          @input='updateText'
-          @keypress.delete='updateText'
-          @focus='textareaFocus'
-          @blur='textareaBlur'
-          @keypress.ctrl.enter="send"
-          @click.stop='updateText'
-          @touchstart.stop
-          @mousedown.stop
-        >
+      <div
+        v-if="replyMode === 'quote' || replyMode === 'repost'"
+        class="reposts flex column q-px-sm q-py-xs"
+        :class="replyMode === 'quote' ? 'q-mb-sm' : ''"
+        :clickable="false"
+      >
+        <BasePost
+          :event="event"
+          :clickable="false"
+          :is-embeded="true"
+          :reply-depth="-1"
+        />
+      </div>
+
+      <div
+        v-if="messageMode === 'reply' && event"
+        :clickable="false"
+        class="embeded-message q-px-sm q-py-xs"
+      >
+        <div class="relative-position">
+          <q-btn icon="close" flat dense @click.stop="$emit('clear-event')" size="xs" class="absolute-top-right z-top"/>
         </div>
-        <div id="input-readonly" contenteditable="true" spellcheck="false"></div>
-        <div v-if='mentionsUpdating' class='absolute-top full-width row justify-center q-my-md'>
-          <q-spinner-orbit color="accent" size='md'/>
+        <BaseMessage
+          v-if="event"
+          :event="event"
+          :clickable="false"
+          :is-embeded="true"
+        />
+      </div>
+
+      <div
+        v-show="replyMode !== 'repost'"
+        class="relative-position full-width"
+        style="gap: 5px;"
+        @click.stop
+      >
+        <q-list
+          id="tribute-wrapper"
+          class="overflow-auto flex row z-top"
+          style="max-height: 70vh"
+          @click.stop="focusInput"
+        />
+        <div class="input-area">
+          <span id="input-placeholder"> {{ placeholderText }}</span>
+          <div v-show='!longForm' id="input-readonly-highlight" contenteditable="true" spellcheck="false"></div>
+          <div
+            id="input-editable"
+            :contenteditable="!sending && !mentionsUpdating"
+            :style='mentionsUpdating ? "opacity: .7;" : ""'
+            @input='updateText'
+            @keypress.delete='updateText'
+            @focus='textareaFocus'
+            @blur='textareaBlur'
+            @keypress.ctrl.enter="send"
+            @click.stop='updateText'
+            @touchstart.stop
+            @mousedown.stop
+          >
+          </div>
+          <div id="input-readonly" contenteditable="true" spellcheck="false"></div>
+          <div v-if='mentionsUpdating' class='absolute-top full-width row justify-center q-my-md'>
+            <q-spinner-orbit color="accent" size='md'/>
+          </div>
         </div>
       </div>
-    </div>
-    <div style='font-size: .9rem;'>
-      <div v-if='links.length' class='q-pl-xs'>
-        <div class='text-secondary'>links added</div>
-        <ul dense style='font-size: .8rem; font-weight: 300;'>
-          <li v-for='(link, index) in links' :key='index' class='flex row justify-between no-wrap' dense>
-            <div class='col-11' style='overflow-x: auto'>
-            <strong>{{ linkName(link) }}</strong>
-            <span>{{ link.url }}</span>
-            </div>
-            <q-btn icon="remove_circle" clickable @click.stop='removeLink(index)' flat color="negative" size='xs' class='no-padding'/>
-          </li>
-        </ul>
+
+      <div style='font-size: .9rem;'>
+        <div v-if='links.length' class='q-pl-xs'>
+          <div class='text-secondary'>links added</div>
+          <ul dense style='font-size: .8rem; font-weight: 300;'>
+            <li v-for='(link, index) in links' :key='index' class='flex row justify-between no-wrap' dense>
+              <div class='col-11' style='overflow-x: auto'>
+              <strong>{{ linkName(link) }}</strong>
+              <span>{{ link.url }}</span>
+              </div>
+              <q-btn icon="remove_circle" clickable @click.stop='removeLink(index)' flat color="negative" size='xs' class='no-padding'/>
+            </li>
+          </ul>
+        </div>
       </div>
-    </div>
-    <div class='flex justify-between' :class='toolSelected ? "column" : "row"' @click.stop>
-      <div class='flex row justify-between'>
-        <q-btn-toggle
-          v-show='replyMode !== "repost"'
-          v-model='toolSelected'
-          class='flex'
-          dense
-          unelevated
-          toggle-color=''
-          toggle-text-color='accent'
-          :class='toolSelected ? "column" : "row"'
-          :options="[
-            {value: 'emoji', slot: 'emoji'},
-            {value: 'link', slot: 'link'},
-            {value: 'help', slot: 'help'},
+
+      <div class='flex justify-between' :class='toolSelected ? "column" : "row"' @click.stop>
+        <div class='flex row justify-between'>
+          <q-btn-toggle
+            v-show='replyMode !== "repost"'
+            v-model='toolSelected'
+            class='flex'
+            dense
+            unelevated
+            toggle-color=''
+            toggle-text-color='accent'
+            :class='toolSelected ? "column" : "row"'
+            :options="[
+              {value: 'emoji', slot: 'emoji'},
+              {value: 'link', slot: 'link'},
+              {value: 'help', slot: 'help'},
+              ]"
+          >
+            <template #emoji>
+              <q-btn
+                unelevated
+                class='no-padding button-emoji'
+                dense
+                size='sm'
+                @click.stop='toggleTool("emoji")'
+              >
+                <q-icon>
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24"><path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0m0 22C6.486 22 2 17.514 2 12S6.486 2 12 2s10 4.486 10 10-4.486 10-10 10"/><path d="M8 7a2 2 0 1 0-.001 3.999A2 2 0 0 0 8 7M16 7a2 2 0 1 0-.001 3.999A2 2 0 0 0 16 7M15.232 15c-.693 1.195-1.87 2-3.349 2-1.477 0-2.655-.805-3.347-2H15m3-2H6a6 6 0 1 0 12 0"/></svg>
+                </q-icon>
+                <q-tooltip>
+                  add emoji
+                </q-tooltip>
+              </q-btn>
+            </template>
+            <template #link>
+              <q-btn
+                unelevated
+                class='no-padding button-link'
+                dense
+                size='sm'
+                @click.stop='toggleTool("link")'
+              >
+                <q-icon name='add_link' size='sm'/>
+                <!-- </q-icon> -->
+                <q-tooltip>
+                  add link
+                </q-tooltip>
+              </q-btn>
+            </template>
+            <template #help>
+              <q-btn
+                unelevated
+                class='no-padding button-link'
+                dense
+                size='sm'
+                @click.stop='toggleTool("help")'
+              >
+                <q-icon name='help' size='xs'/>
+                <!-- </q-icon> -->
+                <q-tooltip>
+                  how to mention users and posts
+                </q-tooltip>
+              </q-btn>
+            </template>
+            <!-- <template #image>
+              <q-btn
+                unelevated
+                class='no-padding button-image'
+                dense
+                flat
+                size='sm'
+                icon='image'
+                @click.stop='toggleTool("image")'
+              />
+            </template> -->
+          </q-btn-toggle>
+          <q-item v-if='toolSelected' class='col toolbox no-padding' ref='toolbox'>
+            <q-separator vertical color='accent' size='1px'/>
+            <q-tab-panels
+              v-model="toolSelected"
+              class='no-padding full-width'
+            >
+              <q-tab-panel name="emoji" class='no-padding' @click.stop>
+                <BaseEmojiPicker
+                  @emoji-selected='insertEmoji'
+                  :per-line='emojiPerRow'
+                  class='full-width'
+                />
+              </q-tab-panel>
+              <q-tab-panel name="link" class='q-pa-xs' @click.stop>
+                <BaseLinkForm
+                  :links='links'
+                  @link-added='addLink'
+                />
+              </q-tab-panel>
+              <q-tab-panel name="help" class='q-pa-xs' @click.stop>
+                <div>
+                  <span class='text-bold'>{{ "to mention a user: "}}</span>
+                  {{ "type "}}
+                  <code>{{`"@"`}}</code>
+                  {{ " and select user from menu that pops up or paste in "}}
+                  <code>{{`"@<pubkey-id>"`}}</code>
+                </div>
+                <!-- <br> -->
+                <div>
+                  <span class='text-bold'>{{ "to mention a post: "}}</span>
+                  {{ "paste in "}}
+                  <code>{{`"&<event-id>"`}}</code>
+                </div>
+              </q-tab-panel>
+            </q-tab-panels>
+          </q-item>
+        </div>
+        <q-btn-group class='flex items-center' unelevated>
+          <q-btn
+            v-if='toolSelected'
+            icon="close"
+            unelevated
+            class='col button-close'
+            dense
+            @click.stop='closeTools'
+          >
+            <q-tooltip>
+              cancel
+            </q-tooltip>
+          </q-btn>
+
+          <!-- <div v-if='charLeft() <= 0'>
+            <input type="checkbox" id="long-form-checkbox" name="long-form-checkbox">
+            <label for="long-form-checkbox">long form</label>
+          </div> -->
+
+          <!-- <q-checkbox v-if='charLeft() <= 0' v-model="shortLong" label="long form" color="primary" size='xs'/> -->
+          <!-- <q-btn-toggle
+            v-model="shortLong"
+            outline
+            toggle-color="primary"
+            color="white"
+            text-color="primary"
+            :options="[
+              {icon: 'short_text', value: 'short'},
+              {icon: 'article', value: 'long'}
             ]"
-        >
-          <template #emoji>
-            <q-btn
-              unelevated
-              class='no-padding button-emoji'
-              dense
-              size='sm'
-              @click.stop='toggleTool("emoji")'
+          /> -->
+          <div v-if='text && !messageMode' class='char-left-label'>
+            <span v-if='(charLeft() <= 0) && !longForm' class='over-limit'>{{ charLeft() }}</span>
+            <q-circular-progress
+              v-if='charLeft() > 0'
+              :show-value='charLeft() <= 25'
+              :value='((text.length % charLimit) / charLimit) * 100'
+              :size="charLeft() <= 25 ? '1.5rem' : '1.2rem'"
+              font-size='.6rem'
+              :thickness="charLeft() <= 25 ? .2 : .1"
+              :color="charLeft() <= 25 ? 'warning' : 'secondary'"
+              track-color='transparent'
+              class="no-padding"
+              instant-feedback
             >
-              <q-icon>
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24"><path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0m0 22C6.486 22 2 17.514 2 12S6.486 2 12 2s10 4.486 10 10-4.486 10-10 10"/><path d="M8 7a2 2 0 1 0-.001 3.999A2 2 0 0 0 8 7M16 7a2 2 0 1 0-.001 3.999A2 2 0 0 0 16 7M15.232 15c-.693 1.195-1.87 2-3.349 2-1.477 0-2.655-.805-3.347-2H15m3-2H6a6 6 0 1 0 12 0"/></svg>
-              </q-icon>
-              <q-tooltip>
-                add emoji
-              </q-tooltip>
-            </q-btn>
-          </template>
-          <template #link>
-            <q-btn
-              unelevated
-              class='no-padding button-link'
-              dense
-              size='sm'
-              @click.stop='toggleTool("link")'
-            >
-              <q-icon name='add_link' size='sm'/>
-              <!-- </q-icon> -->
-              <q-tooltip>
-                add link
-              </q-tooltip>
-            </q-btn>
-          </template>
-          <template #help>
-            <q-btn
-              unelevated
-              class='no-padding button-link'
-              dense
-              size='sm'
-              @click.stop='toggleTool("help")'
-            >
-              <q-icon name='help' size='xs'/>
-              <!-- </q-icon> -->
-              <q-tooltip>
-                how to mention users and posts
-              </q-tooltip>
-            </q-btn>
-          </template>
-          <!-- <template #image>
-            <q-btn
-              unelevated
-              class='no-padding button-image'
-              dense
-              flat
-              size='sm'
-              icon='image'
-              @click.stop='toggleTool("image")'
-            />
-          </template> -->
-        </q-btn-toggle>
-        <q-item v-if='toolSelected' class='col toolbox no-padding' ref='toolbox'>
-          <q-separator vertical color='accent' size='1px'/>
-          <q-tab-panels
-            v-model="toolSelected"
-            class='no-padding full-width'
+              {{ charLeft() }}
+            </q-circular-progress>
+          </div>
+          <q-btn-toggle
+            v-if='!messageMode && (charLeft() <= 0)'
+            v-model="longForm"
+            unelevated
+            dense
+            toggle-color="primary"
+            style='border: 1px solid var(--q-primary)'
+            text-color="primary"
+            class='q-ml-md'
+            :options="[
+              {value: false, slot: 'short'},
+              {value: true, slot: 'long'}
+            ]"
           >
-            <q-tab-panel name="emoji" class='no-padding' @click.stop>
-              <BaseEmojiPicker
-                @emoji-selected='insertEmoji'
-                :per-line='emojiPerRow'
-                class='full-width'
-              />
-            </q-tab-panel>
-            <q-tab-panel name="link" class='q-pa-xs' @click.stop>
-              <BaseLinkForm
-                :links='links'
-                @link-added='addLink'
-              />
-            </q-tab-panel>
-            <q-tab-panel name="help" class='q-pa-xs' @click.stop>
-              <div>
-                <span class='text-bold'>{{ "to mention a user: "}}</span>
-                {{ "type "}}
-                <code>{{`"@"`}}</code>
-                {{ " and select user from menu that pops up or paste in "}}
-                <code>{{`"@<pubkey-id>"`}}</code>
-              </div>
-              <!-- <br> -->
-              <div>
-                <span class='text-bold'>{{ "to mention a post: "}}</span>
-                {{ "paste in "}}
-                <code>{{`"&<event-id>"`}}</code>
-              </div>
-            </q-tab-panel>
-          </q-tab-panels>
-        </q-item>
+            <template #short>
+              <q-icon name='short_text' size='xs' :style='longForm ? "" : "color: var(--q-background"'/>
+              <q-tooltip>
+                short form post
+              </q-tooltip>
+            </template>
+            <template #long>
+              <q-icon name='format_align_left' size='xs' :style='longForm ? "color: var(--q-background" : ""'/>
+              <q-tooltip>
+                long form post
+              </q-tooltip>
+            </template>
+          </q-btn-toggle>
+          <q-btn
+            flat
+            unelevated
+            color="primary"
+            type="submit"
+            @click.stop='send'
+            :disable='!textValid()'
+          >
+            <q-icon name="send" :style='"transform: translateX(" + sendIconTranslation + "px);"'/>
+          </q-btn>
+        </q-btn-group>
       </div>
-      <q-btn-group class='flex items-center' unelevated>
-        <q-btn
-          v-if='toolSelected'
-          icon="close"
-          unelevated
-          class='col button-close'
-          dense
-          @click.stop='closeTools'
-        >
-          <q-tooltip>
-            cancel
-          </q-tooltip>
-        </q-btn>
-
-        <!-- <div v-if='charLeft() <= 0'>
-          <input type="checkbox" id="long-form-checkbox" name="long-form-checkbox">
-          <label for="long-form-checkbox">long form</label>
-        </div> -->
-
-        <!-- <q-checkbox v-if='charLeft() <= 0' v-model="shortLong" label="long form" color="primary" size='xs'/> -->
-        <!-- <q-btn-toggle
-          v-model="shortLong"
-          outline
-          toggle-color="primary"
-          color="white"
-          text-color="primary"
-          :options="[
-            {icon: 'short_text', value: 'short'},
-            {icon: 'article', value: 'long'}
-          ]"
-        /> -->
-        <div v-if='text && !messageMode' class='char-left-label'>
-          <span v-if='(charLeft() <= 0) && !longForm' class='over-limit'>{{ charLeft() }}</span>
-          <q-circular-progress
-            v-if='charLeft() > 0'
-            :show-value='charLeft() <= 25'
-            :value='((text.length % charLimit) / charLimit) * 100'
-            :size="charLeft() <= 25 ? '1.5rem' : '1.2rem'"
-            font-size='.6rem'
-            :thickness="charLeft() <= 25 ? .2 : .1"
-            :color="charLeft() <= 25 ? 'warning' : 'secondary'"
-            track-color='transparent'
-            class="no-padding"
-            instant-feedback
-          >
-            {{ charLeft() }}
-          </q-circular-progress>
-        </div>
-        <q-btn-toggle
-          v-if='!messageMode && (charLeft() <= 0)'
-          v-model="longForm"
-          unelevated
-          dense
-          toggle-color="primary"
-          style='border: 1px solid var(--q-primary)'
-          text-color="primary"
-          class='q-ml-md'
-          :options="[
-            {value: false, slot: 'short'},
-            {value: true, slot: 'long'}
-          ]"
-        >
-          <template #short>
-            <q-icon name='short_text' size='xs' :style='longForm ? "" : "color: var(--q-background"'/>
-            <q-tooltip>
-              short form post
-            </q-tooltip>
-          </template>
-          <template #long>
-            <q-icon name='format_align_left' size='xs' :style='longForm ? "color: var(--q-background" : ""'/>
-            <q-tooltip>
-              long form post
-            </q-tooltip>
-          </template>
-        </q-btn-toggle>
-        <q-btn
-          flat
-          unelevated
-          color="primary"
-          type="submit"
-          @click.stop='send'
-          :disable='!textValid()'
-        >
-          <q-icon name="send" :style='"transform: translateX(" + sendIconTranslation + "px);"'/>
-        </q-btn>
-      </q-btn-group>
-    </div>
-  </q-item>
+    </q-item>
+  </div>
 </template>
 
 <script>
@@ -393,23 +414,23 @@ export default {
       return 0
     },
     label() {
-      if (this.messageMode === 'reply') return "what's your reply?"
-      else if (this.messageMode) return "what's your message?"
+      if (this.messageMode === 'reply') return "What's your reply?"
+      else if (this.messageMode) return "What's your message?"
       else if (this.replyMode) {
-        if (this.replyMode === 'reply') return "what's your reply?"
-        else if (this.replyMode === 'quote') return "what's your thought?"
+        if (this.replyMode === 'reply') return "What's your reply?"
+        else if (this.replyMode === 'quote') return "What's your thought?"
       }
-      return "what's happening?"
+      return "What's happening?"
     },
     placeholderText() {
       if (this.text.length) return ''
-      else if (this.messageMode === 'reply') return 'reply to message'
-      else if (this.messageMode) return "what's your message?"
+      else if (this.messageMode === 'reply') return 'Reply to message'
+      else if (this.messageMode) return "What's your message?"
       else if (this.replyMode) {
-        if (this.replyMode === 'reply') return "what's your reply?"
-        else if (this.replyMode === 'quote') return "what's your thought on this?"
+        if (this.replyMode === 'reply') return "What's your reply?"
+        else if (this.replyMode === 'quote') return "What's your thought on this?"
       }
-      return "what's happening?"
+      return "What's happening?"
     },
     textareaMentions() {
       return this.mentions()
@@ -972,7 +993,123 @@ export default {
 }
 </script>
 
-<style lang='scss' scoped>
+<style lang="scss" scoped>
+
+@import "assets/theme/colors.scss";
+
+.create-post {
+  padding: 10px 1rem 0;
+  display: flex;
+  width: 100%;
+  border-bottom: $border-dark;
+  &-avatar {
+  }
+  &-content {
+    margin-left: 12px;
+    width: 100%;
+    .tweet-section {
+      width: 100%;
+      textarea {
+        appearance: none;
+        -webkit-appearance: none;
+        display: block;
+        padding: 12px;
+        font-size: 1.5rem;
+        resize: vertical;
+        background-color: transparent;
+        border: none;
+        width: 100%;
+        min-height: 5rem;
+        max-height: 10rem;
+        border-radius: 5px;
+        color: #fff;
+        &:focus {
+          border: none;
+          outline: none;
+        }
+      }
+      &-images {
+        display: flex;
+        padding: 1rem;
+        .image-container {
+          & + .image-container {
+            margin-left: 15px;
+          }
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          position: relative;
+          flex-grow: 1;
+          img {
+            width: 100%;
+          }
+          .close-button {
+            position: absolute;
+            background-color: rgba($color: $color-dark-gray, $alpha: 0.3);
+            top: 0;
+            right: 0;
+            cursor: pointer;
+            margin-top: 10px;
+            margin-right: 10px;
+            width: 2rem;
+            height: 2rem;
+            border-radius: 999px;
+            padding: 7px;
+            svg {
+              width: 100%;
+              height: 100%;
+              fill: #fff;
+            }
+          }
+        }
+      }
+    }
+    .controls {
+      border-top: $border-dark;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 0;
+      &-media {
+        display: flex;
+        gap: 4px;
+        &-item {
+          width: 32px;
+          height: 32px;
+          border-radius: 999px;
+          cursor:pointer;
+          padding: 5px;
+          svg {
+            width: 100%;
+            fill: $color-blue
+          }
+          &:hover {
+            background-color: rgba($color: $color-blue, $alpha: 0.3);
+          }
+        }
+      }
+      &-submit {
+        button {
+          cursor: pointer;
+          background-color: $color-blue;
+          color: #fff;
+          font-weight: bold;
+          padding: 10px 16px;
+          outline: none;
+          border: none;
+          border-radius: 9999px;
+          &:disabled{
+            cursor: no-drop;
+            background-color: rgba($color: $color-blue, $alpha: 0.3);
+            color: rgba($color: #fff, $alpha: 0.3);
+          }
+        }
+      }
+    }
+  }
+}
+
+
 ul, li {
   padding: 0;
   margin: 0;
@@ -981,12 +1118,6 @@ ul, li {
   overflow: visible;
   display: flex;
   flex-direction: column;
-}
-.avatar-image {
-  position: absolute;
-  opacity: .4;
-  pointer-events: none;
-  top: -.2rem;
 }
 
 .char-left-label {
@@ -1019,7 +1150,7 @@ ul, li {
   outline: none;
   border: none;
   display: block;
-  margin: .3rem 0 0;
+  //margin: .3rem 0 0;
 }
 .input-area::-webkit-scrollbar {
   width: 0px;
