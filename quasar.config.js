@@ -194,6 +194,11 @@ module.exports = configure(function (ctx) {
             type: 'image/png',
           },
           {
+            src: 'icons/favicon-64x64.png',
+            sizes: '64x64',
+            type: 'image/png',
+          },
+          {
             src: 'icons/favicon-128x128.png',
             sizes: '128x128',
             type: 'image/png',

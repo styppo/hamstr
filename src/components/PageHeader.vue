@@ -49,12 +49,13 @@ export default defineComponent({
 
 .page-header {
   //border-bottom: $border-dark;
-  padding: .5rem 1rem;
+  margin: 1rem;
   color: #fff;
   display: flex;
   align-items: center;
   h2 {
-    margin: .5rem 0;
+    line-height: 50px;
+    margin: 0;
   }
   .back-button {
     width: 2.5rem;
@@ -64,13 +65,13 @@ export default defineComponent({
     border-radius: 999px;
     cursor: pointer;
     &:hover {
-      background-color: rgba($color: $color-blue, $alpha: 0.3);
+      background-color: rgba($color: $color-primary, $alpha: 0.3);
     }
     svg {
       width: 100%;
       height: 100%;
       transform: translateX(-3px);
-      fill: $color-blue;
+      fill: $color-primary;
     }
   }
   .profile-info {

@@ -5,6 +5,7 @@
     :show-skin-tones="true"
     emoji="thumbsup"
     title=""
+    color="#ee517d"
     @select="onSelect"
   />
 </template>

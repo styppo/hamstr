@@ -3,8 +3,7 @@
     <div class="menu-nav">
       <div class="menu-logo">
         <router-link to="/">
-<!--          <base-icon icon="twitter" />-->
-          <img src="icons/hamstr_3-64x64.png" />
+          <Logo />
         </router-link>
       </div>
       <menu-item
@@ -60,16 +59,18 @@
 </template>
 
 <script>
-import MenuItem from 'components/MainMenu/Item'
+import MenuItem from 'components/MainMenu/MenuItem.vue'
 import { MENU_ITEMS } from 'components/MainMenu/constants.js'
 import BaseIcon from 'components/BaseIcon'
 import ProfilePopup from 'components/MainMenu/ProfilePopup'
+import Logo from 'components/MainMenu/Logo'
 // import MoreMenu from 'components/MainMenu/MoreMenu'
 // import { mapGetters } from 'vuex'
 
 export default {
   name: 'MainMenu',
   components: {
+    Logo,
     MenuItem,
     BaseIcon,
     //MoreMenu,
@@ -116,26 +117,26 @@ menu {
   display: flex;
   flex-direction: column;
   justify-content: space-between;
+  margin: 0;
   .menu {
     &-nav {
       position: relative;
     }
     height: 100%;
     &-logo {
-      width: 50px;
-      height: 50px;
-      padding: 10px;
-      border-radius: 999px;
-      transition: 200ms ease-in-out;
+      margin: 1rem 0;
       svg, img {
         display: block;
-        width: 100%;
-        fill: #fff;
+        width: 50px;
+        height: 50px;
       }
-      &:hover {
-        background-color: rgba($color: $color-blue, $alpha: 0.2);
-        svg{
-          fill: #fff;
+      svg {
+        circle {
+          fill: transparent;
+          transition: fill 200ms ease-in-out;
+        }
+        &:hover circle {
+          fill: rgba($color: $color-primary, $alpha: 0.3);
         }
       }
     }
@@ -144,7 +145,7 @@ menu {
       text-align: center;
       padding: 1rem 0;
       cursor: pointer;
-      background-color: $color-blue;
+      background-color: $color-primary;
       color: #fff;
       font-weight: bold;
       font-size: 1.2rem;
@@ -167,7 +168,7 @@ menu {
       align-items: center;
       padding: 6px;
       border-radius: 999px;
-      background-color: $color-blue;
+      background-color: $color-primary;
       .icon {
         width: 1.2rem;
         height: 1.2rem;

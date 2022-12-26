@@ -79,12 +79,12 @@ a {
     font-weight: bold;
   }
   &:hover {
-    background-color: rgba($color: $color-blue, $alpha: 0.2);
+    background-color: rgba($color: $color-primary, $alpha: 0.2);
     & {
-      color: $color-blue;
+      color: $color-primary;
     }
     svg {
-      fill: $color-blue;
+      fill: $color-primary;
     }
   }
 }
@@ -93,11 +93,11 @@ a {
   .menu-item {
     &-logo {
       svg {
-        fill: $color-blue;
+        fill: $color-primary;
       }
     }
     &-content {
-      color: $color-blue;
+      color: $color-primary;
     }
   }
 }

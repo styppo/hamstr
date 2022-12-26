@@ -119,7 +119,7 @@ export default {
     position: relative;
   }
   &:hover {
-    background-color: rgba($color: $color-blue, $alpha: 0.3);
+    background-color: rgba($color: $color-primary, $alpha: 0.3);
   }
   &-pic {
     width: 3rem;
@@ -183,7 +183,7 @@ export default {
         width: 1.5rem;
         height: 1.5rem;
         svg {
-          fill: $color-blue;
+          fill: $color-primary;
           width: 100%;
         }
       }
@@ -202,7 +202,7 @@ export default {
           padding: 0;
         }
         span {
-          color: $color-blue;
+          color: $color-primary;
         }
       }
     }

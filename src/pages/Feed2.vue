@@ -49,7 +49,7 @@ import {dbFeed, dbUserFollows} from '../query'
 import BaseButtonLoadMore from 'components/BaseButtonLoadMore.vue'
 import { createMetaMixin } from 'quasar'
 import PageHeader from 'components/PageHeader.vue'
-import Post from 'components/Post/index.vue'
+import Post from 'components/Post/Post.vue'
 import PostEditor from 'components/CreatePost/PostEditor.vue'
 
 

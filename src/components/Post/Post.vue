@@ -164,7 +164,7 @@ export default {
       .in-reply-to {
         color: $color-dark-gray;
         a {
-          color: $color-blue;
+          color: $color-primary;
           &:hover {
             text-decoration: underline;
           }

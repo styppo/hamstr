@@ -7,7 +7,7 @@
     <div class="layout">
       <div class="layout-menu">
         <div class="layout-menu-fixed">
-          <main-menu />
+          <MainMenu />
         </div>
       </div>
 
@@ -42,8 +42,8 @@
 
       <div class="layout-sidebar">
         <div class="layout-sidebar-fixed">
-          <search-box />
-          <trends />
+          <SearchBox />
+          <Trends />
         </div>
       </div>
     </div>
@@ -89,10 +89,10 @@ import { defineComponent} from 'vue'
 import { scroll, useQuasar, LocalStorage } from 'quasar'
 const { getVerticalScrollPosition, setVerticalScrollPosition} = scroll
 import { activateSub, deactivateSub, destroyStreams } from '../query'
-import MainMenu from 'components/MainMenu/index.vue'
+import MainMenu from 'components/MainMenu/MainMenu.vue'
 import TheUserMenu from 'components/TheUserMenu.vue'
 import TheKeyInitializationDialog from 'components/TheKeyInitializationDialog.vue'
-import SearchBox from 'components/SearchBox/index.vue'
+import SearchBox from 'components/SearchBox/SearchBox.vue'
 import Trends from 'components/Trends/index.vue'
 import { setCssVar, getCssVar } from 'quasar'
 
@@ -371,7 +371,6 @@ export default defineComponent({
     width: 100%;
     max-width: 330px;
     margin-left: 1rem;
-    margin-top: 1rem;
     &-fixed {
       position: fixed;
       width: 100%;
@@ -418,7 +417,7 @@ export default defineComponent({
       height: 3rem;
       padding: 8px;
       border-radius: 999px;
-      background-color: $color-blue;
+      background-color: $color-primary;
       display: flex;
       align-items: center;
       justify-content: center;

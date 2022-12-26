@@ -159,10 +159,11 @@ export default {
 @import 'assets/theme/colors.scss';
 
 .searchbox {
-  background-color: rgba($color: $color-dark-gray, $alpha: 0.3);
-  padding: 1rem;
+  height: 50px;
+  padding: 12px 1rem;
   border-radius: 999px;
-  margin: 0 0 1rem;
+  margin: 1rem 0;
+  background-color: rgba($color: $color-dark-gray, $alpha: 0.3);
   border: 1px solid rgba($color: $color-dark-gray, $alpha: 0);
   transition: border 150ms ease;
   &-wrapper {
@@ -195,9 +196,9 @@ export default {
     }
   }
   &.focused {
-    border: 1px solid rgba($color: $color-blue, $alpha: 1);
+    border: 1px solid rgba($color: $color-primary, $alpha: 1);
     svg {
-      fill: $color-blue;
+      fill: $color-primary;
     }
   }
 }

@@ -34,9 +34,7 @@
           <div class="controls-media-item">
             <BaseIcon icon="emoji" />
             <q-menu ref="menuEmojiPicker">
-              <EmojiPicker
-                color="#1da1f2"
-                @select="onEmojiSelected"/>
+              <EmojiPicker @select="onEmojiSelected"/>
             </q-menu>
           </div>
 
@@ -112,7 +110,7 @@ export default {
 @import "assets/theme/colors.scss";
 
 .post-editor {
-  padding: 10px 1rem 0;
+  padding: 0 1rem;
   display: flex;
   width: 100%;
   border-bottom: $border-dark;
@@ -195,17 +193,17 @@ export default {
           padding: 5px;
           svg {
             width: 100%;
-            fill: $color-blue
+            fill: $color-primary
           }
           &:hover {
-            background-color: rgba($color: $color-blue, $alpha: 0.3);
+            background-color: rgba($color: $color-primary, $alpha: 0.3);
           }
         }
       }
       &-submit {
         button {
           cursor: pointer;
-          background-color: $color-blue;
+          background-color: $color-primary;
           color: #fff;
           font-weight: bold;
           padding: 10px 16px;
@@ -214,7 +212,7 @@ export default {
           border-radius: 9999px;
           &:disabled{
             cursor: no-drop;
-            background-color: rgba($color: $color-blue, $alpha: 0.3);
+            background-color: rgba($color: $color-primary, $alpha: 0.3);
             color: rgba($color: #fff, $alpha: 0.3);
           }
         }
