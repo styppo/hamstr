@@ -3,7 +3,7 @@
     <div>
       <PageHeader />
 
-      <BasePostEntry />
+      <PostEditor />
 
       <q-tabs
         v-model="tab"
@@ -50,7 +50,7 @@ import BaseButtonLoadMore from 'components/BaseButtonLoadMore.vue'
 import { createMetaMixin } from 'quasar'
 import PageHeader from 'components/PageHeader.vue'
 import Post from 'components/Post/index.vue'
-import BasePostEntry from 'components/BasePostEntry.vue'
+import PostEditor from 'components/CreatePost/PostEditor.vue'
 
 
     // const debouncedAddToThread = mergebounce(
@@ -80,9 +80,9 @@ export default defineComponent({
   mixins: [helpersMixin, createMetaMixin(metaData)],
 
   components: {
-    BasePostEntry,
     PageHeader,
     Post,
+    PostEditor,
     BaseButtonLoadMore,
   },
 

@@ -51,7 +51,7 @@ export default {
 }
 </script>
 
-<style lang='css'>
+<style lang='css' scoped>
 .emoji-mart {
   flex-direction: row;
   background: var(--q-background);
