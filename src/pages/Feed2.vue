@@ -281,6 +281,7 @@ export default defineComponent({
 @import 'assets/theme/colors.scss';
 
 .q-tabs {
+  border-top: $border-dark;
   border-bottom: $border-dark;
 }
 

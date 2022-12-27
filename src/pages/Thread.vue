@@ -20,7 +20,7 @@
         :event="event"
         :highlighted="true"
         :position="ancestors.length ? 'last' : 'standalone'"
-        connector
+        :connector="ancestorsCompiled.length > 0"
         @add-event="processChildEvent"
       />
       <div v-else>

@@ -2,7 +2,7 @@
   <q-avatar
     :size="size"
     @click.stop="toProfile(pubkey)"
-    class="relative-position"
+    class="relative-position cursor-pointer"
   >
     <img
       v-if="hasAvatar(pubkey) && !avatarFetchFailed"

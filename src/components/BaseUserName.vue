@@ -1,20 +1,24 @@
 <template>
   <span
     :class="'username' + (wrap ? ' two-line' : '')"
-    @click.stop="toProfile(pubkey)"
   >
-    <span
-      v-if="$store.getters.name(pubkey)"
-      class="text-bold"
-    >
-      {{ $store.getters.name(pubkey) }}
-      <q-icon v-if="showFollowing && isFollow" name="visibility" color="secondary">
-        <q-tooltip>
-          following
-        </q-tooltip>
-      </q-icon>
-    </span>
-    <span v-else class="text-italic">anonymous</span>
+    <a @click.stop="toProfile(pubkey)">
+      <span
+        v-if="$store.getters.name(pubkey)"
+        class="name"
+      >
+        {{ $store.getters.name(pubkey) }}
+        <q-icon v-if="showFollowing && isFollow" name="visibility" color="secondary">
+          <q-tooltip>
+            following
+          </q-tooltip>
+        </q-icon>
+      </span>
+      <span v-if="wrap || !$store.getters.name(pubkey)" class="pubkey">
+        <span class="pubkey-prefix">npub</span>
+        <span class="pubkey-value">{{ shorten(pubkey) }}</span>
+      </span>
+    </a>
 
     <span v-if="$store.getters.NIP05Id(pubkey)">
       <BaseButtonNIP05 :pubkey="pubkey" />
@@ -66,15 +70,39 @@ export default {
 </script>
 
 <style lang="scss">
+@import "assets/theme/colors.scss";
+
 .username {
   cursor: pointer;
+  .name {
+    font-weight: bold;
+  }
   > span + span {
     margin-left: 8px;
   }
   &.two-line {
     display: block;
-    > span {
+    > a > span {
       display: block;
+      margin-left: 0;
+    }
+    .pubkey:not(:first-child) {
+      color: $color-dark-gray;
+      .pubkey-value {
+        font-weight: normal;
+      }
+    }
+  }
+  .name:hover {
+    text-decoration: underline;
+  }
+  .pubkey {
+    &-prefix {
+      font-size: 0.7em;
+      opacity: .9;
+    }
+    &-value {
+      font-weight: bold;
     }
   }
 }
