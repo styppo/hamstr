@@ -53,7 +53,7 @@ export default {
     },
 
     toEvent(id) {
-      if (!window.getSelection().toString().length) this.$router.push('/event/' + id)
+      if (!window.getSelection().toString().length) this.$router.push('/thread/' + id)
     },
 
     shorten,

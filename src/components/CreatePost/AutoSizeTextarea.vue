@@ -1,5 +1,5 @@
 <template>
-  <textarea v-model="text" :placeholder="placeholder" @input="resize()" ref="textarea"></textarea>
+  <textarea v-model="text" :placeholder="placeholder" @input="resize" @focus="resize" ref="textarea"></textarea>
 </template>
 
 <script>
@@ -12,15 +12,15 @@ export default {
     },
     minHeight: {
       type: Number,
-      'default': null,
+      default: null,
     },
     maxHeight: {
       type: Number,
-      'default': null,
+      default: null,
     },
     placeholder: {
       type: String,
-      default: 'What\'s happening',
+      default: 'What\'s happening?',
     },
   },
   emits: ['update:modelValue'],
@@ -41,8 +41,6 @@ export default {
   methods: {
     resize() {
       const textarea = this.$refs.textarea
-      textarea.style.height = 'auto'
-
       this.$nextTick(() => {
         let height = textarea.scrollHeight
         if (this.minHeight) {
@@ -66,7 +64,9 @@ export default {
     }
   },
   mounted() {
-    this.resize()
+    if (this.text) {
+      this.resize()
+    }
   }
 }
 </script>

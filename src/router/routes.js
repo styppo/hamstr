@@ -34,6 +34,11 @@ const routes = [
     name: 'event',
   },
   {
+    path: '/thread/:eventId([a-f0-9A-F]{64})',
+    component: () => import('pages/Thread.vue'),
+    name: 'thread',
+  },
+  {
     path: '/notifications',
     component: () => import('pages/Notifications.vue'),
     name: 'notifications',

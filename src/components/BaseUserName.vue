@@ -1,6 +1,6 @@
 <template>
   <span
-    class="cursor-pointer username"
+    :class="'username' + (wrap ? ' two-line' : '')"
     @click.stop="toProfile(pubkey)"
   >
     <span
@@ -15,6 +15,7 @@
       </q-icon>
     </span>
     <span v-else class="text-italic">anonymous</span>
+
     <span v-if="$store.getters.NIP05Id(pubkey)">
       <BaseButtonNIP05 :pubkey="pubkey" />
       <span style="opacity: .9; font-size: 90%; font-weight: 300; line-height: 90%">
@@ -34,10 +35,22 @@ export default {
     BaseButtonNIP05,
   },
   props: {
-    pubkey: {type: String, required: true},
-    wrap: {type: Boolean, default: false},
-    showFollowing: {type: Boolean, default: false},
-    showVerified: {type: Boolean, default: false},
+    pubkey: {
+      type: String,
+      required: true
+    },
+    wrap: {
+      type: Boolean,
+      default: false
+    },
+    showFollowing: {
+      type: Boolean,
+      default: false
+    },
+    showVerified: {
+      type: Boolean,
+      default: false
+    },
   },
   computed: {
     niceNIP05() {
@@ -47,27 +60,22 @@ export default {
     },
     isFollow() {
       return this.$store.state.follows.includes(this.pubkey)
-    }
+    },
   }
-  // methods: {
-  //   openNIP05() {
-  //     let [name, domain] = this.$store.getters
-  //       .displayName(this.pubkey)
-  //       .split('@')
-  //     if (!domain) {
-  //       domain = name
-  //       name = '_'
-  //     }
-  //     window.open(`https://${domain}/.well-known/nostr.json?name=${name}`)
-  //   }
-  // }
 }
 </script>
 
 <style lang="scss">
 .username {
+  cursor: pointer;
   > span + span {
     margin-left: 8px;
+  }
+  &.two-line {
+    display: block;
+    > span {
+      display: block;
+    }
   }
 }
 </style>

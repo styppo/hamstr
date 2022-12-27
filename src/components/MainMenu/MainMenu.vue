@@ -6,7 +6,7 @@
           <Logo />
         </router-link>
       </div>
-      <menu-item
+      <MenuItem
         v-for="(route, i) in items"
         :key="i"
         :icon="route.name.toLowerCase()"
@@ -14,21 +14,21 @@
         :required="route.req"
       >
         {{ route.name }}
-      </menu-item>
-      <menu-item
+      </MenuItem>
+      <MenuItem
         icon="profile"
         :to="`/profile/${me.id}`"
         required
       >
         Profile
-      </menu-item>
-      <menu-item
+      </MenuItem>
+      <MenuItem
         icon="settings"
         to="/settings"
         required
       >
         Settings
-      </menu-item>
+      </MenuItem>
 
       <!--      <menu-item-->
       <!--        icon="more"-->
@@ -45,13 +45,13 @@
         Post
       </div>
     </div>
-    <profile-popup />
+    <ProfilePopup />
     <div
       class="mobile-close-menu-button"
       @click="$store.commit('setMobileMenuState', false)"
     >
       <div class="icon">
-        <base-icon icon="left" />
+        <BaseIcon icon="left" />
       </div>
       <span>Close</span>
     </div>

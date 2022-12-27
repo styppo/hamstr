@@ -7,9 +7,7 @@
       @click="toggleMenu"
     >
       <div class="menu-profile-pic">
-        <img
-          :src="me.profile.pic"
-        >
+        <BaseUserAvatar :pubkey="$store.state.keys.pub" />
       </div>
       <div class="menu-profile-items">
         <div class="profile-info">
@@ -65,10 +63,12 @@
 <script>
 // import { mapGetters } from 'vuex'
 import BaseIcon from '../BaseIcon/index'
+import BaseUserAvatar from 'components/BaseUserAvatar.vue'
 
 export default {
   name: 'ProfilePopup',
   components: {
+    BaseUserAvatar,
     BaseIcon
   },
   data: function() {
@@ -110,11 +110,12 @@ export default {
 .menu-profile {
   display: flex;
   align-items: center;
-  width: 100%;
   padding: 4px 1rem;
-  margin-bottom: 10px;
+  margin-bottom: 1rem;
+  margin-right: 1rem;
   cursor: pointer;
   border-radius: 999px;
+  transition: 120ms ease-in-out;
   &-wrapper {
     position: relative;
   }
@@ -122,8 +123,6 @@ export default {
     background-color: rgba($color: $color-primary, $alpha: 0.3);
   }
   &-pic {
-    width: 3rem;
-    height: 3rem;
     margin: 6px 0;
     img {
       border-radius: 999px;
@@ -131,12 +130,12 @@ export default {
     }
   }
   &-items {
-    margin-left: 10px;
+    margin-left: 12px;
     display: flex;
     flex-grow: 1;
     align-items: center;
     justify-content: space-between;
-    .profile-info{
+    .profile-info {
       user-select: none;
       p {
         margin: 0;

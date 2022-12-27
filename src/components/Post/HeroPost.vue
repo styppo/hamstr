@@ -1,61 +1,54 @@
 <template>
-  <div
-    class="post"
-    @click.stop="toEvent(post.id)"
-  >
+  <div class="post">
     <div class="post-author">
-      <base-user-avatar :pubkey="post.author" />
+      <div class="post-author-avatar">
+        <div class="connector-top">
+          <div v-if="connector" class="connector-line"></div>
+        </div>
+        <BaseUserAvatar :pubkey="post.author" />
+      </div>
+      <div class="post-author-name">
+        <BaseUserName :pubkey="post.author" wrap />
+      </div>
     </div>
     <div class="post-content">
       <div class="post-content-header">
-        <p>
-          <base-user-name :pubkey="post.author" />
-          <span>&#183;</span>
-          <span class="created-at">{{ moment(post.createdAt).fromNow() }}</span>
-        </p>
         <p v-if="post.inReplyTo" class="in-reply-to">
           Replying to <a @click.stop="toEvent(post.inReplyTo)">{{ shorten(post.inReplyTo) }}</a>
         </p>
       </div>
       <div class="post-content-body">
         <p>
-          <base-markdown :content="post.content" />
+          <BaseMarkdown :content="post.content" />
         </p>
-        <div
-          v-if="post.images.length > 0"
-          class="post-content-body-images"
-        >
-          <div class="post-content-body-images-wrapper">
-            <div
-              v-for="(image, i) in post.images"
-              :key="i"
-              class="post-content-image-item"
-            >
-              <img
-                :src="image.url"
-                @click="$store.dispatch('setLightbox', imageUrls)"
-              >
-            </div>
+      </div>
+      <div class="post-content-footer">
+        <p class="created-at">
+          <span>{{ formatPostTime(post.createdAt) }}</span>
+          <span>&#183;</span>
+          <span>{{ formatPostDate(post.createdAt) }}</span>
+        </p>
+        <div class="post-content-actions">
+          <div class="action-item comment">
+            <BaseIcon icon="comment" />
+            <span>{{ numComments }}</span>
+          </div>
+          <div class="action-item repost">
+            <BaseIcon icon="repost" />
+            <span>{{ post.stats.reposts }}</span>
+          </div>
+          <div class="action-item like">
+            <BaseIcon icon="like" />
+            <span>{{ post.stats.likes }}</span>
           </div>
         </div>
       </div>
-      <div class="post-content-actions">
-        <div class="action-item comment">
-          <base-icon icon="comment" />
-          <span>{{ post.stats.comments }}</span>
-        </div>
-        <div class="action-item repost">
-          <base-icon icon="repost" />
-          <span>{{ post.stats.reposts }}</span>
-        </div>
-        <div class="action-item like">
-          <base-icon icon="like" />
-          <span>{{ post.stats.likes }}</span>
-        </div>
-        <div class="action-item comment">
-          <base-icon icon="share" />
-        </div>
-      </div>
+    </div>
+    <div class="post-reply">
+      <PostEditor
+        compact
+        placeholder="Post your reply"
+      />
     </div>
   </div>
 </template>
@@ -66,7 +59,9 @@ import BaseUserAvatar from 'components/BaseUserAvatar.vue'
 import BaseUserName from 'components/BaseUserName.vue'
 import BaseMarkdown from 'components/BaseMarkdown.vue'
 import helpersMixin from 'src/utils/mixin'
-import moment from 'moment'
+import PostEditor from 'components/CreatePost/PostEditor.vue'
+
+const MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
 
 function countRepliesRecursive(event) {
   if (!event.replies) {
@@ -74,7 +69,7 @@ function countRepliesRecursive(event) {
   }
   let count = 0
   for (const thread of event.replies) {
-    if (!thread || !Array.isArray(thread)) {
+    if (!thread || !thread.length) {
       continue
     }
     count += thread.length
@@ -85,11 +80,7 @@ function countRepliesRecursive(event) {
   return count
 }
 
-function postFromEvents(events) {
-  const event = events[0]
-  if (event.interpolated.replyEvents.length) {
-    console.log(event.content, event.interpolated.replyEvents)
-  }
+function postFromEvent(event) {
   return {
     id: event.id,
     author: event.pubkey,
@@ -98,71 +89,95 @@ function postFromEvents(events) {
     inReplyTo: event.interpolated.replyEvents[event.interpolated.replyEvents.length - 1],
     images: [],
     stats: {
-      comments: countRepliesRecursive(event),
-      reposts: 11,
-      likes: 52,
+      comments: '',
+      reposts: '',
+      likes: '',
     }
   }
 }
 
 export default {
-  name: 'Post',
+  name: 'HeroPost',
   mixins: [helpersMixin],
   components: {
     BaseMarkdown,
     BaseUserName,
     BaseUserAvatar,
     BaseIcon,
+    PostEditor,
   },
   props: {
-    events: {
-      type: Array,
+    event: {
+      type: Object,
       required: true
+    },
+    connector: {
+      type: Boolean,
+      default: false,
     },
   },
   data() {
     return {
-      post: postFromEvents(this.events),
+      post: postFromEvent(this.event),
     }
   },
   computed: {
-    imageUrls() {
-      return this.post.images.map(image => image.url)
-    }
+    numComments() {
+      return countRepliesRecursive(this.event)
+    },
   },
   methods: {
-    moment,
+    formatPostDate(ts) {
+      const date = new Date(ts)
+      const month = this.$t(MONTHS[date.getMonth()])
+
+      const sameYear = date.getFullYear() === (new Date().getFullYear())
+      const year = !sameYear ? ' ' + date.getFullYear() : ''
+
+      return `${date.getDate()} ${month}${year}`
+    },
+    formatPostTime(ts) {
+      const date = new Date(ts)
+      return `${date.getHours()}:${date.getMinutes()}`
+    }
   }
 }
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
 @import 'assets/theme/colors.scss';
 @import 'assets/variables.scss';
 
 .post {
-  padding: 1rem;
-  display: flex;
-  transition: 100ms ease background-color;
-  cursor: pointer;
   border-bottom: $border-dark;
-
-  &:hover {
-    background-color: rgba($color: $color-dark-gray, $alpha: 0.2);
-  }
+  padding-bottom: 1rem;
   &-author {
-    img {
-      width: 100%;
-      border-radius: 999px;
+    display: flex;
+    flex-direction: row;
+    padding: 0 1rem;
+    &-name {
+      margin-top: 1rem;
+      margin-left: 12px;
+    }
+    .connector-top {
+      height: 1rem;
+      padding-bottom: 4px;
+    }
+    .connector-line {
+      width: 2px;
+      height: 100%;
+      margin: auto;
+      background: rgb(56, 68, 77);
     }
   }
   &-content {
-    margin-left: 12px;
+    padding: 1rem;
     flex-grow: 1;
-    max-width: 570px;
+    max-width: 644px;
     &-header {
-      .in-reply-to {
+      p.in-reply-to {
         color: $color-dark-gray;
+        margin: 0 0 8px;
         a {
           color: $color-primary;
           &:hover {
@@ -170,47 +185,26 @@ export default {
           }
         }
       }
-      p {
-        &:first-child {
-          margin: 0;
-        }
-        &:last-child {
-          margin: 0 0 8px;
-        }
-        > span {
-          color: $color-dark-gray;
-          &:first-child {
-            color: #fff;
-          }
-          & + span {
-            margin-left: 8px;
-          }
-          &.nip05 {
-          }
-          &.created-at {
-          }
-        }
-      }
     }
     &-body {
-      color: #fff;
-      &-images {
-        &-wrapper {
-          border-radius: 10px;
-          overflow: hidden;
-          border: $border-light;
-          display: flex;
-          .post-content-image-item {
-            cursor: zoom-in;
-            & + .post-content-image-item {
-              border-left: $border-light;
-            }
-            flex-grow: 1;
-            img {
-              vertical-align: middle;
-              width: 100%;
-            }
-          }
+      p {
+        color: #fff;
+        font-size: 1.6em;
+        line-height: 1.3em;
+      }
+      p:last-child {
+        margin-bottom: 0;
+      }
+    }
+    &-footer {
+      color: $color-dark-gray;
+      border-bottom: $border-dark;
+      p.created-at {
+        margin: 0;
+        padding: 1rem 0;
+        border-bottom: $border-dark;
+        span + span {
+          margin-left: 8px;
         }
       }
     }
@@ -220,7 +214,8 @@ export default {
       justify-content: space-between;
       max-width: 450px;
       width: 100%;
-      margin-left: -9px;
+      padding: .5rem 0;
+      margin: auto;
       .action-item {
         display: flex;
         align-items: center;
@@ -229,12 +224,14 @@ export default {
           padding: 8px;
           border-radius: 999px;
           display: block;
-          width: 36px;
-          height: 36px;
+          width: 40px;
+          height: 40px;
           fill: $color-light-gray;
         }
         span {
           color: $color-light-gray;
+          line-height: 40px;
+          font-weight: bold;
         }
         &:hover {
           &.comment {
@@ -269,6 +266,7 @@ export default {
     }
   }
 }
+
 @media screen and (max-width: $phone) {
   .post{
     &-content {

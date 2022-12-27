@@ -30,7 +30,7 @@
         :label="'load ' + unreadFeed[tab].length + ' unread'"
         @click="loadUnread"
       />
-      <Post v-for="item in items" :key="item[0].id" :events="item" class="full-width" @add-event="processEvent"/>
+      <Thread v-for="item in items" :key="item[0].id" :events="item" class="full-width" @add-event="processEvent" />
       <BaseButtonLoadMore
         :loading="loadingMore"
         :label="items.length === feed[tab].length ? 'load another day' : 'load 100 more'"
@@ -49,8 +49,9 @@ import {dbFeed, dbUserFollows} from '../query'
 import BaseButtonLoadMore from 'components/BaseButtonLoadMore.vue'
 import { createMetaMixin } from 'quasar'
 import PageHeader from 'components/PageHeader.vue'
-import Post from 'components/Post/Post.vue'
+//import Post from 'components/Post/ListPost.vue'
 import PostEditor from 'components/CreatePost/PostEditor.vue'
+import Thread from 'components/Post/Thread.vue'
 
 
     // const debouncedAddToThread = mergebounce(
@@ -80,8 +81,9 @@ export default defineComponent({
   mixins: [helpersMixin, createMetaMixin(metaData)],
 
   components: {
+    Thread,
     PageHeader,
-    Post,
+    //Post,
     PostEditor,
     BaseButtonLoadMore,
   },

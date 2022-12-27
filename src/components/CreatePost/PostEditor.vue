@@ -1,5 +1,5 @@
 <template>
-  <div class="post-editor">
+  <div :class="rootCssClass">
     <div class="post-editor-avatar">
       <BaseUserAvatar :pubkey="$store.state.keys.pub" />
     </div>
@@ -8,7 +8,8 @@
         <AutoSizeTextarea
           v-model="post.text"
           ref="textarea"
-          placeholder="What's happening?"
+          :placeholder="placeholder"
+          @focus.once="collapsed = false"
         />
 <!--        <div-->
 <!--          v-if="tweetContent.imageList"-->
@@ -59,15 +60,13 @@
 <!--          </div>-->
         </div>
         <div class="controls-submit">
-          <button
-            :disabled="!hasPostText()"
-            @click="handleSubmit"
-          >
+          <button :disabled="!hasPostText()" @click="handleSubmit" class="btn">
             Post
           </button>
         </div>
       </div>
     </div>
+    <button v-if="collapsed" class="btn" disabled>Post</button>
   </div>
 </template>
 
@@ -85,11 +84,30 @@ export default {
     BaseUserAvatar,
     EmojiPicker,
   },
+  props: {
+    placeholder: {
+      type: String,
+      default: 'What\'s happening?',
+    },
+    compact: {
+      type: Boolean,
+      default: false,
+    },
+  },
   data() {
     return {
       post: {
         text: '',
       },
+      collapsed: this.compact,
+    }
+  },
+  computed: {
+    rootCssClass() {
+      let classes = ['post-editor']
+      if (this.compact) classes.push('post-editor-compact')
+      if (this.collapsed) classes.push('post-editor-compact-collapsed')
+      return classes
     }
   },
   methods: {
@@ -109,11 +127,27 @@ export default {
 <style lang="scss" scoped>
 @import "assets/theme/colors.scss";
 
+button.btn {
+  cursor: pointer;
+  background-color: $color-primary;
+  color: #fff;
+  font-weight: bold;
+  padding: 8px 16px;
+  outline: none;
+  border: none;
+  border-radius: 9999px;
+  height: fit-content;
+  &:disabled {
+    cursor: no-drop;
+    background-color: rgba($color: $color-primary, $alpha: 0.3);
+    color: rgba($color: #fff, $alpha: 0.3);
+  }
+}
+
 .post-editor {
   padding: 0 1rem;
   display: flex;
   width: 100%;
-  border-bottom: $border-dark;
   &-avatar {
   }
   &-content {
@@ -127,6 +161,7 @@ export default {
         display: block;
         padding: 12px;
         font-size: 1.5rem;
+        line-height: 1.3em;
         resize: vertical;
         background-color: transparent;
         border: none;
@@ -138,41 +173,6 @@ export default {
         &:focus {
           border: none;
           outline: none;
-        }
-      }
-      &-images {
-        display: flex;
-        padding: 1rem;
-        .image-container {
-          & + .image-container {
-            margin-left: 15px;
-          }
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          position: relative;
-          flex-grow: 1;
-          img {
-            width: 100%;
-          }
-          .close-button {
-            position: absolute;
-            background-color: rgba($color: $color-dark-gray, $alpha: 0.3);
-            top: 0;
-            right: 0;
-            cursor: pointer;
-            margin-top: 10px;
-            margin-right: 10px;
-            width: 2rem;
-            height: 2rem;
-            border-radius: 999px;
-            padding: 7px;
-            svg {
-              width: 100%;
-              height: 100%;
-              fill: #fff;
-            }
-          }
         }
       }
     }
@@ -200,22 +200,30 @@ export default {
           }
         }
       }
-      &-submit {
-        button {
-          cursor: pointer;
-          background-color: $color-primary;
-          color: #fff;
-          font-weight: bold;
-          padding: 10px 16px;
-          outline: none;
-          border: none;
-          border-radius: 9999px;
-          &:disabled{
-            cursor: no-drop;
-            background-color: rgba($color: $color-primary, $alpha: 0.3);
-            color: rgba($color: #fff, $alpha: 0.3);
-          }
-        }
+    }
+  }
+  &-compact {
+    .input-section {
+      textarea {
+        padding: 10px 0;
+        resize: none;
+        min-height: 48px;
+        height: 48px;
+        overflow: hidden;
+      }
+    }
+    .controls {
+      border-top: 0;
+      padding: 0;
+      margin-left: -4px;
+    }
+
+    &-collapsed {
+      .controls {
+        display: none;
+      }
+      > button {
+        margin: auto;
       }
     }
   }
