@@ -30,7 +30,7 @@ export default {
     return {
       trends: [
         {
-          name: '#nostr',
+          name: '#todo',
           postCount: 58
         }
       ]

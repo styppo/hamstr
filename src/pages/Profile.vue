@@ -61,7 +61,7 @@
         </div>
         <div v-if='!searchText'>
           <BasePostThread v-for="thread in threads" :key="thread[0].id" :events="thread" @add-event='addEvent'/>
-          <BaseButtonLoadMore :loading-more='loadingMore' :reached-end='reachedEnd' @click='loadMore' />
+          <BaseButtonLoadMore :loading='loadingMore' :reached-end='reachedEnd' @click='loadMore' />
         </div>
       </q-tab-panel>
 

@@ -1,6 +1,7 @@
 <template>
   <span
-    :class="'username' + (wrap ? ' two-line' : '')"
+    class="username"
+    :class="{'two-line': wrap}"
   >
     <a @click.stop="toProfile(pubkey)">
       <span

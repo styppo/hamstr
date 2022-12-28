@@ -105,14 +105,13 @@ export default {
 </script>
 
 <style lang="scss">
-@import 'assets/theme/colors.scss';
+@import "assets/theme/colors.scss";
+@import "assets/variables.scss";
 
 .menu-profile {
   display: flex;
   align-items: center;
-  padding: 4px 1rem;
   margin-bottom: 1rem;
-  margin-right: 1rem;
   cursor: pointer;
   border-radius: 999px;
   transition: 120ms ease-in-out;
@@ -123,7 +122,7 @@ export default {
     background-color: rgba($color: $color-primary, $alpha: 0.3);
   }
   &-pic {
-    margin: 6px 0;
+    padding: 2px;
     img {
       border-radius: 999px;
       width: 100%;
@@ -205,6 +204,12 @@ export default {
         }
       }
     }
+  }
+}
+
+@media screen and (max-width: $tablet) and (min-width: $phone) {
+  .menu-profile-items {
+    display: none;
   }
 }
 </style>

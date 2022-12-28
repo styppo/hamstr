@@ -4,10 +4,10 @@
       <TheKeyInitializationDialog style="max-height: 85vh" @look-around="setLookingAroundMode"/>
     </q-dialog>
 
-    <div class="layout">
+    <div class="layout" @click="mobileMenuOpen = false">
       <div class="layout-menu">
-        <div class="layout-menu-fixed">
-          <MainMenu />
+        <div class="layout-menu-fixed" :class="{active: mobileMenuOpen}">
+          <MainMenu @click.stop @mobile-menu-close="mobileMenuOpen = false" />
         </div>
       </div>
 
@@ -46,6 +46,13 @@
           <Trends />
         </div>
       </div>
+
+      <div
+        class="mobile-menu-toggler"
+        @click.stop="mobileMenuOpen = !mobileMenuOpen"
+      >
+        <BaseIcon icon="hamburger" />
+      </div>
     </div>
 
     <q-page-sticky v-if="($q.screen.width < 600)" @click.stop="resizePostEntryPlaceholder" id="bottom-drawer" position="bottom" class="z-top xs lt-sm">
@@ -71,15 +78,6 @@
 
         />
       </div>
-
-      <TheUserMenu
-        id="bottom-menu"
-        :compact-mode="true"
-        :posting="postEntryOpen"
-        @toggle-post-entry="togglePostEntry"
-        @scroll-to-rect="scrollToRect"
-        @set-user="lookingAround=false"
-      />
     </q-page-sticky>
   </q-layout>
 </template>
@@ -90,19 +88,19 @@ import { scroll, useQuasar, LocalStorage } from 'quasar'
 const { getVerticalScrollPosition, setVerticalScrollPosition} = scroll
 import { activateSub, deactivateSub, destroyStreams } from '../query'
 import MainMenu from 'components/MainMenu/MainMenu.vue'
-import TheUserMenu from 'components/TheUserMenu.vue'
 import TheKeyInitializationDialog from 'components/TheKeyInitializationDialog.vue'
 import SearchBox from 'components/SearchBox/SearchBox.vue'
 import Trends from 'components/Trends/index.vue'
+import BaseIcon from 'components/BaseIcon/index.vue'
 import { setCssVar, getCssVar } from 'quasar'
 
 export default defineComponent({
   name: 'MainLayout',
   components: {
+    BaseIcon,
     MainMenu,
     SearchBox,
     Trends,
-    TheUserMenu,
     TheKeyInitializationDialog,
   },
 
@@ -124,6 +122,8 @@ export default defineComponent({
       postEntryOpen: false,
       replyEvent: null,
       lookingAround: false,
+
+      mobileMenuOpen: false,
     }
   },
 
@@ -355,25 +355,28 @@ export default defineComponent({
     width: 100%;
     max-width: 300px;
     &-fixed {
-      position: fixed;
+      position: sticky;
+      top: 0;
       width: 100%;
       max-width: inherit;
+      padding: 0 1rem;
     }
   }
   &-flow {
     border-right: $border-dark;
     border-left: $border-dark;
     width: 100%;
+    min-width: 660px;
     max-width: 660px;
     min-height: 100vh;
   }
   &-sidebar {
     width: 100%;
-    max-width: 330px;
-    margin-left: 1rem;
+    min-width: 330px;
+    margin: 0 1rem;
     &-fixed {
       position: fixed;
-      width: 100%;
+      width: 330px;
       max-width: inherit;
     }
   }
@@ -382,32 +385,44 @@ export default defineComponent({
   }
 }
 
-@media screen and (max-width: $phone) {
-  .layout-menu-fixed-container{
-    background-color: $color-bg;
-    transform: translateX(-100%);
-    box-shadow: $shadow-white;
-    transition: 200ms ease;
-    padding-left: 20px;
-    &.active {
-      transform: translateX(0%);
-      z-index: 666;
-    }
-  }
+@media screen and (max-width: $tablet-sm) {
   .layout-sidebar {
-    &-fixed {
-      display: none;
-    }
+    display: none;
   }
+}
 
+@media screen and (max-width: $phone-lg) {
+  .layout-menu {
+    max-width: 80px;
+  }
+  .layout-flow {
+    min-width: unset;
+  }
+}
+
+@media screen and (max-width: $phone) {
   .layout {
-    &-sidebar {
-      display: none;
-      max-width: unset;
-    }
     &-menu {
       max-width: 300px;
       width: unset;
+      &-fixed {
+        position: fixed;
+        background-color: $color-bg;
+        transform: translateX(-100%);
+        box-shadow: $shadow-white;
+        transition: 200ms ease;
+        z-index: 1000;
+        &.active {
+          transform: translateX(0%);
+        }
+      }
+    }
+    &-sidebar {
+      display: none;
+      max-width: unset;
+      &-fixed {
+        display: none;
+      }
     }
     .mobile-menu-toggler {
       position: fixed;
@@ -415,7 +430,7 @@ export default defineComponent({
       left: 1rem;
       width: 3rem;
       height: 3rem;
-      padding: 8px;
+      padding: 6px 8px 8px;
       border-radius: 999px;
       background-color: $color-primary;
       display: flex;
@@ -484,142 +499,5 @@ export default defineComponent({
 }
 .q-fab__actions--left {
   margin: 0;
-}
-
-@media screen and (min-width: 600px) {
-  body {
-    height: unset;
-    overflow: unset;
-  }
-  #navagation-buttons .q-btn{
-    font-size: .8rem;
-  }
-  #layout-container {
-    justify-content: flex-start;
-    overflow: hidden;
-    height: 100vh;
-  }
-  #left-drawer {
-    display: flex;
-    overflow: hidden;
-    width: 50px;
-    max-width: 50px;
-    min-width: 50px;
-    flex: 0;
-    flex-shrink: 0;
-    flex-grow: 0;
-  }
-  #middle-page {
-    display: flex;
-    flex-direction: column;
-    width: 100%;
-    min-width: 550px;
-    max-width: 650px;
-    height: 100vh;
-    padding-bottom: 0;
-    flex: 1;
-    flex-shrink: 1;
-    flex-grow: 1;
-  }
-  #middle-page .q-page-container {
-    overflow: auto;
-    height: 100%;
-    flex: 1;
-    flex-shrink: 1;
-    flex-grow: 1;
-  }
-  #post-entry {
-    height: fit-content;
-    display: unset;
-  }
-  #bottom-menu,
-  #bottom-menu-placeholder,
-  #bottom-post-entry-placeholder {
-    display: none;
-  }
-}
-
-@media screen and (min-width: 700px) {
-  #layout-container {
-    justify-content: flex-start;
-    overflow: hidden;
-    height: 100vh;
-  }
-  #left-drawer, #right-drawer {
-    display: flex;
-    visibility: inherit;
-    height: auto;
-    -webkit-overflow-scrolling: touch;
-    -ms-overflow-style: none;
-  }
-  #right-drawer {
-    width: auto;
-    max-width: 300px;
-    overflow-y: auto;
-    overflow-x: hidden;
-    flex: 1;
-    flex-shrink: 1;
-    flex-grow: 1;
-  }
-  #middle-page {
-    min-width: 400px;
-    max-width: 600px;
-  }
-}
-@media screen and (min-width: 1023px) {
-  #left-drawer {
-    width: 200px;
-    min-width: 200px;
-    max-width: 300px;
-  }
-  #middle-page {
-    width: 600px;
-    min-width: 600px;
-    max-width: 600px;
-    flex: 0;
-    flex-shrink: 0;
-    flex-grow: 0;
-  }
-  #navagation-buttons .q-btn{
-    font-size: .9rem;
-  }
-}
-@media screen and (min-width: 1100px) {
-  #left-drawer {
-    width: 200px;
-    min-width: 200px;
-    max-width: 300px;
-    flex: 1;
-    flex-shrink: 1;
-    flex-grow: 1;
-  }
-  #right-drawer {
-    width: 300px;
-    min-width: 300px;
-    max-width: 300px;
-    flex: 0;
-    flex-shrink: 0;
-    flex-grow: 0;
-  }
-}
-@media screen and (min-width: 1200px) {
-  #layout-container {
-    justify-content: center;
-  }
-  #left-drawer, #right-drawer {
-    width: calc((100vw - 600px) / 2);
-    max-width: 300px;
-    flex: 1;
-    flex-shrink: 1;
-    flex-grow: 1;
-  }
-  #middle-page {
-    width: 600px;
-    min-width: 600px;
-    max-width: 600px;
-    flex: 0;
-    flex-shrink: 0;
-    flex-grow: 0;
-  }
 }
 </style>

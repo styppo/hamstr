@@ -1,5 +1,11 @@
 <template>
-  <div :class="rootCssClass">
+  <div
+    class="post-editor"
+    :class="{
+      'post-editor-compact': compact,
+      'post-editor-compact-collapsed': collapsed
+    }"
+  >
     <div class="post-editor-avatar">
       <BaseUserAvatar :pubkey="$store.state.keys.pub" />
     </div>
@@ -102,14 +108,6 @@ export default {
       collapsed: this.compact,
     }
   },
-  computed: {
-    rootCssClass() {
-      let classes = ['post-editor']
-      if (this.compact) classes.push('post-editor-compact')
-      if (this.collapsed) classes.push('post-editor-compact-collapsed')
-      return classes
-    }
-  },
   methods: {
     hasPostText() {
       return this.post.text.trim().length > 0
@@ -162,7 +160,7 @@ button.btn {
         padding: 12px;
         font-size: 1.5rem;
         line-height: 1.3em;
-        resize: vertical;
+        resize: none;
         background-color: transparent;
         border: none;
         width: 100%;
@@ -206,7 +204,6 @@ button.btn {
     .input-section {
       textarea {
         padding: 10px 0;
-        resize: none;
         min-height: 48px;
         height: 48px;
         overflow: hidden;

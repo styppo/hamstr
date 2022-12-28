@@ -47,7 +47,8 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-@import 'assets/theme/colors.scss';
+@import "assets/theme/colors.scss";
+@import "assets/variables.scss";
 
 a {
   display: block;
@@ -101,4 +102,15 @@ a {
     }
   }
 }
+
+@media screen and (max-width: $tablet) and (min-width: $phone) {
+  .menu-item {
+    &-content {
+      visibility: hidden;
+      width: 0;
+      margin: 0;
+    }
+  }
+}
+
 </style>

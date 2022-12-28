@@ -42,13 +42,14 @@
         class="menu-post-button"
         @click="$store.commit('toggleTweetButton')"
       >
-        Post
+        <span class="label">Post</span>
+        <BaseIcon class="icon" icon="pen" />
       </div>
     </div>
     <ProfilePopup />
     <div
       class="mobile-close-menu-button"
-      @click="$store.commit('setMobileMenuState', false)"
+      @click="$emit('mobile-menu-close')"
     >
       <div class="icon">
         <BaseIcon icon="left" />
@@ -76,6 +77,7 @@ export default {
     //MoreMenu,
     ProfilePopup
   },
+  emits: ['mobile-menu-close'],
   data: function() {
     return {
       items: MENU_ITEMS,
@@ -118,6 +120,7 @@ menu {
   flex-direction: column;
   justify-content: space-between;
   margin: 0;
+  padding-inline-start: 0;
   .menu {
     &-nav {
       position: relative;
@@ -141,7 +144,7 @@ menu {
       }
     }
     &-post-button {
-      width: 80%;
+      width: 90%;
       text-align: center;
       padding: 1rem 0;
       cursor: pointer;
@@ -151,6 +154,9 @@ menu {
       font-size: 1.2rem;
       border-radius: 999px;
       margin-top: 20px;
+      .icon {
+        display: none;
+      }
     }
   }
   .mobile-close-menu-button {
@@ -158,17 +164,37 @@ menu {
   }
 }
 
+@media screen and (max-width: $tablet) and (min-width: $phone) {
+  menu {
+    align-items: flex-end;
+    .menu-post-button {
+      width: fit-content;
+      padding: 1rem;
+      .label {
+        display: none;
+      }
+      .icon {
+        display: block;
+        width: 24px;
+        height: 24px;
+        fill: #fff;
+      }
+    }
+  }
+}
+
 @media screen and (max-width: $phone) {
   menu {
     .mobile-close-menu-button {
       position: absolute;
-      right: 10px;
-      top: 10px;
+      right: 0;
+      top: 1rem;
       display: flex;
       align-items: center;
       padding: 6px;
       border-radius: 999px;
       background-color: $color-primary;
+      cursor: pointer;
       .icon {
         width: 1.2rem;
         height: 1.2rem;
@@ -181,7 +207,8 @@ menu {
       span {
         color: #fff;
         font-weight: bold;
-        margin-left: 8px;
+        margin: 0 4px;
+        line-height: 16px;
       }
     }
   }
