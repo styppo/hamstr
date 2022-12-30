@@ -297,7 +297,14 @@ const methods = {
 self.onmessage = handleMessage
 
 function handleMessage(ev) {
-  let { name, args, id, cancel, sub } = typeof ev.data === 'string' ? JSON.parse(ev.data) : ev.data
+  let obj
+  try {
+    obj = typeof ev.data === 'string' ? JSON.parse(ev.data) : ev.data
+  } catch (err) {
+    console.log('Failed to parse message', ev.data)
+    return
+  }
+  let { name, args, id, cancel, sub } = obj
   if (ev.ports.length && name === 'setPort') {
     dbWorkerPort = ev.ports[0]
     return

@@ -26,6 +26,12 @@ export function initKeys(store, keys) {
   store.commit('haveReadNotifications')
 }
 
+export function prefetchAccounts(store) {
+  for (const pubkey of Object.keys(store.state.accounts)) {
+    store.dispatch('useProfile', {pubkey})
+  }
+}
+
 export async function launch(store) {
   console.log('launch for ', store.state.keys.pub)
   // if (!store.state.keys.pub) {
@@ -434,4 +440,26 @@ export async function useNip05(store, {metadata}) {
     }
   }
   store.commit('addProfileToCache', metadata)
+}
+
+// --------
+
+export async function signIn(store) {
+  return new Promise((resolve, reject) => {
+    console.assert(!store.state.signInDialogOpen)
+    store.state.signInSuccess = resolve
+    store.state.signInFailure = reject
+    store.state.signInDialogOpen = true
+  })
+}
+
+export async function ensureSignedIn(store) {
+  if (store.getters.isSignedIn) return
+  return store.dispatch('signIn')
+}
+
+export async function createPost(store, options) {
+  await store.dispatch('ensureSignedIn')
+  // TODO options
+  store.state.postDialogOpen = true
 }

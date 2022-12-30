@@ -84,3 +84,11 @@ export function canSignEventsAutomatically(state) {
 export function canEncryptDecrypt(state) {
   return Boolean(state.keys.priv || (window.nostr && window.nostr.nip04))
 }
+
+export function isSignedIn(state) {
+  return !!(state.keys && state.keys.pub && state.keys.priv)
+}
+
+export function myPubkey(state) {
+  return state.keys?.pub
+}

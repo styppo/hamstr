@@ -161,8 +161,8 @@ module.exports = {
     'no-with': 2,
     'one-var': [0, { initialized: 'never' }],
     'operator-linebreak': [
-      2,
-      'after',
+      0,
+      'before',
       { overrides: { '?': 'before', ':': 'before' } },
     ],
     'padded-blocks': [2, 'never'],

@@ -32,6 +32,14 @@ export function setDefaultRelays(state, relays) {
   state.defaultRelays = relays
 }
 
+export function addOrUpdateAccount(state, {pubkey, account}) {
+  state.accounts[pubkey] = account
+}
+
+export function removeAccount(state, pubkey) {
+  delete state.account[pubkey]
+}
+
 export function addRelay(state, url) {
   try {
     normalizeRelayURL(url)

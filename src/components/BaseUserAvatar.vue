@@ -1,8 +1,9 @@
 <template>
   <q-avatar
     :size="size"
-    @click.stop="toProfile(pubkey)"
-    class="relative-position cursor-pointer"
+    @click="clickable && toProfile(pubkey)"
+    class="relative-position"
+    :class="{'cursor-pointer': clickable}"
   >
     <img
       v-if="hasAvatar(pubkey) && !avatarFetchFailed"
@@ -12,7 +13,7 @@
       crossorigin
       @error.once="onFetchFailed"
     />
-    <identicon
+    <Identicon
       v-if="!hasAvatar(pubkey) || avatarFetchFailed"
       :pubkey="pubkey"
     />
@@ -38,7 +39,14 @@ export default {
     Identicon,
   },
   props: {
-    pubkey: {type: String, required: true},
+    pubkey: {
+      type: String,
+      required: true
+    },
+    clickable: {
+      type: Boolean,
+      default: true,
+    },
     alignRight: {type: Boolean, default: false},
     size: {type: String, default: ''},
     showVerified: {type: Boolean, default: false},

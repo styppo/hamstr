@@ -1,7 +1,7 @@
 <template>
   <component
-    :is="required ? 'router-link' : 'div'"
-    :to="required ? to : ''"
+    :is="enabled ? 'router-link' : 'div'"
+    :to="enabled ? to : ''"
   >
     <div class="menu-item">
       <div class="menu-item-logo">
@@ -38,9 +38,9 @@ export default {
       type: String,
       default: ''
     },
-    required: {
+    enabled: {
       type: Boolean,
-      default: false
+      default: true
     }
   },
 }

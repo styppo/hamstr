@@ -1,3 +1,5 @@
+@import "src/assets/theme/colors.scss";
+
 h2 {
   font-size: 1.5em;
   font-weight: bold;
@@ -10,4 +12,30 @@ h3 {
   font-weight: bold;
   line-height: unset;
   letter-spacing: unset;
+}
+
+.btn {
+  display: block;
+  text-align: center;
+  padding: 1rem 2rem;
+  cursor: pointer;
+  background-color: transparent;
+  color: #fff;
+  font-weight: bold;
+  font-size: 1.2rem;
+  border: 1px solid $color-primary;
+  border-radius: 999px;
+  transition: 200ms ease;
+  &:hover {
+    background-color: rgba($color: $color-primary, $alpha: 0.2);
+    border-color: rgba($color: $color-primary, $alpha: 0.7);
+  }
+
+  &-primary {
+    background-color: $color-primary;
+    &:hover {
+      background-color: rgba($color: $color-primary, $alpha: 0.7);
+      border-color: rgba($color: $color-primary, $alpha: 0.3);
+    }
+  }
 }

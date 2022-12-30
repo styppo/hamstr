@@ -13,6 +13,11 @@ export default {
       required: true,
     }
   },
+  watch: {
+    pubkey(pubkey) {
+      updateSvg(this.$el, pubkey)
+    }
+  },
   mounted() {
     updateSvg(this.$el, this.pubkey)
   }

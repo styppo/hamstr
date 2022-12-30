@@ -2,7 +2,6 @@ export const MENU_ITEMS = [
   {
     name: 'Home',
     path: '/home',
-    req: true,
   },
   // {
   //   name: 'Explore',
@@ -11,12 +10,12 @@ export const MENU_ITEMS = [
   {
     name: 'Notifications',
     path: '/notifications',
-    req: true,
+    signInRequired: true,
   },
   {
     name: 'Messages',
     path: '/messages/inbox',
-    req: true,
+    signInRequired: true,
   },
   // {
   //   name: 'Settings',

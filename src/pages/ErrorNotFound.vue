@@ -30,11 +30,6 @@
         {{ $t('notFound') }}
       </div>
     </div>
-    <img
-      alt="hamstr logo"
-      src="~assets/astral-logo.svg"
-      style="width: 200px; height: 200px"
-    >
   </q-page>
 </template>
 

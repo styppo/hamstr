@@ -1,9 +1,9 @@
 <template>
   <span
     class="username"
-    :class="{'two-line': wrap}"
+    :class="{'two-line': wrap, clickable}"
   >
-    <a @click.stop="toProfile(pubkey)">
+    <a @click="clickable && toProfile(pubkey)">
       <span
         v-if="$store.getters.name(pubkey)"
         class="name"
@@ -17,7 +17,7 @@
       </span>
       <span v-if="wrap || !$store.getters.name(pubkey)" class="pubkey">
         <span class="pubkey-prefix">npub</span>
-        <span class="pubkey-value">{{ shorten(pubkey) }}</span>
+        <span class="pubkey-value">{{ shorten(hexToBech32(pubkey, '')) }}</span>
       </span>
     </a>
 
@@ -43,6 +43,10 @@ export default {
     pubkey: {
       type: String,
       required: true
+    },
+    clickable: {
+      type: Boolean,
+      default: true,
     },
     wrap: {
       type: Boolean,
@@ -94,9 +98,6 @@ export default {
       }
     }
   }
-  .name:hover {
-    text-decoration: underline;
-  }
   .pubkey {
     &-prefix {
       font-size: 0.7em;
@@ -104,6 +105,14 @@ export default {
     }
     &-value {
       font-weight: bold;
+    }
+  }
+  &.clickable {
+    .name:hover {
+      text-decoration: underline;
+    }
+    .pubkey:first-child:hover {
+      text-decoration: underline;
     }
   }
 }

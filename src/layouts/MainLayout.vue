@@ -1,9 +1,5 @@
 <template>
   <q-layout>
-    <q-dialog v-if="!$store.state.keys.pub" v-model="initializeKeys" persistent>
-      <TheKeyInitializationDialog style="max-height: 85vh" @look-around="setLookingAroundMode"/>
-    </q-dialog>
-
     <div class="layout" @click="mobileMenuOpen = false">
       <div class="layout-menu">
         <div class="layout-menu-fixed" :class="{active: mobileMenuOpen}">
@@ -55,30 +51,8 @@
       </div>
     </div>
 
-    <q-page-sticky v-if="($q.screen.width < 600)" @click.stop="resizePostEntryPlaceholder" id="bottom-drawer" position="bottom" class="z-top xs lt-sm">
-      <!-- <q-separator color="primary"/> -->
-      <!-- <div  v-if="postEntryOpen || messageMode" id="bottom-post-entry" unelevated class="flex column align-self relative-position"> -->
-      <div  v-if="messageMode" id="bottom-message-entry" unelevated class="flex column align-self relative-position q-px-md">
-        <BasePostEntry
-          :event="replyEvent"
-          :message-mode="messageMode"
-          @clear-event="replyEvent=null"
-          @sent="replyEvent=null"
-          @resized="resizePostEntryPlaceholder"
-          :auto-focus="false"
-        />
-      </div>
-      <div v-if="messageMode" id="bottom-post-entry-top-border"></div>
-      <div v-if="postEntryOpen" id="bottom-post-entry" unelevated class="flex column align-self relative-position q-px-md">
-        <!-- <q-btn v-if="!messageMode" icon="close" flat dense @click="togglePostEntry" class="self-end" style="position: absolute; top: 0; right: 0; z-index: 1;"/> -->
-        <BasePostEntry
-          @sent="togglePostEntry"
-          @resized="resizePostEntryPlaceholder"
-          :auto-focus="false"
-
-        />
-      </div>
-    </q-page-sticky>
+    <SignInDialog />
+    <CreatePostDialog />
   </q-layout>
 </template>
 
@@ -88,20 +62,22 @@ import { scroll, useQuasar, LocalStorage } from 'quasar'
 const { getVerticalScrollPosition, setVerticalScrollPosition} = scroll
 import { activateSub, deactivateSub, destroyStreams } from '../query'
 import MainMenu from 'components/MainMenu/MainMenu.vue'
-import TheKeyInitializationDialog from 'components/TheKeyInitializationDialog.vue'
 import SearchBox from 'components/SearchBox/SearchBox.vue'
 import Trends from 'components/Trends/index.vue'
 import BaseIcon from 'components/BaseIcon/index.vue'
+import SignInDialog from 'components/SignIn/SignInDialog.vue'
+import CreatePostDialog from 'components/CreatePost/CreatePostDialog.vue'
 import { setCssVar, getCssVar } from 'quasar'
 
 export default defineComponent({
   name: 'MainLayout',
   components: {
+    CreatePostDialog,
+    SignInDialog,
     BaseIcon,
     MainMenu,
     SearchBox,
     Trends,
-    TheKeyInitializationDialog,
   },
 
   setup () {
@@ -137,9 +113,6 @@ export default defineComponent({
         if (this.replyEvent) return 'reply'
         else return 'message'
       } else return null
-    },
-    initializeKeys() {
-      return !this.lookingAround
     }
   },
 
@@ -359,7 +332,7 @@ export default defineComponent({
       top: 0;
       width: 100%;
       max-width: inherit;
-      padding: 0 1rem;
+      z-index: 1000;
     }
   }
   &-flow {
@@ -444,60 +417,5 @@ export default defineComponent({
       }
     }
   }
-}
-
-#post-entry {
-  border-top: 1px solid var(--q-accent);
-}
-#post-entry .post-entry-form {
-  border: 2px solid var(--q-primary);
-  border-radius: .5rem;
-  margin: .3rem;
-}
-#bottom-post-entry-placeholder {
-}
-
-#bottom-drawer {
-  background: var(--q-background);
-  width: 100%;
-  left: 0;
-  border: 1px solid var(--q-accent);
-  border-bottom: 2px solid var(--q-accent);
-}
-#bottom-drawer > div {
-  width: 100%;
-}
-
-#bottom-message-entry {
-}
-#bottom-post-entry {
-  border: 2px solid var(--q-primary);
-  border-radius: .5rem;
-  margin: .3rem;
-}
-#bottom-post-entry-top-border {
-  height: 0;
-  border-bottom: 1px solid var(--q-accent);
-}
-#bottom-menu {
-}
-#bottom-menu,
-#bottom-menu-placeholder {
-  height: 1rem;
-  min-height: 3rem;
-  width: 100%;
-  background: var(--q-background);
-}
-#navagation-buttons .q-fab__actions .q-btn{
-  background: var(--q-background) !important;
-}
-#navagation-buttons .q-btn{
-  font-size: .8rem;
-}
-.q-page-sticky {
-  z-index: 2;
-}
-.q-fab__actions--left {
-  margin: 0;
 }
 </style>

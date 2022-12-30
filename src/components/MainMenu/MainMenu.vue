@@ -6,26 +6,27 @@
           <Logo />
         </router-link>
       </div>
+      <div v-for="(route, i) in items" :key="i">
+        <MenuItem
+          v-if="!hideItemsRequiringSignIn || !route.signInRequired || $store.getters.isSignedIn"
+          :icon="route.name.toLowerCase()"
+          :to="route.path"
+          :enabled="route.enabled !== false"
+        >
+          {{ route.name }}
+        </MenuItem>
+      </div>
       <MenuItem
-        v-for="(route, i) in items"
-        :key="i"
-        :icon="route.name.toLowerCase()"
-        :to="route.path"
-        :required="route.req"
-      >
-        {{ route.name }}
-      </MenuItem>
-      <MenuItem
+        v-if="!hideItemsRequiringSignIn || $store.getters.isSignedIn"
         icon="profile"
-        :to="`/profile/${me.id}`"
-        required
+        :to="`/profile/${$store.getters.myPubkey}`"
+        :enabled="$store.getters.isSignedIn"
       >
         Profile
       </MenuItem>
       <MenuItem
         icon="settings"
         to="/settings"
-        required
       >
         Settings
       </MenuItem>
@@ -39,14 +40,17 @@
       <!--      </menu-item>-->
 
       <div
+        v-if="!hideItemsRequiringSignIn || $store.getters.isSignedIn"
         class="menu-post-button"
-        @click="$store.commit('toggleTweetButton')"
+        @click="$store.dispatch('createPost')"
       >
         <span class="label">Post</span>
         <BaseIcon class="icon" icon="pen" />
       </div>
     </div>
-    <ProfilePopup />
+
+    <ProfilePopup v-if="$store.getters.isSignedIn" />
+
     <div
       class="mobile-close-menu-button"
       @click="$emit('mobile-menu-close')"
@@ -64,7 +68,7 @@ import MenuItem from 'components/MainMenu/MenuItem.vue'
 import { MENU_ITEMS } from 'components/MainMenu/constants.js'
 import BaseIcon from 'components/BaseIcon'
 import ProfilePopup from 'components/MainMenu/ProfilePopup'
-import Logo from 'components/MainMenu/Logo'
+import Logo from 'components/Logo.vue'
 // import MoreMenu from 'components/MainMenu/MoreMenu'
 // import { mapGetters } from 'vuex'
 
@@ -76,6 +80,12 @@ export default {
     BaseIcon,
     //MoreMenu,
     ProfilePopup
+  },
+  props: {
+    hideItemsRequiringSignIn: {
+      type: Boolean,
+      default: false,
+    }
   },
   emits: ['mobile-menu-close'],
   data: function() {
@@ -124,6 +134,7 @@ menu {
   .menu {
     &-nav {
       position: relative;
+      padding: 0 1rem;
     }
     height: 100%;
     &-logo {
@@ -187,7 +198,7 @@ menu {
   menu {
     .mobile-close-menu-button {
       position: absolute;
-      right: 0;
+      right: 1rem;
       top: 1rem;
       display: flex;
       align-items: center;

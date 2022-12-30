@@ -2,7 +2,7 @@
   <q-page id='settings-page' @click='closeSelects'>
     <PageHeader :title="$t('settings')" />
 
-    <q-form class="q-gutter-md section" @submit="setMetadata">
+    <q-form v-if="$store.getters.isSignedIn" class="q-gutter-md section" @submit="setMetadata">
       <div v-if='editingMetadata' class='flex justify-between' style='display: flex; gap: .2rem;'>
         <q-btn label="save" color="primary" outline size="sm" type="submit"/>
         <q-btn label="cancel" color="negative" outline size="sm" @click='cancel("metadata")'/>
@@ -50,41 +50,43 @@
       />
     </q-form>
 
-    <q-separator color='accent'/>
+    <q-separator v-if="$store.getters.isSignedIn" color='accent'/>
 
-    <div v-if='Object.keys(preferences).length' class='section'>
-      <div v-if='editingPreferences' class='flex justify-between' style='display: flex; gap: .2rem;'>
-        <q-btn label="save" color="primary" outline size="sm" @click='savePreferences'/>
-        <q-btn label="cancel" color="negative" outline size="sm" @click='cancel("preferences")'/>
-      </div>
-      <div class="text-bold flex justify-between no-wrap" style='font-size: 1.1rem;'>
-        {{ $t('preferences') }}
-        <div class="text-normal flex row no-wrap" style='font-size: .9rem; gap: .4rem;'>
-          <q-btn v-if='!editingPreferences' label="edit" color="primary" outline size="sm" @click='editingPreferences = true'/>
-        </div>
-      </div>
-      <div class="text-bold flex justify-between no-wrap" style='font-size: 1rem;'>
-        {{ $t('colors') }}
-      </div>
-      <div v-if='preferences.color' style='padding-left: .2rem; gap: 1rem;' class='flex row'>
-        <div v-for='(colorName, index) in Object.keys(preferences.color)' :key='index' class='flex column items-center'>
-          <label :for="colorName">{{ colorName }}</label>
-          <input type="color" :id="colorName" :name="colorName" :value='preferences.color[colorName]' :disabled="!editingPreferences" @input='(event) => updateColor(event.target.value, colorName)'>
-        </div>
-        <!-- <div v-for='(colorName, index) in Object.keys(preferences.color)' :key='index' class='flex column items-center'>
-          <label :for="colorName">{{ colorName }}</label> -->
-          <BaseSelect :allow-selection='editingPreferences' :selecting='choosingTheme' style='width: 200px;' @toggle='choosingTheme = !choosingTheme'>
-            <template #default>{{ 'choose a theme...' }}</template>
-            <template #list-items>
-              <li v-for='(theme, index) in Object.keys(themes)' :key='index' @click.stop='updateTheme(themes[theme])'>
-                <span >{{theme}}</span>
-              </li>
-            </template>
-          </BaseSelect>
-        <!-- </div> -->
-      </div>
-    </div>
-    <q-separator color='accent'/>
+<!--    <div v-if='Object.keys(preferences).length' class='section'>-->
+<!--      <div v-if='editingPreferences' class='flex justify-between' style='display: flex; gap: .2rem;'>-->
+<!--        <q-btn label="save" color="primary" outline size="sm" @click='savePreferences'/>-->
+<!--        <q-btn label="cancel" color="negative" outline size="sm" @click='cancel("preferences")'/>-->
+<!--      </div>-->
+<!--      <div class="text-bold flex justify-between no-wrap" style='font-size: 1.1rem;'>-->
+<!--        {{ $t('preferences') }}-->
+<!--        <div class="text-normal flex row no-wrap" style='font-size: .9rem; gap: .4rem;'>-->
+<!--          <q-btn v-if='!editingPreferences' label="edit" color="primary" outline size="sm" @click='editingPreferences = true'/>-->
+<!--        </div>-->
+<!--      </div>-->
+<!--      <div class="text-bold flex justify-between no-wrap" style='font-size: 1rem;'>-->
+<!--        {{ $t('colors') }}-->
+<!--      </div>-->
+<!--      <div v-if='preferences.color' style='padding-left: .2rem; gap: 1rem;' class='flex row'>-->
+<!--        <div v-for='(colorName, index) in Object.keys(preferences.color)' :key='index' class='flex column items-center'>-->
+<!--          <label :for="colorName">{{ colorName }}</label>-->
+<!--          <input type="color" :id="colorName" :name="colorName" :value='preferences.color[colorName]' :disabled="!editingPreferences" @input='(event) => updateColor(event.target.value, colorName)'>-->
+<!--        </div>-->
+<!--        &lt;!&ndash; <div v-for='(colorName, index) in Object.keys(preferences.color)' :key='index' class='flex column items-center'>-->
+<!--          <label :for="colorName">{{ colorName }}</label> &ndash;&gt;-->
+<!--          <BaseSelect :allow-selection='editingPreferences' :selecting='choosingTheme' style='width: 200px;' @toggle='choosingTheme = !choosingTheme'>-->
+<!--            <template #default>{{ 'choose a theme...' }}</template>-->
+<!--            <template #list-items>-->
+<!--              <li v-for='(theme, index) in Object.keys(themes)' :key='index' @click.stop='updateTheme(themes[theme])'>-->
+<!--                <span >{{theme}}</span>-->
+<!--              </li>-->
+<!--            </template>-->
+<!--          </BaseSelect>-->
+<!--        &lt;!&ndash; </div> &ndash;&gt;-->
+<!--      </div>-->
+<!--    </div>-->
+
+<!--    <q-separator color='accent'/>-->
+
     <div class='section'>
       <div v-if='editingRelays' class='flex justify-between' style='display: flex; gap: .2rem;'>
         <q-btn label="save" color="primary" outline size="sm" @click='saveRelays'/>
@@ -194,7 +196,7 @@
       </q-expansion-item>
     <q-separator color='accent'/>
 
-    <div class="flex no-wrap section" style='gap: .2rem;'>
+    <div v-if="$store.getters.isSignedIn" class="flex no-wrap section" style='gap: .2rem;'>
       <q-btn label="View your keys" color="primary" outline @click="keysDialog = true" />
       <q-btn label="logout" color="primary" outline @click="logout" />
       <q-btn label="Delete Local Data" color="negative" outline @click="hardReset" />
@@ -221,13 +223,17 @@
         <q-card-section>
           <p>Private Key:</p>
           <q-input
-            v-model="$store.state.keys.priv"
+            :model-value="hexToBech32($store.state.keys.priv, 'nsec')"
             class="mb-2"
             readonly
             filled
           />
           <p>Public Key:</p>
-          <q-input v-model="$store.state.keys.pub" readonly filled />
+          <q-input
+            :model-value="hexToBech32($store.state.keys.pub, 'npub')"
+            readonly
+            filled
+          />
         </q-card-section>
 
         <q-card-actions align="right" class="text-primary">
@@ -247,7 +253,7 @@ import {queryName} from 'nostr-tools/nip05'
 import helpersMixin from '../utils/mixin'
 import {dbErase} from '../query'
 import { getCssVar, setCssVar } from 'quasar'
-import BaseSelect from 'components/BaseSelect.vue'
+// import BaseSelect from 'components/BaseSelect.vue'
 import BaseSelectMultiple from 'components/BaseSelectMultiple.vue'
 import BaseInformation from 'components/BaseInformation.vue'
 import { createMetaMixin } from 'quasar'
@@ -269,7 +275,7 @@ export default {
   mixins: [helpersMixin, createMetaMixin(metaData)],
   emits: ['update-font'],
   components: {
-    BaseSelect,
+    // BaseSelect,
     BaseSelectMultiple,
     BaseInformation,
   },
@@ -381,7 +387,8 @@ export default {
   },
 
   mounted() {
-    if (!this.$store.state.keys.pub) this.$router.push('/')
+    //if (!this.$store.state.keys.pub) this.$router.push('/')
+
     if (this.$store.state.keys.pub && this.$route.params.initUser) {
           nextTick(() => {
             setTimeout(() => {

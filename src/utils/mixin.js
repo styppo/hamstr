@@ -4,7 +4,7 @@ import {shorten} from './helpers'
 import {date} from 'quasar'
 import { dbStreamEvent } from 'src/query'
 import {decrypt} from 'nostr-tools/nip04'
-import { decode } from 'bech32-buffer'
+import { encode, decode } from 'bech32-buffer'
 import * as DOMPurify from 'dompurify'
 const { formatDate } = date
 
@@ -310,5 +310,26 @@ export default {
       }, '')
     },
 
+    hexToBech32(key, prefix) {
+      if (key.length % 2 !== 0 || !/^[0-9a-f]+$/i.test(key)) {
+        return null
+      }
+      let buffer = new Uint8Array(key.length / 2)
+      for (let i = 0; i < buffer.length; i++) {
+        buffer[i] = parseInt(key.substr(2 * i, 2), 16)
+      }
+      // var buf = new ArrayBuffer(64) // 2 bytes for each char
+      // var bufView = new Uint8Array(buf)
+      // for (let i = 0; i < key.length; i++) {
+      //   bufView[i] = key.charCodeAt(i)
+      // }
+      // let data = key.toByte(16)
+      return encode(prefix, buffer)
+      // return data.reduce((s, byte) => {
+      //   let hex = byte.toString(16)
+      //   if (hex.length === 1) hex = '0' + hex
+      //   return s + hex
+      // }, '')
+    },
   }
 }

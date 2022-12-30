@@ -6,6 +6,10 @@ export default function (store) {
       case 'setKeys':
         LocalStorage.set('keys', state.keys)
         break
+      case 'addOrUpdateAccount':
+      case 'removeAccount':
+        LocalStorage.set('accounts', state.accounts)
+        break
       case 'setFollows':
         LocalStorage.set('follows', state.follows)
         break

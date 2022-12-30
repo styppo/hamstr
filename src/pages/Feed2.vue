@@ -3,7 +3,7 @@
     <div>
       <PageHeader />
 
-      <PostEditor />
+      <PostEditor v-if="$store.getters.isSignedIn" />
 
       <q-tabs
         v-model="tab"

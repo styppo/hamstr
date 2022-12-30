@@ -10,7 +10,11 @@ export default {
   name: 'App',
   components: {
     MainLayout
-  }
+  },
+  mounted() {
+    // TODO Find a better place to put this
+    this.$store.dispatch('prefetchAccounts')
+  },
 }
 </script>
 

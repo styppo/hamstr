@@ -96,6 +96,15 @@ export default function () {
     unreadMessages: {},
 
     lastNotificationRead: LocalStorage.getItem('lastNotificationRead') || 0,
-    unreadNotifications: 0
+    unreadNotifications: 0,
+
+    // ---
+    accounts: LocalStorage.getItem('accounts') || {}, // { pubkey: { secret } }
+
+    signInDialogOpen: false,
+    signInSuccess: null,
+    signInFailure: null,
+
+    postDialogOpen: false,
   }
 }

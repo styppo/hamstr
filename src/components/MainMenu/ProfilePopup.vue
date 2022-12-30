@@ -1,19 +1,13 @@
 <template>
-  <div
-    class="menu-profile-wrapper"
-  >
-    <div
-      class="menu-profile"
-      @click="toggleMenu"
-    >
+  <div class="menu-profile-wrapper">
+    <div class="menu-profile">
       <div class="menu-profile-pic">
-        <BaseUserAvatar :pubkey="$store.state.keys.pub" />
+        <BaseUserAvatar :pubkey="pubkey" :clickable="false" />
       </div>
       <div class="menu-profile-items">
         <div class="profile-info">
-          <p>{{ me.profile.name }}</p>
-          <p class="nickname">
-            {{ me.profile.nickname }}
+          <p>
+            <BaseUserName :pubkey="pubkey" :clickable="false" wrap />
           </p>
         </div>
         <div class="more">
@@ -21,42 +15,38 @@
         </div>
       </div>
     </div>
-    <div
-      v-if="isMenuOpened"
-      class="menu-profile-popup"
-    >
-      <div class="popup-header">
-        <div class="sidebar-profile-pic">
-          <img
-            :src="me.profile.pic"
-          >
-        </div>
-        <div class="menu-profile-items">
-          <div class="profile-info">
-            <p>{{ me.profile.name }}</p>
-            <p class="nickname">
-              {{ me.profile.nickname }}
-            </p>
+    <q-menu :offset="[0, 20]" target=".menu-profile" class="menu-profile-popup" >
+      <div>
+        <div v-for="(_, pk) in $store.state.accounts" :key="pk" class="popup-header" @click="switchAccount(pk)">
+          <div class="sidebar-profile-pic">
+            <BaseUserAvatar :pubkey="pk" :clickable="false"/>
           </div>
-          <div class="more">
-            <base-icon icon="tick" />
+          <div class="menu-profile-items">
+            <div class="profile-info">
+              <p>
+                <BaseUserName :pubkey="pk" :clickable="false" wrap />
+              </p>
+            </div>
+            <div class="more" v-if="pk === pubkey">
+              <base-icon icon="tick" />
+            </div>
           </div>
-        </div>
-      </div>
-      <hr class="popup-spacing">
-      <div class="popup-body">
-        <div class="popup-body-item">
-          <p>Add an existing account</p>
         </div>
         <hr class="popup-spacing">
-        <div
-          class="popup-body-item"
-          @click="handleLogOut"
-        >
-          <p>Logout from <span>{{ me.profile.nickname }}</span></p>
+        <div class="popup-body">
+          <div class="popup-body-item" @click="$store.dispatch('signIn')">
+            <p>Add an existing account</p>
+          </div>
+          <hr class="popup-spacing">
+          <div
+            class="popup-body-item"
+            @click="handleLogOut"
+          >
+            <p>Logout from <span>{{ $store.getters.displayName(pubkey) }}</span></p>
+          </div>
         </div>
       </div>
-    </div>
+    </q-menu>
   </div>
 </template>
 
@@ -64,37 +54,29 @@
 // import { mapGetters } from 'vuex'
 import BaseIcon from '../BaseIcon/index'
 import BaseUserAvatar from 'components/BaseUserAvatar.vue'
+import BaseUserName from 'components/BaseUserName.vue'
 
 export default {
   name: 'ProfilePopup',
   components: {
+    BaseUserName,
     BaseUserAvatar,
     BaseIcon
   },
-  data: function() {
-    return {
-      isMenuOpened: false
-    }
-  },
   computed: {
-    me() {
-      return {
-        id: '808750ab31182b452c7447e9d1903f82b991c5d5f1f32199cf648b932615ee8f',
-        username: 'foobar',
-        profile: {
-          pic: '',
-          nickname: 'foobar',
-          name: 'foobar'
-        }
-      }
+    pubkey() {
+      return this.$store.getters.myPubkey
     }
-    // ...mapGetters({
-    //   me: 'getMe'
-    // })
   },
   methods: {
-    toggleMenu: function() {
-      this.isMenuOpened = !this.isMenuOpened
+    switchAccount(pubkey) {
+      const account = this.$store.state.accounts[pubkey]
+      if (!account) return
+      this.$store.commit('setKeys', {
+        priv: account.secret,
+        pub: pubkey
+      })
+      this.$store.dispatch('useProfile', {pubkey})
     },
     handleLogOut() {
       this.$store.dispatch('setLogOut')
@@ -112,7 +94,9 @@ export default {
   display: flex;
   align-items: center;
   margin-bottom: 1rem;
-  cursor: pointer;
+  margin-right: 1rem;
+  padding: .5rem 1rem;
+  cursor: pointer !important;
   border-radius: 999px;
   transition: 120ms ease-in-out;
   &-wrapper {
@@ -158,16 +142,12 @@ export default {
     }
   }
   &-popup {
-    position: absolute;
-    z-index: 3;
-    width: 105%;
-    bottom: calc(100% + 20px);
-    left: 0;
+    width: 300px;
     border-radius: 1rem;
     padding: 10px;
     background-color: $color-bg;
     box-shadow: $shadow-white;
-    & .popup-spacing {
+    .popup-spacing {
       border: none;
       background-color: rgba($color: $color-dark-gray, $alpha: 0.2);
       padding-top: 2px;
@@ -177,6 +157,10 @@ export default {
       display: flex;
       width: 100%;
       padding: 8px;
+      cursor: pointer;
+      &:hover {
+        background-color: rgba($color: $color-dark-gray, $alpha: 0.3);
+      }
       .more {
         width: 1.5rem;
         height: 1.5rem;
@@ -208,8 +192,27 @@ export default {
 }
 
 @media screen and (max-width: $tablet) and (min-width: $phone) {
-  .menu-profile-items {
-    display: none;
+  .menu-profile {
+    padding: 4px;
+    margin: auto;
+    &-wrapper {
+      padding: 0;
+      margin: 0 10px 1rem auto;
+    }
+    > .menu-profile-items {
+      display: none;
+    }
+  }
+}
+
+
+@media screen and (max-width: $phone) {
+  .menu-profile {
+    padding: .5rem;
+    margin: 0 auto 1rem auto;
+    &-wrapper {
+      padding: 0 1rem;
+    }
   }
 }
 </style>
