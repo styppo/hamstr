@@ -11,7 +11,7 @@
         <form @submit="searchProfile">
           <input
             type="text"
-            placeholder="Search Hamstr"
+            placeholder="Search profiles"
             v-model="query"
             @focus="toggleFocus"
             @blur="toggleFocus"

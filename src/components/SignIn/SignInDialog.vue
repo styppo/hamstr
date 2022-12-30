@@ -18,7 +18,6 @@
       </div>
 
       <SignUpForm v-if="fragment === 'sign-up'" @complete="onComplete" />
-
       <SignInForm v-if="fragment === 'sign-in'" @complete="onComplete"/>
 
       <div v-if="fragment === 'complete'" class="complete">
@@ -86,21 +85,21 @@ export default {
 }
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
 @import "assets/theme/colors.scss";
 
 .sign-in-dialog {
   position: relative;
   background-color: $color-bg;
-  padding: 2rem;
+  padding: 1rem;
   min-width: 440px;
   text-align: center;
   .icon {
     position: absolute;
     width: 16px;
     height: 16px;
-    top: 1rem;
-    left: 1rem;
+    top: .5rem;
+    left: .5rem;
     fill: #fff;
   }
   .logo {

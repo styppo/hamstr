@@ -34,8 +34,8 @@
         </div>
         <hr class="popup-spacing">
         <div class="popup-body">
-          <div class="popup-body-item" @click="$store.dispatch('signIn')">
-            <p>Add an existing account</p>
+          <div class="popup-body-item" @click="$store.dispatch('signIn').catch(() => {})">
+            <p>Add an account</p>
           </div>
           <hr class="popup-spacing">
           <div

@@ -113,11 +113,11 @@ export default {
           mentions.mentionEvents.push(eventId)
           // if repost remove text
           if (match.length === text.length) return ''
-          return `[&${shorten(eventId)}](/event/${eventId})`
+          return `[&${shorten(this.hexToBech32(eventId, 'note'))}](/thread/${eventId})`
         } else if (tags[Number(index)][0] === 'p') {
           const profile = tags[Number(index)][1]
           const displayName = this.$store.getters.displayName(profile)
-          return `[@${displayName}](/${profile})`
+          return `[@${displayName}](/profile/${profile})`
         }
       }
       const hashtagReplacer = (match, startWhitespace, hashtag) => {
@@ -125,7 +125,7 @@ export default {
       }
       const untaggedProfileReplacer = (match, profile) => {
         const displayName = this.$store.getters.displayName(profile)
-        return `[@${displayName}](/${profile})`
+        return `[@${displayName}](/profile/${profile})`
       }
 
       let replacedText = text.replace(/#\[(\d+)\]/g, replacer)
