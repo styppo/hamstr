@@ -34,7 +34,7 @@
         </div>
         <hr class="popup-spacing">
         <div class="popup-body">
-          <div class="popup-body-item" @click="$store.dispatch('signIn').catch(() => {})">
+          <div class="popup-body-item" @click="$store.dispatch('signIn').catch(() => {})" v-close-popup>
             <p>Add an account</p>
           </div>
           <hr class="popup-spacing">

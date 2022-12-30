@@ -1,10 +1,10 @@
 <template>
   <q-page>
-    <div>
-      <PageHeader />
+    <PageHeader />
 
-      <PostEditor v-if="$store.getters.isSignedIn" />
+    <PostEditor v-if="$store.getters.isSignedIn" />
 
+    <div class="tabs">
       <q-tabs
         v-model="tab"
         dense
@@ -19,10 +19,12 @@
         <q-tab name="bots" label="bots" />
       </q-tabs>
     </div>
+
     <div v-if="tab === 'AI'" class="flex row no-wrap items-center" style="border: 1px solid var(--q-accent); border-radius: .5rem; padding: .5rem; margin: .5rem; gap: .5rem;">
       <q-icon name="info" color="accent" size="sm"/>
       <div>to chat with the AI bot create a new post and mention it by typing '@gpt3' and selecting the AI bot from the user list</div>
     </div>
+
     <div class="feed">
       <BaseButtonLoadMore
         v-if="unreadFeed[tab].length"
@@ -49,20 +51,8 @@ import {dbFeed, dbUserFollows} from '../query'
 import BaseButtonLoadMore from 'components/BaseButtonLoadMore.vue'
 import { createMetaMixin } from 'quasar'
 import PageHeader from 'components/PageHeader.vue'
-//import Post from 'components/Post/ListPost.vue'
 import PostEditor from 'components/CreatePost/PostEditor.vue'
 import Thread from 'components/Post/Thread.vue'
-
-
-    // const debouncedAddToThread = mergebounce(
-    //   events => {
-    //     if (this.follows.includes(event.pubkey)) addToThread(this.feed.follows, Object.assign({}, event), 'feed', event.pubkey !== this.$store.state.keys.pub)
-    //     if (this.isBot(event)) addToThread(this.feed.bots, Object.assign({}, event), 'feed', event.pubkey !== this.$store.state.keys.pub)
-    //     else addToThread(this.feed.global, Object.assign({}, event), 'feed', event.pubkey !== this.$store.state.keys.pub)
-    //   },
-    //   500,
-    //   { 'concatArrays': true, 'promise': true, maxWait: 1000 }
-    // )
 
 const metaData = {
   // sets document title
@@ -265,30 +255,26 @@ export default defineComponent({
       if (event.tags.findIndex(([t, v]) => t === 'p' && v === '5c10ed0678805156d39ef1ef6d46110fe1e7e590ae04986ccf48ba1299cb53e2') >= 0) return true
       return false
     },
-
-    // printDetails(details) {
-    //   console.log('details', details)
-    // },
-
-    // itemKey(item) {
-    //   return item[0].id
-    // }
   }
 })
 </script>
-<style lang="scss">
-@import 'assets/theme/colors.scss';
+<style lang="scss" scoped>
+@import "assets/theme/colors.scss";
 
-.q-tabs {
+.tabs {
   border-top: $border-dark;
   border-bottom: $border-dark;
+  position: sticky;
+  top: 78px;
+  background-color: $color-bg;
+  z-index: 1001;
 }
 
 .q-page::-webkit-scrollbar {
   width: 0px;
 }
 
-.q-tab {
+.tabs .q-tab {
   padding: 0 1rem;
 }
 

@@ -12,6 +12,7 @@
           :icon="route.name.toLowerCase()"
           :to="route.path"
           :enabled="route.enabled !== false"
+          @click="$emit('mobile-menu-close')"
         >
           {{ route.name }}
         </MenuItem>
@@ -21,28 +22,22 @@
         icon="profile"
         :to="`/profile/${$store.getters.myPubkey}`"
         :enabled="$store.getters.isSignedIn"
+        @click="$emit('mobile-menu-close')"
       >
         Profile
       </MenuItem>
       <MenuItem
         icon="settings"
         to="/settings"
+        @click="$emit('mobile-menu-close')"
       >
         Settings
       </MenuItem>
 
-      <!--      <menu-item-->
-      <!--        icon="more"-->
-      <!--        @click="toggleMenu"-->
-      <!--      >-->
-      <!--        More-->
-      <!--        <more-menu v-if="isMenuOpened" />-->
-      <!--      </menu-item>-->
-
       <div
         v-if="!hideItemsRequiringSignIn || $store.getters.isSignedIn"
         class="menu-post-button"
-        @click="$store.dispatch('createPost')"
+        @click="createPost"
       >
         <span class="label">Post</span>
         <BaseIcon class="icon" icon="pen" />
@@ -69,8 +64,6 @@ import { MENU_ITEMS } from 'components/MainMenu/constants.js'
 import BaseIcon from 'components/BaseIcon'
 import ProfilePopup from 'components/MainMenu/ProfilePopup'
 import Logo from 'components/Logo.vue'
-// import MoreMenu from 'components/MainMenu/MoreMenu'
-// import { mapGetters } from 'vuex'
 
 export default {
   name: 'MainMenu',
@@ -78,7 +71,6 @@ export default {
     Logo,
     MenuItem,
     BaseIcon,
-    //MoreMenu,
     ProfilePopup
   },
   props: {
@@ -91,28 +83,12 @@ export default {
   data: function() {
     return {
       items: MENU_ITEMS,
-      isMenuOpened: false
     }
-  },
-  computed: {
-    me() {
-      return {
-        id: '808750ab31182b452c7447e9d1903f82b991c5d5f1f32199cf648b932615ee8f',
-        username: 'foobar',
-        profile: {
-          pic: '',
-          nickname: 'foobar',
-          name: 'foobar'
-        }
-      }
-    }
-    // ...mapGetters({
-    //   me: 'getMe'
-    // })
   },
   methods: {
-    toggleMenu: function() {
-      this.isMenuOpened = !this.isMenuOpened
+    createPost() {
+      this.$emit('mobile-menu-close')
+      this.$store.dispatch('createPost')
     }
   }
 }

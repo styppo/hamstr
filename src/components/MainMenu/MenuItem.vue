@@ -2,6 +2,7 @@
   <component
     :is="enabled ? 'router-link' : 'div'"
     :to="enabled ? to : ''"
+    @click="enabled && $emit('click')"
   >
     <div class="menu-item">
       <div class="menu-item-logo">
@@ -43,6 +44,7 @@ export default {
       default: true
     }
   },
+  emits: ['mobile-menu-close'],
 }
 </script>
 

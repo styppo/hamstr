@@ -84,7 +84,6 @@ export default {
       }
     },
     onClose() {
-      this.$refs.postEditor.reset()
       this.$store.commit('dismissPostDialog')
     }
   },
@@ -96,12 +95,13 @@ export default {
 
 <style lang="scss" scoped>
 @import "assets/theme/colors.scss";
+@import "assets/variables.scss";
 
 .create-post-dialog {
   position: relative;
   background-color: $color-bg;
   padding: 3rem 1rem 1rem;
-  min-width: 440px;
+  min-width: 660px;
   .icon {
     position: absolute;
     width: 16px;
@@ -121,4 +121,12 @@ export default {
     }
   }
 }
+
+@media screen and (max-width: $phone-lg) {
+  .create-post-dialog {
+    min-width: unset;
+    width: 100%;
+  }
+}
+
 </style>

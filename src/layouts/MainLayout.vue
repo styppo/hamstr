@@ -382,13 +382,16 @@ export default defineComponent({
         position: fixed;
         background-color: $color-bg;
         transform: translateX(-100%);
-        box-shadow: $shadow-white;
         transition: 200ms ease;
         z-index: 1000;
         &.active {
           transform: translateX(0%);
+          box-shadow: $shadow-white;
         }
       }
+    }
+    &-flow {
+      border: 0;
     }
     &-sidebar {
       display: none;

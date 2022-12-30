@@ -48,11 +48,14 @@ export default defineComponent({
 @import 'assets/theme/colors.scss';
 
 .page-header {
-  //border-bottom: $border-dark;
-  margin: 1rem;
+  padding: 1rem;
   color: #fff;
   display: flex;
   align-items: center;
+  position: sticky;
+  top: 0;
+  background-color: $color-bg;
+  z-index: 1001;
   h2 {
     line-height: 50px;
     margin: 0;

@@ -87,6 +87,7 @@ export default {
 
 <style lang="scss" scoped>
 @import "assets/theme/colors.scss";
+@import "assets/variables.scss";
 
 .sign-in-dialog {
   position: relative;
@@ -123,4 +124,12 @@ export default {
     }
   }
 }
+
+@media screen and (max-width: $phone-lg) {
+  .sign-in-dialog {
+    min-width: unset;
+    width: 100%;
+  }
+}
+
 </style>
