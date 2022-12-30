@@ -1,5 +1,5 @@
 <template>
-  <q-dialog v-model="$store.state.signInDialogOpen" @close="onClose">
+  <q-dialog v-model="$store.state.signInDialogOpen" @hide="onClose">
     <div class="sign-in-dialog">
       <q-btn v-if="fragment === 'welcome'" icon="close" size="md" flat round class="icon" v-close-popup />
       <q-btn v-else-if="fragment !== 'complete'" icon="arrow_back" size="md" flat round class="icon" @click="fragment = 'welcome'" />
@@ -62,24 +62,20 @@ export default {
   },
   methods: {
     onClose() {
-      console.log('onClose')
-
       this.fragment = 'welcome'
 
       if (this.pubkey) {
-        if (this.$store.state.signInSuccess) {
-          this.$store.state.signInSuccess(this.pubkey)
+        if (typeof this.$store.state.signInSuccess === 'function') {
+          this.$store.state.signInSuccess.call(null, this.pubkey)
         }
       } else {
-        if (this.$store.state.signInFailure) {
-          this.$store.state.signInFailure()
+        if (typeof this.$store.state.signInFailure === 'function') {
+          this.$store.state.signInFailure.call(null)
         }
       }
 
       this.pubkey = null
-
-      this.$store.state.signInSuccess = null
-      this.$store.state.signInFailure = null
+      this.$store.commit('dismissSignInDialog')
     },
     onComplete({pubkey}) {
       this.$store.dispatch('useProfile', {pubkey})

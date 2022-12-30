@@ -447,9 +447,7 @@ export async function useNip05(store, {metadata}) {
 export async function signIn(store) {
   return new Promise((resolve, reject) => {
     console.assert(!store.state.signInDialogOpen)
-    store.state.signInSuccess = resolve
-    store.state.signInFailure = reject
-    store.state.signInDialogOpen = true
+    store.commit('openSignInDialog', {resolve, reject})
   })
 }
 
@@ -459,7 +457,12 @@ export async function ensureSignedIn(store) {
 }
 
 export async function createPost(store, options) {
-  await store.dispatch('ensureSignedIn')
+  try {
+    await store.dispatch('ensureSignedIn')
+  } catch (e) {
+    return
+  }
+
   // TODO options
   store.state.postDialogOpen = true
 }
