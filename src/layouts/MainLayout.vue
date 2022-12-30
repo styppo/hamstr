@@ -10,7 +10,7 @@
       <div class="layout-flow">
         <q-page-container ref="pageContainer">
           <router-view v-slot="{ Component }">
-            <keep-alive :include="['Feed', 'Feed2', 'Messages', 'Notifications']">
+            <keep-alive :include="['Feed', 'Messages', 'Notifications']">
               <component :is="Component" :key="$route.path" :looking-around="lookingAround" @scroll-to-rect="scrollToRect" @reply-event="setReplyEvent"/>
             </keep-alive>
           </router-view>
@@ -89,7 +89,7 @@ export default defineComponent({
 
   data() {
     return {
-      cachedPages: ['Feed', 'Feed2', 'Notifications', 'Messages'],
+      cachedPages: ['Feed', 'Notifications', 'Messages'],
       middlePagePos: {},
       broadcastChannel: new BroadcastChannel('hamstr'),
       activeWindow: false,

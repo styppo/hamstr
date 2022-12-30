@@ -1,40 +1,42 @@
 <template>
   <q-page>
     <div>
-      <PageHeader :title="$t('feed')" />
-      <!-- <div class="text-h5 text-bold q-py-md q-px-sm full-width flex row justify-start">
-        {{ $t('feed') }}
-      </div> -->
+      <PageHeader />
+
+      <PostEditor v-if="$store.getters.isSignedIn" />
+
       <q-tabs
         v-model="tab"
         dense
         outline
         align="left"
-        active-color='accent'
+        active-color="accent"
         :breakpoint="0"
       >
-        <q-tab name="follows" label='follows' />
-        <q-tab name="global" label='global' />
-        <q-tab name="AI" label='AI' />
-        <q-tab name="bots" label='bots' />
+        <q-tab name="global" label="global" />
+        <q-tab name="follows" label="follows" />
+        <q-tab name="AI" label="AI" />
+        <q-tab name="bots" label="bots" />
       </q-tabs>
     </div>
-    <div v-if='tab === "AI"' class='flex row no-wrap items-center' style='border: 1px solid var(--q-accent); border-radius: .5rem; padding: .5rem; margin: .5rem; gap: .5rem;'>
-      <q-icon name='info' color='accent' size='sm'/>
+    <div v-if="tab === 'AI'" class="flex row no-wrap items-center" style="border: 1px solid var(--q-accent); border-radius: .5rem; padding: .5rem; margin: .5rem; gap: .5rem;">
+      <q-icon name="info" color="accent" size="sm"/>
       <div>to chat with the AI bot create a new post and mention it by typing '@gpt3' and selecting the AI bot from the user list</div>
     </div>
-    <BaseButtonLoadMore
-      v-if='unreadFeed[tab].length'
-      :loading-more='loadingUnread'
-      :label='"load " + unreadFeed[tab].length + " unread"'
-      @click='loadUnread'
-    />
-    <BasePostThread v-for='(item, index) in items' :key='index' :events="item" class='full-width' @add-event='processEvent'/>
-    <BaseButtonLoadMore
-      :loading-more='loadingMore'
-      :label='items.length === feed[tab].length ? "load another day" : "load 100 more"'
-      @click='loadMore'
-    />
+    <div class="feed">
+      <BaseButtonLoadMore
+        v-if="unreadFeed[tab].length"
+        :loading="loadingUnread"
+        :label="'load ' + unreadFeed[tab].length + ' unread'"
+        @click="loadUnread"
+      />
+      <Thread v-for="item in items" :key="item[0].id" :events="item" class="full-width" @add-event="processEvent" />
+      <BaseButtonLoadMore
+        :loading="loadingMore"
+        :label="items.length === feed[tab].length ? 'load another day' : 'load 100 more'"
+        @click="loadMore"
+      />
+    </div>
   </q-page>
 </template>
 
@@ -46,6 +48,10 @@ import {isValidEvent} from '../utils/event'
 import {dbFeed, dbUserFollows} from '../query'
 import BaseButtonLoadMore from 'components/BaseButtonLoadMore.vue'
 import { createMetaMixin } from 'quasar'
+import PageHeader from 'components/PageHeader.vue'
+//import Post from 'components/Post/ListPost.vue'
+import PostEditor from 'components/CreatePost/PostEditor.vue'
+import Thread from 'components/Post/Thread.vue'
 
 
     // const debouncedAddToThread = mergebounce(
@@ -75,6 +81,10 @@ export default defineComponent({
   mixins: [helpersMixin, createMetaMixin(metaData)],
 
   components: {
+    Thread,
+    PageHeader,
+    //Post,
+    PostEditor,
     BaseButtonLoadMore,
   },
 
@@ -126,7 +136,7 @@ export default defineComponent({
       botTracker: '29f63b70d8961835b14062b195fc7d84fa810560b36dde0749e4bc084f0f8952',
       loadingMore: true,
       loadingUnread: false,
-      tab: 'follows',
+      tab: 'global',
       since: Math.round(Date.now() / 1000),
       profilesUsed: new Set(),
       // index: 0,
@@ -150,18 +160,17 @@ export default defineComponent({
     this.bots = await this.getFollows(this.botTracker)
     this.follows = await this.getFollows(this.$store.state.keys.pub)
 
-    if (this.$store.state.keys.pub) this.loadMore()
-    else {
-      this.unsubscribe = this.$store.subscribe((mutation, state) => {
-        switch (mutation.type) {
-          case 'setKeys': {
-            this.loadingMore = true
-            setTimeout(this.loadMore(), 6)
-            break
-          }
+    await this.loadMore()
+
+    this.unsubscribe = this.$store.subscribe((mutation, state) => {
+      switch (mutation.type) {
+        case 'setKeys': {
+          this.loadingMore = true
+          setTimeout(this.loadMore, 6)
+          break
         }
-      })
-    }
+      }
+    })
 
     if (this.follows.length === 0) {
       this.tab = 'global'
@@ -267,12 +276,34 @@ export default defineComponent({
   }
 })
 </script>
-<style lang='css' scoped>
+<style lang="scss">
+@import 'assets/theme/colors.scss';
+
 .q-tabs {
-  border-bottom: 1px solid var(--q-accent)
+  border-top: $border-dark;
+  border-bottom: $border-dark;
 }
 
 .q-page::-webkit-scrollbar {
   width: 0px;
 }
+
+.q-tab {
+  padding: 0 1rem;
+}
+
+.feed {
+  > .load-more {
+    button {
+      padding: 1rem 0;
+    }
+  }
+  > .load-more:first-child {
+    border-bottom: $border-dark;
+  }
+  > .load-more:last-child {
+    border-bottom: 0;
+  }
+}
+
 </style>

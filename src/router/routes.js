@@ -5,7 +5,7 @@ const routes = [
   },
   {
     path: '/home',
-    component: () => import('pages/Feed2.vue'),
+    component: () => import('pages/Feed'),
     name: 'home',
   },
   {
