@@ -1,7 +1,8 @@
 <template>
   <div
     class="post"
-    @click.stop="toEvent(post.id)"
+    :class="{clickable}"
+    @click.stop="clickable && toEvent(post.id)"
   >
     <div class="post-author">
       <div class="connector-top">
@@ -19,8 +20,8 @@
           <span>&#183;</span>
           <span class="created-at">{{ moment(post.createdAt).fromNow() }}</span>
         </p>
-        <p v-if="post.inReplyTo" class="in-reply-to">
-          Replying to <a @click.stop="toEvent(post.inReplyTo)">{{ shorten(post.inReplyTo) }}</a>
+        <p v-if="ancestor" class="in-reply-to">
+          Replying to <a @click.stop="toEvent(ancestor)">{{ shorten(ancestor) }}</a>
         </p>
       </div>
       <div class="post-content-body">
@@ -28,16 +29,16 @@
           <BaseMarkdown :content="post.content" />
         </p>
       </div>
-      <div class="post-content-actions">
-        <div class="action-item comment">
+      <div v-if="actions" class="post-content-actions">
+        <div class="action-item comment" @click.stop="$store.dispatch('createPost', {replyTo})">
           <BaseIcon icon="comment" />
           <span>{{ numComments }}</span>
         </div>
-        <div class="action-item repost">
+        <div class="action-item repost" @click.stop>
           <BaseIcon icon="repost" />
           <span>{{ post.stats.reposts }}</span>
         </div>
-        <div class="action-item like">
+        <div class="action-item like" @click.stop>
           <BaseIcon icon="like" />
           <span>{{ post.stats.likes }}</span>
         </div>
@@ -77,7 +78,7 @@ function postFromEvent(event) {
     author: event.pubkey,
     createdAt: event.created_at * 1000,
     content: event.interpolated.text,
-    inReplyTo: event.interpolated.replyEvents[event.interpolated.replyEvents.length - 1],
+    replyTo: event.interpolated.replyEvents,
     images: [],
     stats: {
       comments: '',
@@ -109,13 +110,26 @@ export default {
       type: Boolean,
       default: false,
     },
-  },
-  data() {
-    return {
-      post: postFromEvent(this.event),
-    }
+    clickable: {
+      type: Boolean,
+      default: false,
+    },
+    actions: {
+      type: Boolean,
+      default: false,
+    },
   },
   computed: {
+    post() {
+      return postFromEvent(this.event)
+    },
+    ancestor() {
+      if (this.post.replyTo.length === 0) return
+      return this.post.replyTo[this.post.replyTo.length - 1]
+    },
+    replyTo() {
+      return this.post.replyTo.concat([this.post.id])
+    },
     numComments() {
       return countRepliesRecursive(this.event)
     },
@@ -134,11 +148,12 @@ export default {
   padding: 0 1rem;
   display: flex;
   transition: 100ms ease background-color;
-  cursor: pointer;
   border-bottom: $border-dark;
-
-  &:hover {
-    background-color: rgba($color: $color-dark-gray, $alpha: 0.2);
+  &.clickable {
+    cursor: pointer;
+    &:hover {
+      background-color: rgba($color: $color-dark-gray, $alpha: 0.2);
+    }
   }
   &-author {
     display: flex;
@@ -156,10 +171,6 @@ export default {
       height: 100%;
       margin: auto;
       background: rgb(56, 68, 77);
-    }
-    img {
-      width: 100%;
-      border-radius: 999px;
     }
   }
   &-content {

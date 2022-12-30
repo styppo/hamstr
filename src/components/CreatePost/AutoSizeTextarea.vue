@@ -1,5 +1,12 @@
 <template>
-  <textarea v-model="text" :placeholder="placeholder" @input="resize" @focus="resize" ref="textarea"></textarea>
+  <textarea
+    v-model="text"
+    :placeholder="placeholder"
+    :disabled="disabled"
+    @input="resize"
+    @focus="resize"
+    ref="textarea"
+  ></textarea>
 </template>
 
 <script>
@@ -22,6 +29,10 @@ export default {
       type: String,
       default: 'What\'s happening?',
     },
+    disabled: {
+      type: Boolean,
+      default: false,
+    }
   },
   emits: ['update:modelValue'],
   data() {
@@ -42,7 +53,9 @@ export default {
     resize() {
       const textarea = this.$refs.textarea
       this.$nextTick(() => {
+        textarea.style.height = 'inherit'
         let height = textarea.scrollHeight
+
         if (this.minHeight) {
           height = Math.max(height, this.minHeight)
         }
@@ -61,7 +74,11 @@ export default {
         const caretPos = textarea.selectionStart + text.length
         textarea.setSelectionRange(caretPos, caretPos)
       }
-    }
+      this.$emit('update:modelValue', textarea.value)
+    },
+    focus() {
+      this.$refs.textarea.focus()
+    },
   },
   mounted() {
     if (this.text) {

@@ -1,40 +1,23 @@
 <template>
   <div
     class="post-editor"
-    :class="{
-      'post-editor-compact': compact,
-      'post-editor-compact-collapsed': collapsed
-    }"
+    :class="{compact, collapsed, connector}"
   >
-    <div class="post-editor-avatar">
-      <BaseUserAvatar :pubkey="$store.state.keys.pub" />
+    <div class="post-editor-author">
+      <div v-if="connector" class="connector-top">
+        <div class="connector-line"></div>
+      </div>
+      <BaseUserAvatar :pubkey="$store.getters.myPubkey" />
     </div>
     <div class="post-editor-content">
       <div class="input-section">
         <AutoSizeTextarea
-          v-model="post.text"
+          v-model="content"
           ref="textarea"
           :placeholder="placeholder"
+          :disabled="publishing"
           @focus.once="collapsed = false"
         />
-<!--        <div-->
-<!--          v-if="tweetContent.imageList"-->
-<!--          class="tweet-section-images"-->
-<!--        >-->
-<!--          <div-->
-<!--            v-for="(image, i) in tweetContent.imageList"-->
-<!--            :key="i"-->
-<!--            class="image-container"-->
-<!--          >-->
-<!--            <img :src="image.url">-->
-<!--            <div-->
-<!--              class="close-button"-->
-<!--              @click="deleteImage(i)"-->
-<!--            >-->
-<!--              <base-icon icon="close" />-->
-<!--            </div>-->
-<!--          </div>-->
-<!--        </div>-->
       </div>
       <div class="controls">
         <div class="controls-media">
@@ -44,35 +27,21 @@
               <EmojiPicker @select="onEmojiSelected"/>
             </q-menu>
           </div>
-
-<!--          <div-->
-<!--            class="controls-media-item"-->
-<!--            @click="$refs.uploadImageInput.click()"-->
-<!--          >-->
-<!--            <BaseIcon icon="image" />-->
-<!--            <input-->
-<!--              ref="uploadImageInput"-->
-<!--              type="file"-->
-<!--              accept="image/*"-->
-<!--              hidden-->
-<!--              @change="showFiles"-->
-<!--            >-->
-<!--          </div>-->
-<!--          <div class="controls-media-item">-->
-<!--            <BaseIcon icon="gif" />-->
-<!--          </div>-->
-<!--          <div class="controls-media-item">-->
-<!--            <BaseIcon icon="graph" />-->
-<!--          </div>-->
+          <div class="controls-media-item disabled">
+            <BaseIcon icon="image" />
+          </div>
         </div>
         <div class="controls-submit">
-          <button :disabled="!hasPostText()" @click="handleSubmit" class="btn">
-            Post
+          <button :disabled="!hasContent() || publishing" @click="publishPost" class="btn">
+            <q-spinner v-if="publishing" />
+            <span v-else>Post</span>
           </button>
         </div>
       </div>
     </div>
-    <button v-if="collapsed" class="btn" disabled>Post</button>
+    <div class="post-editor-fake-submit" v-if="collapsed">
+      <button class="btn" disabled>Post</button>
+    </div>
   </div>
 </template>
 
@@ -91,6 +60,10 @@ export default {
     EmojiPicker,
   },
   props: {
+    replyTo: {
+      type: Array, // [{id: <eventId>, pubkey: <authorPubkey>},...]
+      default: () => [],
+    },
     placeholder: {
       type: String,
       default: 'What\'s happening?',
@@ -99,25 +72,74 @@ export default {
       type: Boolean,
       default: false,
     },
+    connector: {
+      type: Boolean,
+      default: false,
+    },
+    expanded: {
+      type: Boolean,
+      default: false,
+    }
   },
+  emits: ['publish'],
   data() {
     return {
-      post: {
-        text: '',
-      },
-      collapsed: this.compact,
+      content: '',
+      collapsed: this.compact && !this.expanded,
+      publishing: false,
     }
   },
   methods: {
-    hasPostText() {
-      return this.post.text.trim().length > 0
-    },
-    handleSubmit() {
+    hasContent() {
+      return this.content.trim().length > 0
     },
     onEmojiSelected(emoji) {
       this.$refs.menuEmojiPicker.hide()
       this.$refs.textarea.insertText(emoji.native)
     },
+    focus() {
+      this.$refs.textarea.focus()
+    },
+    reset() {
+      this.content = ''
+    },
+    async publishPost() {
+      this.publishing = true
+      const post = {
+        message: this.content,
+        tags: this.buildTags(),
+      }
+      try {
+        const event = await this.$store.dispatch('sendPost', post)
+
+        this.reset()
+        this.$emit('publish', event)
+
+        // TODO i18n
+        const postType = this.replyTo.length ? 'Reply' : 'Post'
+        this.$q.notify({
+          message: `${postType} published`,
+          color: 'positive',
+        })
+      } catch (e) {
+        this.$q.notify({
+          message: `Failed to publish post`,
+          color: 'negative'
+        })
+      }
+      this.publishing = false
+    },
+    buildTags() {
+      const e = []
+      const p = []
+      for (const {id, pubkey} of this.replyTo) {
+        e.push(['e', id])
+        if (pubkey) {
+          p.push(['p', pubkey])
+        }
+      }
+      return e.concat(p)
+    }
   }
 }
 </script>
@@ -146,7 +168,19 @@ button.btn {
   padding: 0 1rem;
   display: flex;
   width: 100%;
-  &-avatar {
+  &-author {
+    display: flex;
+    flex-direction: column;
+    .connector-top {
+      height: 1rem;
+      padding-bottom: 4px;
+    }
+    .connector-line {
+      width: 2px;
+      height: 100%;
+      margin: auto;
+      background: rgb(56, 68, 77);
+    }
   }
   &-content {
     margin-left: 12px;
@@ -196,16 +230,27 @@ button.btn {
           &:hover {
             background-color: rgba($color: $color-primary, $alpha: 0.3);
           }
+          &.disabled {
+            cursor: default;
+            svg {
+              fill: rgba($color: $color-primary, $alpha: 0.5);
+            }
+            &:hover {
+              background-color: transparent;
+            }
+          }
         }
       }
     }
   }
-  &-compact {
+  &-fake-submit {
+    height: fit-content;
+    margin: auto;
+  }
+  &.compact {
     .input-section {
       textarea {
         padding: 10px 0;
-        min-height: 48px;
-        height: 48px;
         overflow: hidden;
       }
     }
@@ -215,13 +260,22 @@ button.btn {
       margin-left: -4px;
     }
 
-    &-collapsed {
+    &.collapsed {
+      .input-section textarea {
+        min-height: 48px;
+        height: 48px;
+      }
       .controls {
         display: none;
       }
-      > button {
-        margin: auto;
-      }
+    }
+  }
+  &.connector {
+    .post-editor-content {
+      margin-top: 1rem;
+    }
+    .post-editor-fake-submit {
+      padding-top: 1rem;
     }
   }
 }

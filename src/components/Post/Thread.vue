@@ -6,6 +6,8 @@
       :event="event"
       :connector-top="events.length > 1 && index > 0"
       :connector-bottom="(events.length > 1 && index < events.length - 1) || forceBottomConnector"
+      actions
+      clickable
     />
   </div>
 </template>
@@ -29,7 +31,7 @@ export default {
     },
   },
   mounted() {
-    console.log(`Thread (${this.events.length}) ${this.events[0].content.substr(0, 100)}`, this.events)
+    //console.log(`Thread (${this.events.length}) ${this.events[0].content.substr(0, 100)}`, this.events)
   }
 }
 </script>

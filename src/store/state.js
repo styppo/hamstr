@@ -106,5 +106,6 @@ export default function () {
     signInFailure: null,
 
     postDialogOpen: false,
+    postDialogParams: {},
   }
 }

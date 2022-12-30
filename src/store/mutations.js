@@ -184,3 +184,13 @@ export function dismissSignInDialog(state) {
   state.signInFailure = null
   state.signInDialogOpen = false
 }
+
+export function openPostDialog(state, params) {
+  state.postDialogParams = params
+  state.postDialogOpen = true
+}
+
+export function dismissPostDialog(state) {
+  state.postDialogParams = null
+  state.postDialogOpen = false
+}

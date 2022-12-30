@@ -462,7 +462,5 @@ export async function createPost(store, options) {
   } catch (e) {
     return
   }
-
-  // TODO options
-  store.state.postDialogOpen = true
+  store.commit('openPostDialog', options)
 }
