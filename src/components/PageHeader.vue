@@ -7,18 +7,25 @@
     >
       <base-icon icon="back" />
     </div>
-    <h2>{{ title || titleFromRoute() || 'Home' }}</h2>
-    <span v-if="subline">{{ subline }}</span>
+    <div :class="{'profile-info': !!subline}">
+      <h2>{{ title || titleFromRoute() || 'Home' }}</h2>
+      <span v-if="subline">{{ subline }}</span>
+    </div>
+    <div class="logo">
+      <Logo />
+    </div>
   </div>
 </template>
 
 <script>
 import { defineComponent } from 'vue'
 import BaseIcon from 'components/BaseIcon/index.vue'
+import Logo from 'components/Logo.vue'
 
 export default defineComponent({
   name: 'PageHeader',
   components: {
+    Logo,
     BaseIcon
   },
   props: {
@@ -45,7 +52,8 @@ export default defineComponent({
 </script>
 
 <style lang="scss">
-@import 'assets/theme/colors.scss';
+@import "assets/theme/colors.scss";
+@import "assets/variables.scss";
 
 .page-header {
   padding: 1rem;
@@ -84,6 +92,25 @@ export default defineComponent({
     span {
       color: $color-dark-gray;
       font-size: 12px;
+    }
+  }
+  .logo {
+    display: none;
+  }
+}
+
+@media screen and (max-width: $phone) {
+  .page-header {
+    .logo {
+      display: block;
+      position: absolute;
+      height: 36px;
+      width: 36px;
+      left: calc(50% - 18px);
+      svg {
+        height: inherit;
+        width: inherit;
+      }
     }
   }
 }

@@ -2,7 +2,7 @@
   <q-page>
     <PageHeader />
 
-    <PostEditor v-if="$store.getters.isSignedIn" />
+    <PostEditor class="post-editor" v-if="$store.getters.isSignedIn" />
 
     <div class="tabs">
       <q-tabs
@@ -260,6 +260,7 @@ export default defineComponent({
 </script>
 <style lang="scss" scoped>
 @import "assets/theme/colors.scss";
+@import "assets/variables.scss";
 
 .tabs {
   border-top: $border-dark;
@@ -289,6 +290,12 @@ export default defineComponent({
   }
   > .load-more:last-child {
     border-bottom: 0;
+  }
+}
+
+@media screen and (max-width: $phone) {
+  .post-editor {
+    display: none;
   }
 }
 

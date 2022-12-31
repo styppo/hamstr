@@ -11,29 +11,10 @@
         <q-page-container ref="pageContainer">
           <router-view v-slot="{ Component }">
             <keep-alive :include="['Feed', 'Messages', 'Notifications']">
-              <component :is="Component" :key="$route.path" :looking-around="lookingAround" @scroll-to-rect="scrollToRect" @reply-event="setReplyEvent"/>
+              <component :is="Component" :key="$route.path" @scroll-to-rect="scrollToRect" />
             </keep-alive>
           </router-view>
         </q-page-container>
-
-        <!-- <div v-if="postEntryOpen || messageMode" id="post-entry" unelevated class="gt-xs flex column align-self relative-position"> -->
-        <div v-if="($q.screen.width >= 600) && postEntryOpen" id="post-entry" unelevated class="gt-xs flex column align-self relative-position">
-          <!-- <q-separator color="primary"/> -->
-          <!-- <q-btn v-if="!messageMode" icon="close" flat dense @click="togglePostEntry" class="self-end" style="position: absolute; top: 0; right: 0; z-index: 1;"/> -->
-          <q-btn icon="close" flat dense @click="togglePostEntry" class="self-end" style="position: absolute; top: 0; right: 0; z-index: 1;"/>
-            <!-- :message-mode="messageMode" -->
-          <BasePostEntry
-            :event="replyEvent"
-            @clear-event="replyEvent=null"
-            @sent="togglePostEntry"
-            class="q-px-md q-pt-sm"
-          />
-        </div>
-
-        <div id="bottom-drawer-placeholder" />
-        <!-- <div id="bottom-post-entry-placeholder" />
-        <div id="bottom-message-entry-placeholder" />
-        <div id="bottom-menu-placeholder" /> -->
       </div>
 
       <div class="layout-sidebar">
@@ -105,8 +86,7 @@ export default defineComponent({
 
   computed: {
     scrollingContainer() {
-      if (this.$q.screen.width < 600) return window
-      return this.$refs.pageContainer?.$el
+      return window
     },
     messageMode() {
       if (this.$route.name === 'messages') {
@@ -116,7 +96,6 @@ export default defineComponent({
     }
   },
 
-  // beforeCreate() {
   created() {
     this.loadPreferences()
   },
@@ -170,26 +149,9 @@ export default defineComponent({
       setVerticalScrollPosition(this.scrollingContainer, 0, 500)
     },
 
-    back() {
-      this.$router.go(-1)
-    },
-
-    forward() {
-      this.$router.go(1)
-    },
-
-    moveFab(ev) {
-      this.draggingFab = ev.isFirst !== true && ev.isFinal !== true
-
-      this.fabPos = [
-        this.fabPos[0] - ev.delta.x,
-        this.fabPos[1] + ev.delta.y
-      ]
-    },
-
     scrollToRect(rect) {
-      let offset = Math.max(rect.top, 0)
-      setVerticalScrollPosition(this.scrollingContainer, offset, 500)
+      let offset = Math.max(rect.top, 0) - 78
+      setVerticalScrollPosition(this.scrollingContainer, offset, 0)
     },
 
     async launch() {

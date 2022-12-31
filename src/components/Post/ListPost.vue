@@ -8,7 +8,7 @@
       <div class="connector-top">
         <div v-if="connectorTop" class="connector-line"></div>
       </div>
-      <BaseUserAvatar :pubkey="post.author" />
+      <BaseUserAvatar :pubkey="post.author" @click.stop />
       <div class="connector-bottom">
         <div v-if="connectorBottom" class="connector-line"></div>
       </div>
@@ -16,7 +16,7 @@
     <div class="post-content">
       <div class="post-content-header">
         <p>
-          <BaseUserName :pubkey="post.author" />
+          <BaseUserName :pubkey="post.author" @click.stop />
           <span>&#183;</span>
           <span class="created-at">{{ moment(post.createdAt).fromNow() }}</span>
         </p>

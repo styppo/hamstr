@@ -3,7 +3,7 @@
     class="username"
     :class="{'two-line': wrap, clickable}"
   >
-    <a @click.stop="clickable && toProfile(pubkey)">
+    <a @click="clickable && toProfile(pubkey)">
       <span
         v-if="$store.getters.name(pubkey)"
         class="name"

@@ -44,7 +44,7 @@ export default {
       default: true
     }
   },
-  emits: ['mobile-menu-close'],
+  emits: ['click'],
 }
 </script>
 

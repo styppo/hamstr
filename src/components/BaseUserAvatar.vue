@@ -1,7 +1,7 @@
 <template>
   <q-avatar
     :size="size"
-    @click.stop="clickable && toProfile(pubkey)"
+    @click="clickable && toProfile(pubkey)"
     class="relative-position"
     :class="{'cursor-pointer': clickable}"
   >

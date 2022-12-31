@@ -14,7 +14,7 @@
       />
     </div>
 
-    <q-item ref="main" class='no-padding column'>
+    <q-item ref="main" class="no-padding column">
       <HeroPost
         v-if="event"
         :event="event"
@@ -26,7 +26,6 @@
       <div v-else>
         {{ $t('event') }} {{ $route.params.eventId }}
       </div>
-<!--      <BaseRelayList v-if="event?.seen_on?.length" :event='event' class='q-px-sm'/>-->
     </q-item>
 
     <div v-if="childrenThreadsFiltered.length">
@@ -34,20 +33,20 @@
         <Thread :events="thread" @add-event='processChildEvent'/>
       </div>
     </div>
-    <div style='min-height: 30vh;'/>
+
+    <div style="min-height: 70vh;" />
   </q-page>
 </template>
 
 <script>
-import { defineComponent, nextTick } from 'vue'
+import {defineComponent} from 'vue'
+import {createMetaMixin, scroll} from 'quasar'
+import PageHeader from 'components/PageHeader.vue'
+import Thread from 'components/Post/Thread.vue'
+import HeroPost from 'components/Post/HeroPost.vue'
 import {dbStreamEvent, dbStreamTagKind} from '../query'
 import helpersMixin from '../utils/mixin'
 import {addToThread} from '../utils/threads'
-//import BaseRelayList from 'components/BaseRelayList.vue'
-import PageHeader from 'components/PageHeader.vue'
-import { createMetaMixin } from 'quasar'
-import Thread from 'components/Post/Thread.vue'
-import HeroPost from 'components/Post/HeroPost.vue'
 
 const metaData = {
   // sets document title
@@ -69,7 +68,6 @@ export default defineComponent({
     HeroPost,
     Thread,
     PageHeader,
-    //BaseRelayList
   },
 
   data() {
@@ -120,7 +118,7 @@ export default defineComponent({
         }
         this.useProfile(event.pubkey)
       }, true)
-      this.subAncestorsChildren()
+      await this.subAncestorsChildren()
     },
 
     stop() {
@@ -168,13 +166,14 @@ export default defineComponent({
         let prevAncestor = event
         while (prevAncestor) {
           this.ancestors = [prevAncestor].concat(this.ancestors)
-          this.scrollToMainEvent()
           this.useProfile(prevAncestor.pubkey)
           currAncestor = prevAncestor
           prevAncestorId = currAncestor.interpolated.replyEvents[currAncestor.interpolated.replyEvents.length - 1]
           prevAncestor = this.ancestorsSeen.get(prevAncestorId)
         }
       }
+
+      this.scrollToMainEvent()
     },
 
     processChildEvent(event) {
@@ -188,10 +187,10 @@ export default defineComponent({
     },
 
     scrollToMainEvent() {
-      nextTick(() => {
-        let mainRect = this.$refs.main?.$el.getBoundingClientRect()
-        this.$emit('scroll-to-rect', mainRect)
-      })
+      setTimeout(() => {
+        const offset = this.$refs.main?.$el.getBoundingClientRect().top - 78
+        scroll.setVerticalScrollPosition(document.scrollingElement, offset, 0)
+      }, 500)
     },
 
     addEventAncestors(event) {
