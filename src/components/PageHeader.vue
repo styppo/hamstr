@@ -11,6 +11,9 @@
       <h2>{{ title || titleFromRoute() || 'Home' }}</h2>
       <span v-if="subline">{{ subline }}</span>
     </div>
+    <div class="addon">
+      <slot />
+    </div>
     <div class="logo">
       <Logo />
     </div>
@@ -96,6 +99,9 @@ export default defineComponent({
   }
   .logo {
     display: none;
+  }
+  .addon {
+    flex-grow: 1;
   }
 }
 

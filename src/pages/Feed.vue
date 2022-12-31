@@ -1,10 +1,26 @@
 <template>
   <q-page>
-    <PageHeader />
+    <PageHeader>
+      <div class="addon-menu">
+        <div class="addon-menu-icon">
+          <q-icon name="more_vert" size="sm" />
+        </div>
+        <q-menu target=".addon-menu-icon" anchor="top left" self="top right" class="addon-menu-popup">
+          <div>
+            <div v-for="tabName in availableTabs" :key="tabName" class="popup-header" @click="tab = tabName" v-close-popup>
+              <p>{{ tabName }}</p>
+              <div class="more" v-if="tab === tabName">
+                <BaseIcon icon="tick" />
+              </div>
+            </div>
+          </div>
+        </q-menu>
+      </div>
+    </PageHeader>
 
     <PostEditor class="post-editor" v-if="$store.getters.isSignedIn" />
 
-    <div class="tabs">
+    <div class="feed-tabs">
       <q-tabs
         v-model="tab"
         dense
@@ -26,12 +42,14 @@
     </div>
 
     <div class="feed">
-      <BaseButtonLoadMore
-        v-if="unreadFeed[tab].length"
-        :loading="loadingUnread"
-        :label="'load ' + unreadFeed[tab].length + ' unread'"
-        @click="loadUnread"
-      />
+      <div class="load-more-container">
+        <BaseButtonLoadMore
+          v-if="unreadFeed[tab].length"
+          :loading="loadingUnread"
+          :label="'load ' + unreadFeed[tab].length + ' unread'"
+          @click="loadUnread"
+        />
+      </div>
       <Thread v-for="item in items" :key="item[0].id" :events="item" class="full-width" @add-event="processEvent" />
       <BaseButtonLoadMore
         :loading="loadingMore"
@@ -53,6 +71,7 @@ import { createMetaMixin } from 'quasar'
 import PageHeader from 'components/PageHeader.vue'
 import PostEditor from 'components/CreatePost/PostEditor.vue'
 import Thread from 'components/Post/Thread.vue'
+import BaseIcon from 'components/BaseIcon/index.vue'
 
 const metaData = {
   // sets document title
@@ -71,6 +90,7 @@ export default defineComponent({
   mixins: [helpersMixin, createMetaMixin(metaData)],
 
   components: {
+    BaseIcon,
     Thread,
     PageHeader,
     //Post,
@@ -133,6 +153,7 @@ export default defineComponent({
       lastLoaded: Math.round(Date.now() / 1000),
       refreshInterval: null,
       unsubscribe: null,
+      availableTabs: ['global', 'follows'],
     }
   },
 
@@ -258,33 +279,65 @@ export default defineComponent({
   }
 })
 </script>
-<style lang="scss" scoped>
+<style lang="scss">
 @import "assets/theme/colors.scss";
 @import "assets/variables.scss";
 
-.tabs {
-  border-top: $border-dark;
-  border-bottom: $border-dark;
-  position: sticky;
-  top: 78px;
-  background-color: $color-bg;
-  z-index: 500;
-}
-
-.q-page::-webkit-scrollbar {
-  width: 0px;
-}
-
-.tabs .q-tab {
-  padding: 0 1rem;
+.feed-tabs {
+  //border-bottom: $border-dark;
+  .q-tabs {
+    display: none;
+  }
+  .q-page::-webkit-scrollbar {
+    width: 0;
+  }
 }
 
 .feed {
-  > .load-more:first-child {
+  .load-more-container {
+    border-top: $border-dark;
     border-bottom: $border-dark;
+    min-height: 6px;
   }
   > .load-more:last-child {
     border-bottom: 0;
+  }
+}
+
+.addon-menu {
+  display: flex;
+  flex-direction: row-reverse;
+  &-popup {
+    min-width: 150px;
+    border-radius: 1rem;
+    padding: 10px;
+    background-color: $color-bg;
+    box-shadow: $shadow-white;
+    .popup-header {
+      display: flex;
+      width: 100%;
+      padding: 8px;
+      cursor: pointer;
+      border-radius: .5rem;
+      p {
+        margin: 0;
+        flex-grow: 1;
+        font-size: 1.1em;
+        font-weight: bold;
+        text-transform: capitalize;
+      }
+      &:hover {
+        background-color: rgba($color: $color-dark-gray, $alpha: 0.3);
+      }
+      .more {
+        width: 1.5rem;
+        height: 1.5rem;
+        svg {
+          fill: $color-primary;
+          width: 100%;
+        }
+      }
+    }
   }
 }
 
