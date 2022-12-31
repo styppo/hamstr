@@ -1,4 +1,3 @@
-import {Notify} from 'quasar'
 import {initBackend} from 'absurd-sql/dist/indexeddb-main-thread'
 // import { channel } from './relay'
 const worker = new Worker(new URL('./query.worker.js', import.meta.url))
@@ -19,10 +18,7 @@ worker.onmessage = ev => {
   }
 
   if (notice) {
-    Notify.create({
-      message: `Relay ${notice.relay} says: ${notice.message}`,
-      color: 'info'
-    })
+    console.log(`Relay ${notice.relay} says: ${notice.message}`)
     return
   }
 
