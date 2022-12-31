@@ -268,7 +268,7 @@ export default defineComponent({
   position: sticky;
   top: 78px;
   background-color: $color-bg;
-  z-index: 1001;
+  z-index: 500;
 }
 
 .q-page::-webkit-scrollbar {
@@ -280,11 +280,6 @@ export default defineComponent({
 }
 
 .feed {
-  > .load-more {
-    button {
-      padding: 1rem 0;
-    }
-  }
   > .load-more:first-child {
     border-bottom: $border-dark;
   }

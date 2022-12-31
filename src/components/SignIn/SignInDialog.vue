@@ -1,8 +1,24 @@
 <template>
-  <q-dialog v-model="$store.state.signInDialogOpen" @hide="onClose">
+  <q-dialog v-model="$store.state.signInDialogOpen" @before-show="updateFragment" @hide="onClose">
     <div class="sign-in-dialog">
-      <q-btn v-if="fragment === 'welcome'" icon="close" size="md" flat round class="icon" v-close-popup />
-      <q-btn v-else-if="fragment !== 'complete'" icon="arrow_back" size="md" flat round class="icon" @click="fragment = 'welcome'" />
+      <q-btn
+        v-if="showClose"
+        icon="close"
+        size="md"
+        class="icon"
+        flat
+        round
+        v-close-popup
+      />
+      <q-btn
+        v-if="showBack"
+        @click="fragment = 'welcome'"
+        icon="arrow_back"
+        size="md"
+        class="icon"
+        flat
+        round
+      />
 
       <div class="logo">
         <BaseUserAvatar v-if="pubkey" :pubkey="pubkey" />
@@ -57,6 +73,16 @@ export default {
     return {
       fragment: 'welcome',
       pubkey: null,
+      backAllowed: true,
+    }
+  },
+  computed: {
+    showClose() {
+      return this.fragment === 'welcome'
+        || (this.fragment !== 'complete' && !this.backAllowed)
+    },
+    showBack() {
+      return this.fragment !== 'complete' && !this.showClose
     }
   },
   methods: {
@@ -81,6 +107,10 @@ export default {
       this.pubkey = pubkey
       this.fragment = 'complete'
     },
+    updateFragment() {
+      this.fragment = this.$store.state.signInDialogFragment || 'welcome'
+      this.backAllowed = this.fragment === 'welcome'
+    }
   },
 }
 </script>

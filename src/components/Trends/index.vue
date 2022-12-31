@@ -47,7 +47,7 @@ export default {
 </script>
 
 <style lang="scss">
-@import 'assets/theme/colors.scss';
+@import "assets/theme/colors.scss";
 
 .trends {
   background-color: rgba($color: $color-dark-gray, $alpha: 0.1);
@@ -58,7 +58,7 @@ export default {
     padding: 1rem;
     h3 {
       margin: 0;
-      font-size: 1.5rem;
+      font-size: 1.4rem;
       color: #fff;
     }
   }

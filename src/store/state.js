@@ -102,6 +102,7 @@ export default function () {
     accounts: LocalStorage.getItem('accounts') || {}, // { pubkey: { secret } }
 
     signInDialogOpen: false,
+    signInDialogFragment: null,
     signInSuccess: null,
     signInFailure: null,
 

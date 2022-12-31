@@ -173,15 +173,17 @@ export function setUnreadMessages(state, {peer, count}) {
   state.unreadMessages[peer] = count
 }
 
-export function openSignInDialog(state, {resolve, reject}) {
+export function openSignInDialog(state, {resolve, reject, fragment}) {
   state.signInSuccess = resolve
   state.signInFailure = reject
+  state.signInDialogFragment = fragment
   state.signInDialogOpen = true
 }
 
 export function dismissSignInDialog(state) {
   state.signInSuccess = null
   state.signInFailure = null
+  state.signInDialogFragment = null
   state.signInDialogOpen = false
 }
 

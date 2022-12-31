@@ -45,6 +45,10 @@
     </div>
 
     <ProfilePopup v-if="$store.getters.isSignedIn" />
+    <div v-else class="sign-in" @click="signIn">
+      <q-icon class="icon" name="login" size="sm" />
+      <div class="label">Log in</div>
+    </div>
 
     <div
       class="mobile-close-menu-button"
@@ -89,6 +93,10 @@ export default {
     createPost() {
       this.$emit('mobile-menu-close')
       this.$store.dispatch('createPost')
+    },
+    signIn() {
+      this.$emit('mobile-menu-close')
+      this.$store.dispatch('signIn', {}).catch(() => {})
     }
   }
 }
@@ -149,6 +157,26 @@ menu {
   .mobile-close-menu-button {
     display: none;
   }
+  .sign-in {
+    display: flex;
+    align-items: center;
+    margin: 0 1rem 1rem;
+    padding: 1rem;
+    cursor: pointer;
+    border-radius: 999px;
+    transition: 120ms ease-in-out;
+    &:hover {
+      background-color: rgba($color: $color-dark-gray, $alpha: 0.3);
+    }
+    .icon {
+      padding: 2px;
+    }
+    .label {
+      margin-left: 20px;
+      font-weight: bold;
+      font-size: 1.2em;
+    }
+  }
 }
 
 @media screen and (max-width: $tablet) and (min-width: $phone) {
@@ -165,6 +193,11 @@ menu {
         width: 24px;
         height: 24px;
         fill: #fff;
+      }
+    }
+    .sign-in {
+      .label {
+        display: none;
       }
     }
   }

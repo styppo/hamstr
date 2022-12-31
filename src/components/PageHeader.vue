@@ -63,7 +63,7 @@ export default defineComponent({
   position: sticky;
   top: 0;
   background-color: $color-bg;
-  z-index: 1001;
+  z-index: 500;
   h2 {
     line-height: 50px;
     margin: 0;

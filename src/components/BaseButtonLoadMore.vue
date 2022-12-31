@@ -36,8 +36,9 @@ export default defineComponent({
 })
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
 .load-more button {
   width: 100%;
+  padding: 1rem 0;
 }
 </style>

@@ -444,10 +444,10 @@ export async function useNip05(store, {metadata}) {
 
 // --------
 
-export async function signIn(store) {
+export async function signIn(store, {fragment}) {
   return new Promise((resolve, reject) => {
     console.assert(!store.state.signInDialogOpen)
-    store.commit('openSignInDialog', {resolve, reject})
+    store.commit('openSignInDialog', {resolve, reject, fragment})
   })
 }
 

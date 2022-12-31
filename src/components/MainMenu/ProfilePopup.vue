@@ -34,7 +34,7 @@
         </div>
         <hr class="popup-spacing">
         <div class="popup-body">
-          <div class="popup-body-item" @click="$store.dispatch('signIn').catch(() => {})" v-close-popup>
+          <div class="popup-body-item" @click="$store.dispatch('signIn', {}).catch(() => {})" v-close-popup>
             <p>Add an account</p>
           </div>
           <hr class="popup-spacing">
@@ -96,14 +96,14 @@ export default {
   margin-bottom: 1rem;
   margin-right: 1rem;
   padding: .5rem 1rem;
-  cursor: pointer !important;
+  cursor: pointer;
   border-radius: 999px;
   transition: 120ms ease-in-out;
+  &:hover {
+    background-color: rgba($color: $color-dark-gray, $alpha: 0.3);
+  }
   &-wrapper {
     position: relative;
-  }
-  &:hover {
-    background-color: rgba($color: $color-primary, $alpha: 0.3);
   }
   &-pic {
     padding: 2px;

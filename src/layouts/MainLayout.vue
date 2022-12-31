@@ -3,7 +3,7 @@
     <div class="layout" @click="mobileMenuOpen = false">
       <div class="layout-menu">
         <div class="layout-menu-fixed" :class="{active: mobileMenuOpen}">
-          <MainMenu @click.stop @mobile-menu-close="mobileMenuOpen = false" />
+          <MainMenu @click.stop @mobile-menu-close="mobileMenuOpen = false" hide-items-requiring-sign-in />
         </div>
       </div>
 
@@ -20,6 +20,7 @@
       <div class="layout-sidebar">
         <div class="layout-sidebar-fixed">
           <SearchBox />
+          <WelcomeBox />
           <Trends />
         </div>
       </div>
@@ -48,11 +49,13 @@ import Trends from 'components/Trends/index.vue'
 import BaseIcon from 'components/BaseIcon/index.vue'
 import SignInDialog from 'components/SignIn/SignInDialog.vue'
 import CreatePostDialog from 'components/CreatePost/CreatePostDialog.vue'
+import WelcomeBox from 'components/Sidebar/WelcomeBox.vue'
 import { setCssVar, getCssVar } from 'quasar'
 
 export default defineComponent({
   name: 'MainLayout',
   components: {
+    WelcomeBox,
     CreatePostDialog,
     SignInDialog,
     BaseIcon,
