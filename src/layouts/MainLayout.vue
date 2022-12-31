@@ -125,12 +125,6 @@ export default defineComponent({
     window.onbeforeunload = async () => {
       await destroyStreams()
     }
-    // TODO Shoudl this go in the function?
-    this.resizePostEntryPlaceholder()
-  },
-
-  beforeUnmount() {
-    // document.querySelector('#left-drawer').removeEventListener('wheel', this.redirectScroll)
   },
 
   methods: {
@@ -180,26 +174,6 @@ export default defineComponent({
       this.activeWindow = false
       // deactivateSub will post 'done' message to broadcastChannel
       deactivateSub()
-    },
-
-    togglePostEntry() {
-      // if (this.messageMode) {
-      //   this.replyEvent = null
-      // } else this.postEntryOpen = !this.postEntryOpen
-      this.postEntryOpen = !this.postEntryOpen
-      // console.log('togglepostentry', this.postEntryOpen)
-    },
-
-    setReplyEvent(event) {
-      this.replyEvent = event
-      console.log('event', event, this.replyEvent)
-    },
-
-    resizePostEntryPlaceholder() {
-      setTimeout(() => {
-        document.querySelector('#bottom-drawer-placeholder').style.minHeight = `${document.querySelector('#bottom-drawer')?.clientHeight || 0}px`
-        // document.querySelector('#bottom-post-entry-placeholder').style.minHeight = `${document.querySelector('#bottom-post-entry')?.clientHeight || 0}px`
-      }, 1000)
     },
 
     lightOrDark(color) {
@@ -271,9 +245,6 @@ export default defineComponent({
       }
       // console.log('font', getCssVar('font'), this.googleFontsName)
     },
-    setLookingAroundMode() {
-      this.lookingAround = true
-    }
   },
 })
 

@@ -51,8 +51,8 @@ export default {
   },
   methods: {
     resize() {
-      const textarea = this.$refs.textarea
       this.$nextTick(() => {
+        const textarea = this.$refs.textarea
         textarea.style.height = 'inherit'
         let height = textarea.scrollHeight
 
