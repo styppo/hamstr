@@ -40,7 +40,7 @@
 
 <script>
 import {defineComponent} from 'vue'
-import {createMetaMixin, scroll} from 'quasar'
+import {createMetaMixin} from 'quasar'
 import PageHeader from 'components/PageHeader.vue'
 import Thread from 'components/Post/Thread.vue'
 import HeroPost from 'components/Post/HeroPost.vue'
@@ -82,6 +82,9 @@ export default defineComponent({
       childrenSet: new Set(),
       sub: {},
       profilesUsed: new Set(),
+
+      resizeObserver: null,
+      scrollTimeout: null,
     }
   },
 
@@ -98,10 +101,17 @@ export default defineComponent({
 
   mounted() {
     this.start()
+
+    this.resizeObserver = new ResizeObserver(() => {
+      this.scrollToMainEvent()
+    })
+    this.resizeObserver.observe(this.$refs.page.$el)
   },
 
   beforeUnmount() {
     this.stop()
+
+    this.resizeObserver.disconnect()
   },
 
   methods: {
@@ -139,15 +149,17 @@ export default defineComponent({
     async subAncestorsChildren() {
       let tags = this.event?.interpolated?.replyEvents?.length ? [this.$route.params.eventId, this.event.interpolated.replyEvents[0]] : [this.$route.params.eventId]
 
-      if (this.sub.ancestorsChildren) this.sub.ancestorsChildren.update('e', tags, 1)
-      else this.sub.ancestorsChildren = await dbStreamTagKind('e', tags, 1, event => {
-        if (this.event && event.created_at < this.event.created_at) {
-          this.processAncestorEvent(event)
-          return
-        }
-        this.processChildEvent(event)
-        return
-      })
+      if (this.sub.ancestorsChildren) {
+        this.sub.ancestorsChildren.update('e', tags, 1)
+      } else {
+        this.sub.ancestorsChildren = await dbStreamTagKind('e', tags, 1, event => {
+          if (this.event && event.created_at < this.event.created_at) {
+            this.processAncestorEvent(event)
+            return
+          }
+          this.processChildEvent(event)
+        })
+      }
     },
 
     processAncestorEvent(event) {
@@ -172,8 +184,6 @@ export default defineComponent({
           prevAncestor = this.ancestorsSeen.get(prevAncestorId)
         }
       }
-
-      this.scrollToMainEvent()
     },
 
     processChildEvent(event) {
@@ -187,10 +197,15 @@ export default defineComponent({
     },
 
     scrollToMainEvent() {
-      setTimeout(() => {
-        const offset = this.$refs.main?.$el.getBoundingClientRect().top - 78
-        scroll.setVerticalScrollPosition(document.scrollingElement, offset, 0)
-      }, 500)
+      const el = this.$refs.main?.$el
+      if (!el) return
+
+      const offset = Math.max(el.offsetTop - 78, 0)
+
+      if (this.scrollTimeout) {
+        clearTimeout(this.scrollTimeout)
+      }
+      this.scrollTimeout = setTimeout(() => window.scrollTo(0, offset), 100)
     },
 
     addEventAncestors(event) {
