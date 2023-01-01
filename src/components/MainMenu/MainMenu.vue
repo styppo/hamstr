@@ -44,10 +44,12 @@
       </div>
     </div>
 
-    <ProfilePopup v-if="$store.getters.isSignedIn" />
-    <div v-else class="sign-in" @click="signIn">
-      <q-icon class="icon" name="login" size="sm" />
-      <div class="label">Log in</div>
+    <div style="position: sticky; bottom: 0">
+      <ProfilePopup v-if="$store.getters.isSignedIn" />
+      <div v-else class="sign-in" @click="signIn">
+        <q-icon class="icon" name="login" size="sm" />
+        <div class="label">Log in</div>
+      </div>
     </div>
 
     <div
@@ -116,11 +118,11 @@ menu {
   margin: 0;
   padding-inline-start: 0;
   .menu {
+    height: 100%;
     &-nav {
       position: relative;
       padding: 0 1rem;
     }
-    height: 100%;
     &-logo {
       margin: 1rem 0;
       svg, img {

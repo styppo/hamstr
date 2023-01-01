@@ -14,9 +14,9 @@
     <div class="addon">
       <slot />
     </div>
-    <div class="logo">
+    <router-link class="logo" to="/">
       <Logo />
-    </div>
+    </router-link>
   </div>
 </template>
 
@@ -107,6 +107,7 @@ export default defineComponent({
 
 @media screen and (max-width: $phone) {
   .page-header {
+    padding: .4rem 1rem;
     .logo {
       display: block;
       position: absolute;

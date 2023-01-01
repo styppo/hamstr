@@ -18,16 +18,14 @@
         <p>
           <BaseUserName :pubkey="post.author" @click.stop />
           <span>&#183;</span>
-          <span class="created-at">{{ moment(post.createdAt).fromNow() }}</span>
+          <span class="created-at">{{ formatPostDate(post.createdAt) }}</span>
         </p>
         <p v-if="ancestor" class="in-reply-to">
           Replying to <a @click.stop="toEvent(ancestor)">{{ shorten(ancestor) }}</a>
         </p>
       </div>
       <div class="post-content-body">
-        <p>
-          <BaseMarkdown :content="post.content" />
-        </p>
+        <BaseMarkdown :content="post.content" />
       </div>
       <div v-if="actions" class="post-content-actions">
         <div class="action-item comment" @click.stop="$store.dispatch('createPost', {replyTo})">
@@ -135,7 +133,23 @@ export default {
     },
   },
   methods: {
-    moment,
+    formatPostDate(timestamp) {
+      return this.$q.screen.lt.md
+        ? this.shortDateFromNow(timestamp)
+        : moment(timestamp).fromNow()
+    },
+    shortDateFromNow(timestamp) {
+      const now = Date.now()
+      const diff = Math.round(Math.max(now - timestamp, 0) / 1000)
+      const formatDiff = (div, offset) => Math.max(Math.floor((diff + offset) / div), 1)
+
+      if (diff < 45) return `${formatDiff(1, 0)}s`
+      if (diff < 60 * 45) return `${formatDiff(60, 15)}m`
+      if (diff < 60 * 60 * 22) return `${formatDiff(60 * 60, 60 * 15)}h`
+      if (diff < 60 * 60 * 24 * 26) return `${formatDiff(60 * 60 * 24, 60 * 60 * 2)}d`
+      if (diff < 60 * 60 * 24 * 30 * 320) return `${formatDiff(60 * 60 * 24 * 30, 60 * 60 * 24 * 4)}mo`
+      return `${formatDiff(60 * 60 * 24 * 30 * 365, 60 * 60 * 24 * 45)}y`
+    }
   },
 }
 </script>
@@ -175,10 +189,13 @@ export default {
   }
   &-content {
     margin-left: 12px;
-    padding: 1rem 0;
+    padding: 1rem 0 .4rem;
     flex-grow: 1;
     max-width: 570px;
     &-header {
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
       .in-reply-to {
         color: $color-dark-gray;
         a {
@@ -212,25 +229,7 @@ export default {
     }
     &-body {
       color: #fff;
-      &-images {
-        &-wrapper {
-          border-radius: 10px;
-          overflow: hidden;
-          border: $border-light;
-          display: flex;
-          .post-content-image-item {
-            cursor: zoom-in;
-            & + .post-content-image-item {
-              border-left: $border-light;
-            }
-            flex-grow: 1;
-            img {
-              vertical-align: middle;
-              width: 100%;
-            }
-          }
-        }
-      }
+      margin-bottom: 1rem;
     }
     &-actions {
       display: flex;
@@ -287,18 +286,11 @@ export default {
     }
   }
 }
+
 @media screen and (max-width: $phone) {
-  .post{
+  .post {
     &-content {
       &-header {
-        span{
-          display: none;
-        }
-        .created-at {
-          display: block;
-          color: rgba($color: $color-dark-gray, $alpha: 0.5);
-          margin: 5px 0;
-        }
         .nip05 {
           display: unset;
           color: $color-dark-gray;

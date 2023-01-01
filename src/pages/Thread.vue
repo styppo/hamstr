@@ -23,8 +23,8 @@
         :connector="ancestorsCompiled.length > 0"
         @add-event="processChildEvent"
       />
-      <div v-else>
-        {{ $t('event') }} {{ $route.params.eventId }}
+      <div v-else style="padding-left: 1.5rem">
+        <q-spinner size="sm" style="margin-right: .5rem"/> Loading...
       </div>
     </q-item>
 
@@ -106,6 +106,8 @@ export default defineComponent({
       this.scrollToMainEvent()
     })
     this.resizeObserver.observe(this.$refs.page.$el)
+
+    setTimeout(() => this.resizeObserver.disconnect(), 2000)
   },
 
   beforeUnmount() {
@@ -200,12 +202,14 @@ export default defineComponent({
       const el = this.$refs.main?.$el
       if (!el) return
 
-      const offset = Math.max(el.offsetTop - 78, 0)
+      // TODO Clean up
+      const offset = this.$q.screen.xs ? 61 : 78
+      const position = Math.max(el.offsetTop - offset, 0)
 
       if (this.scrollTimeout) {
         clearTimeout(this.scrollTimeout)
       }
-      this.scrollTimeout = setTimeout(() => window.scrollTo(0, offset), 100)
+      this.scrollTimeout = setTimeout(() => window.scrollTo(0, position), 100)
     },
 
     addEventAncestors(event) {

@@ -1,24 +1,28 @@
 <template>
   <q-page>
-    <PageHeader>
-      <div class="addon-menu">
-        <div class="addon-menu-icon">
-          <q-icon name="more_vert" size="sm" />
-        </div>
-        <q-menu target=".addon-menu-icon" anchor="top left" self="top right" class="addon-menu-popup">
-          <div>
-            <div v-for="tabName in availableTabs" :key="tabName" class="popup-header" @click="tab = tabName" v-close-popup>
-              <p>{{ tabName }}</p>
-              <div class="more" v-if="tab === tabName">
-                <BaseIcon icon="tick" />
+    <div class="page-header-container">
+      <PageHeader>
+        <div class="addon-menu">
+          <div class="addon-menu-icon">
+            <q-icon name="more_vert" size="sm" />
+          </div>
+          <q-menu target=".addon-menu-icon" anchor="top left" self="top right" class="addon-menu-popup">
+            <div>
+              <div v-for="tabName in availableTabs" :key="tabName" class="popup-header" @click="tab = tabName" v-close-popup>
+                <p>{{ tabName }}</p>
+                <div class="more" v-if="tab === tabName">
+                  <BaseIcon icon="tick" />
+                </div>
               </div>
             </div>
-          </div>
-        </q-menu>
-      </div>
-    </PageHeader>
+          </q-menu>
+        </div>
+      </PageHeader>
+    </div>
 
-    <PostEditor class="post-editor" v-if="$store.getters.isSignedIn" />
+    <div class="post-editor" v-if="$store.getters.isSignedIn">
+      <PostEditor />
+    </div>
 
     <div class="feed-tabs">
       <q-tabs
@@ -42,7 +46,7 @@
     </div>
 
     <div class="feed">
-      <div class="load-more-container">
+      <div class="load-more-container" :class="{'more-available': unreadFeed[tab].length}">
         <BaseButtonLoadMore
           v-if="unreadFeed[tab].length"
           :loading="loadingUnread"
@@ -342,8 +346,20 @@ export default defineComponent({
 }
 
 @media screen and (max-width: $phone) {
+  .page-header-container {
+    border-bottom: $border-dark;
+  }
   .post-editor {
     display: none;
+  }
+  .feed {
+    .load-more-container {
+      border: 0;
+      min-height: 0;
+      &.more-available {
+        border-bottom: $border-dark;
+      }
+    }
   }
 }
 

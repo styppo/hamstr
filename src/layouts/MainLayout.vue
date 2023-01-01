@@ -10,7 +10,7 @@
       <div class="layout-flow">
         <q-page-container ref="pageContainer">
           <router-view v-slot="{ Component }">
-            <keep-alive :include="['Feed', 'Messages', 'Notifications']">
+            <keep-alive :include="cachedPages">
               <component :is="Component" :key="$route.path" @scroll-to-rect="scrollToRect" />
             </keep-alive>
           </router-view>
@@ -31,6 +31,7 @@
       >
         <BaseIcon icon="hamburger" />
       </div>
+      <div v-if="mobileMenuOpen" class="mobile-menu-backdrop fixed-full" v-close-popup></div>
     </div>
 
     <SignInDialog />
@@ -66,14 +67,19 @@ export default defineComponent({
 
   setup () {
     const $q = useQuasar()
-    // const cachedPages = ref(['feed', 'notifications', 'messages'])
-
+    $q.screen.setSizes({
+      // FIXME Needs to be in sync with assets/variables.scss
+      sm: 414,
+      md: 755,
+      lg: 1113,
+      xl: 1310,
+    })
     return $q
   },
 
   data() {
     return {
-      cachedPages: ['Feed', 'Notifications', 'Messages'],
+      cachedPages: ['Feed', 'Notifications', 'Messages', 'Inbox', 'Settings', 'DevTools'],
       middlePagePos: {},
       broadcastChannel: new BroadcastChannel('hamstr'),
       activeWindow: false,
@@ -118,8 +124,8 @@ export default defineComponent({
 
     // setup scrolling
     // document.querySelector('#left-drawer').addEventListener('wheel', this.redirectScroll)
-    this.$router.beforeEach((to, from) => { this.preserveScrollPos(to, from) })
-    this.$router.afterEach((to, from) => { this.restoreScrollPos(to, from) })
+    // this.$router.beforeEach((to, from) => { this.preserveScrollPos(to, from) })
+    // this.$router.afterEach((to, from) => { this.restoreScrollPos(to, from) })
 
     // destroy streams before unloading window
     window.onbeforeunload = async () => {
@@ -147,7 +153,7 @@ export default defineComponent({
     },
 
     scrollToRect(rect) {
-      let offset = Math.max(rect.top, 0) - 78
+      let offset = Math.max(rect.top, 0)
       setVerticalScrollPosition(this.scrollingContainer, offset, 0)
     },
 
@@ -354,6 +360,12 @@ export default defineComponent({
         height: 100%;
         fill: #fff;
       }
+    }
+    .mobile-menu-backdrop {
+      z-index: 750;
+      pointer-events: all;
+      outline: 0;
+      background: rgba(0, 0, 0, 0.4);
     }
   }
 }

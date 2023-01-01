@@ -127,8 +127,8 @@ export default {
     },
   },
   methods: {
-    formatPostDate(ts) {
-      const date = new Date(ts)
+    formatPostDate(timestamp) {
+      const date = new Date(timestamp)
       const month = this.$t(MONTHS[date.getMonth()])
 
       const sameYear = date.getFullYear() === (new Date().getFullYear())
@@ -136,8 +136,8 @@ export default {
 
       return `${date.getDate()} ${month}${year}`
     },
-    formatPostTime(ts) {
-      const date = new Date(ts)
+    formatPostTime(timestamp) {
+      const date = new Date(timestamp)
       return `${date.getHours()}:${date.getMinutes()}`
     }
   }
