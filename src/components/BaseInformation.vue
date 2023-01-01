@@ -23,7 +23,7 @@
           <li>any client can be used with any relay, meaning users can choose their relays and client independently</li>
         </ul>
         <p>
-        astral is a client for Nostr. while astral is implementing a social media usecase of Nostr, the possibilities of Nostr are endless.
+        Hamstr is a client for Nostr. while Hamstr is implementing a social media usecase of Nostr, the possibilities of Nostr are endless.
         <a href='https://jesterui.github.io/#/game/jester1y7du0yq7uzfzhxr2xgd64lmchfpf54evjsa59ff4f2mgh83h79rs9k7ffq'>Jester</a>
         is a beta peer to peer chess client implemented over Nostr.
         </p>
@@ -97,7 +97,7 @@
           function, meaning:
           <ul>
             <li>your public key can be calculated from your private
-            key - which is why you only need to enter your private key for astral to
+            key - which is why you only need to enter your private key for Hamstr to
             know your public key</li>
             <li>your private key cannot be calculated from your public key - which
             is why you can freely share your public key without compromising your
@@ -118,8 +118,8 @@
           <span style='text-decoration: underline;'>pub</span>lic key) and 'nsec'
           (for <span style='text-decoration: underline;'>N</span>ostr
           <span style='text-decoration: underline;'>sec</span>ret key) format that Damus
-          uses is preferable over the hex format that astral uses because there is a visual
-          indicator preventing the user from mixing up their public and private key. astral
+          uses is preferable over the hex format that Hamstr uses because there is a visual
+          indicator preventing the user from mixing up their public and private key. Hamstr
           will adopt this format in the future.
         </p>
       </q-card-section>
@@ -142,8 +142,8 @@
             <li>not store your private key</li>
             <li>not have any vulnerabilities that a bad actor can exploit to steal your private key</li>
           </ol>
-          while I can promise you that astral does not store your private key (it is stored locally in your
-          browser and is NEVER sent to back to astral) and that I am doing my best to prevent vulnerabilities,
+          while I can promise you that Hamstr does not store your private key (it is stored locally in your
+          browser and is NEVER sent to back to Hamstr) and that I am doing my best to prevent vulnerabilities,
           it is still recommeneded that you <strong>DO NOT TRUST ME</strong>.
         </p>
         <p>
@@ -189,8 +189,8 @@
           user data but preserve the existing browser database, <strong>DELETE LOCAL DATA</strong> will wipe your user
           data and the browser database</li>
           <li>hit the <strong>USE PUBLIC KEY FROM EXTENSION</strong> option that should appear in the key input (if
-          astral doesn't refresh automatically please refresh the page</li>
-          <li>proceed to <strong>how to use astral?</strong> section below</li>
+          Hamstr doesn't refresh automatically please refresh the page</li>
+          <li>proceed to <strong>how to use Hamstr?</strong> section below</li>
         </ol>
       </q-card-section>
     </q-expansion-item>
@@ -214,7 +214,7 @@
             <li>if you are on a desktop device the recommeneded option will be using a browser extension like
               <a href='https://getalby.com/' target='_blank'>getAlby</a> or <a href='https://github.com/fiatjaf/nos2x#install' target='_blank'>nos2x</a>.
               (see <strong>why shouldn't I enter my private key?</strong> section above)</li>
-            <li>if you are on a mobile device the easiest option will be using astral</li>
+            <li>if you are on a mobile device the easiest option will be using Hamstr</li>
             <li>if you are a technical user who is concerned about key generation security you can try the local option</li>
           </ul>
         </p>
@@ -237,12 +237,12 @@
             header-class='items-center'
           >
             <template #header>
-              <span class='full-width text-bold'>use astral</span>
+              <span class='full-width text-bold'>use Hamstr</span>
             </template>
             <q-card-section>
               <ol>
                 <li>hit <strong>GENERATE KEYS</strong> button below in the key input</li>
-                <li>proceed to <strong>how to use astral?</strong> section below</li>
+                <li>proceed to <strong>how to use Hamstr?</strong> section below</li>
               </ol>
             </q-card-section>
           </q-expansion-item>
@@ -268,8 +268,8 @@
                 <li>open the getAlby extension options page (usually in dropdown when clicking on extension's icon at the top of your broswer)</li>
                 <li>hit the <strong>Settings</strong> tab</li>
                 <li>scroll down to the <strong>Nostr</strong> section and hit <strong>Generate</strong> (or if you already have a private key enter it)</li>
-                <li>refresh astral.ninja page and hit the <strong>USE PUBLIC KEY FROM EXTENSION</strong> option that should appear in the key input</li>
-                <li>proceed to <strong>how to use astral?</strong> section below</li>
+                <li>refresh Hamstr.ninja page and hit the <strong>USE PUBLIC KEY FROM EXTENSION</strong> option that should appear in the key input</li>
+                <li>proceed to <strong>how to use Hamstr?</strong> section below</li>
               </ol>
             </q-card-section>
           </q-expansion-item>
@@ -289,8 +289,8 @@
                 <li>install <a href='https://github.com/fiatjaf/nos2x#install' target='_blank'>nos2x</a> browser extension</li>
                 <li>open the nos2x extension options page (usually in dropdown when clicking on extension's icon at the top of your broswer)</li>
                 <li>hit <strong>generate</strong> button  (or if you already have a private key enter it and hit <strong>save</strong>)</li>
-                <li>refresh astral.ninja page and hit the <strong>USE PUBLIC KEY FROM EXTENSION</strong> option that should appear in the key input</li>
-                <li>proceed to <strong>how to use astral?</strong> section below</li>
+                <li>refresh Hamstr.ninja page and hit the <strong>USE PUBLIC KEY FROM EXTENSION</strong> option that should appear in the key input</li>
+                <li>proceed to <strong>how to use Hamstr?</strong> section below</li>
               </ol>
             </q-card-section>
           </q-expansion-item>
@@ -309,7 +309,7 @@
               <ol>
                 <li>open terminal</li>
                 <li>enter the command <pre>openssl rand -hex 32</pre></li>
-                <li>proceed to <strong>how to use astral?</strong> section below</li>
+                <li>proceed to <strong>how to use Hamstr?</strong> section below</li>
               </ol>
             </q-card-section>
           </q-expansion-item>
@@ -325,7 +325,7 @@
       header-class='items-center'
     >
       <template #header>
-        <span class='full-width text-bold'>how to use astral?</span>
+        <span class='full-width text-bold'>how to use Hamstr?</span>
       </template>
       <q-card-section>
         <ol>
@@ -337,26 +337,26 @@
             <strong>choose bootstrap relays (optional)</strong> this section will only appear once a valid key has
             been entered. if you are using a brand new key you don't need
             to worry about this. if you are using an existing key and don't typically use any of the selected
-            relays, make sure to include a relay you typically use or astral may not be able to find your user.
-            the bootstrap relays are NOT used as your user's relay list, astral only uses these to find your
+            relays, make sure to include a relay you typically use or Hamstr may not be able to find your user.
+            the bootstrap relays are NOT used as your user's relay list, Hamstr only uses these to find your
             user's information and settings when loading your Nostr account.
           </li>
           <li>
-            <strong>hit PROCEED</strong> astral will login and attempt to find your user information. please
+            <strong>hit PROCEED</strong> Hamstr will login and attempt to find your user information. please
             be patient as it can take a few minutes to completely sync with Nostr relays.
           </li>
           <li>
             <strong>BACK UP YOUR KEYS!!!</strong> once you are taken to the settings page you should get a
             popup displaying your Nostr keys. make sure to make a backup of your Nostr keys and keep it
             somewhere safe. if you lose your Nostr keys you lose access to your Nostr user identity. there is no
-            astral customer service to reset your password.
+            Hamstr customer service to reset your password.
           </li>
           <li>
             <strong>edit settings</strong> hit the <strong>EDIT</strong> button for which ever section you would
             like to edit.
             <ul>
               <li><strong>profile</strong> saving this section will broadcast your updated user profile to the
-              Nostr relays (if you have never set your relays on Nostr, astral will use astral's default relay
+              Nostr relays (if you have never set your relays on Nostr, Hamstr will use Hamstr's default relay
               list to set and broadcast your set Nostr relays at the same time). all fields in the profile are
               completely optional, you don't need to set a profile at all to use Nostr.
                 <ul>
@@ -369,7 +369,7 @@
                   </li>
                 </ul>
               </li>
-              <li><strong>preferences</strong> saving this section will update the look of astral for this browser.
+              <li><strong>preferences</strong> saving this section will update the look of Hamstr for this browser.
               this section is not synced to Nostr.</li>
               <li><strong>relays</strong> saving this section will broadcast your updated relay list to the
               Nostr relays.</li>

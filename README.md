@@ -1,6 +1,7 @@
-# astral
+# Hamstr
 
-[astral](https://astral.ninja) is a web client for interacting with [Nostr](https://github.com/fiatjaf/nostr), a protocol that attempts to make decentralized social media a reality. astral began as a fork of [Branle](https://github.com/fiatjaf/branle).
+[Hamstr](https://hamstr.to) is a twitter-style [Nostr](https://github.com/fiatjaf/nostr) web client.
+It is a fork of [astral](https://github.com/monlovesmango/astral), which itself started as a fork of [branle](https://github.com/fiatjaf/branle).
 
 ## Install the dependencies
 ```bash
@@ -47,12 +48,12 @@ quasar build
 
 ### Build the docker image (uses PWA mode):
 ```bash
-docker build -t astral .
+docker build -t hamstr .
 ```
 
 ### Run the container:
 ```bash
-docker run -d -p 8080:8000 --name astral astral
+docker run -d -p 8080:8000 --name hamstr hamstr
 ```
 
 and connect to 'http://localhost:8080/'
