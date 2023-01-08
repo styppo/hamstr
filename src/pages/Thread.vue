@@ -58,7 +58,6 @@ export default defineComponent({
       children: [],
       subId: null,
       resizeObserver: null,
-      scrollTimeout: null,
     }
   },
   computed: {
@@ -156,7 +155,7 @@ export default defineComponent({
       }
 
       // Get children of target
-      const targetReplies = this.nostr.getRepliesTo(target.id, NoteOrder.CREATION_DATE_ASC)
+      const targetReplies = this.nostr.getRepliesTo(target.id, NoteOrder.CREATION_DATE_DESC)
       // FIXME Single element threads
       for (const reply of targetReplies) {
         children.push([reply])
@@ -183,10 +182,7 @@ export default defineComponent({
       const offset = this.$q.screen.xs ? 61 : 78
       const position = Math.max(el.offsetTop - offset, 0)
 
-      if (this.scrollTimeout) {
-        clearTimeout(this.scrollTimeout)
-      }
-      this.scrollTimeout = setTimeout(() => window.scrollTo(0, position), 100)
+      window.scrollTo(0, position)
     },
   },
   watch: {

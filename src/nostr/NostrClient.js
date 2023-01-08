@@ -27,6 +27,10 @@ export default class NostrClient {
     this.pool.disconnect()
   }
 
+  connectedRelays() {
+    return this.pool.connectedRelays()
+  }
+
   subscribe(filters, callback, opts) {
     let subId
     if (opts?.subId) {

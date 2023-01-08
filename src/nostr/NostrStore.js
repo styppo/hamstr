@@ -199,6 +199,7 @@ export const useNostrStore = defineStore('nostr', {
           (event, relay, subId) => {
             const obj = this.addEvent(event, relay)
             if (!obj) return
+
             // TODO Deduplicate
             objects.push(obj)
             if (objects.length >= limit) {
@@ -225,8 +226,9 @@ export const useNostrStore = defineStore('nostr', {
       return this.client.subscribe(
         filtersWithLimit,
         (event, relay) => {
+          const known = this.hasEvent(event.id)
           const obj = this.addEvent(event, relay)
-          if (!obj) return
+          if (!obj || known) return
 
           if (eventCallback) eventCallback(obj, relay)
 

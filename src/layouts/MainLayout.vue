@@ -19,7 +19,7 @@
 
       <div class="layout-sidebar">
         <div class="layout-sidebar-fixed">
-<!--          <SearchBox />-->
+          <SearchBox />
           <WelcomeBox />
           <Trends />
         </div>
@@ -43,7 +43,7 @@
 import {defineComponent} from 'vue'
 import {useQuasar} from 'quasar'
 import MainMenu from 'components/MainMenu/MainMenu.vue'
-// import SearchBox from 'components/SearchBox/SearchBox.vue'
+import SearchBox from 'components/SearchBox/SearchBox.vue'
 import WelcomeBox from 'components/Sidebar/WelcomeBox.vue'
 import Trends from 'components/Trends/index.vue'
 import BaseIcon from 'components/BaseIcon/index.vue'
@@ -54,7 +54,7 @@ export default defineComponent({
   name: 'MainLayout',
   components: {
     MainMenu,
-    // SearchBox,
+    SearchBox,
     WelcomeBox,
     Trends,
     BaseIcon,

@@ -81,6 +81,7 @@ export default defineComponent({
       availableFeeds: [Feeds.GLOBAL],
       selectedFeed: Feeds.GLOBAL,
       feeds: {},
+      initialLoadComplete: false,
     }
   },
   computed: {
@@ -94,6 +95,7 @@ export default defineComponent({
       return this.activeFeed?.unreads
     },
     numUnreads() {
+      if (!this.initialLoadComplete) return 0
       return this.activeFeed?.unreads.length
     },
   },
@@ -121,6 +123,9 @@ export default defineComponent({
           initialItems.sort(feedOrder)
           this.feeds[feed.name].items = initialItems
           initialFetchComplete = true
+
+          // Wait a bit before showing the first unreads
+          setTimeout(() => this.initialLoadComplete = true, 5000)
         }
       )
     },
