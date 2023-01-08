@@ -114,6 +114,13 @@ export const useNostrStore = defineStore('nostr', {
       return note
     },
 
+    getRepliesTo(id, order = NoteOrder.CREATION_DATE_DESC) {
+      const notes = useNoteStore()
+      const replies = notes.repliesTo(id, order)
+      // TODO fetch
+      return replies
+    },
+
     getNotesByAuthor(pubkey, opts = {}) {
       const order = opts.order || NoteOrder.CREATION_DATE_DESC
       const notes = useNoteStore()
@@ -131,6 +138,21 @@ export const useNostrStore = defineStore('nostr', {
       )
     },
 
+    streamThread(rootId, eventCallback, initialFetchCompleteCallback) {
+      return this.streamEvents(
+        {
+          kinds: [EventKind.NOTE],
+          '#e': [rootId],
+        },
+        500,
+        eventCallback,
+        initialFetchCompleteCallback,
+        {
+          subId: `thread:${rootId}`,
+        }
+      )
+    },
+
     streamFeed(feed, eventCallback, initialFetchCompleteCallback) {
       return this.streamEvents(
         feed.filters,
@@ -143,8 +165,8 @@ export const useNostrStore = defineStore('nostr', {
       )
     },
 
-    cancelFeed(feed) {
-      this.client.unsubscribe(feed.name)
+    cancelStream(subId) {
+      this.client.unsubscribe(subId)
     },
 
     fetchEvent(id) {
@@ -215,7 +237,7 @@ export const useNostrStore = defineStore('nostr', {
         },
         {
           subId: opts.subId || null,
-          cancelAfter: 'neven',
+          cancelAfter: 'never',
           eoseCallback: () => {
             if (!initialFetchComplete) {
               initialFetchComplete = true

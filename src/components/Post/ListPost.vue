@@ -2,7 +2,7 @@
   <div
     class="post"
     :class="{clickable}"
-    @click.stop="clickable && linkToEvent(note.id)"
+    @click.stop="clickable && linkToThread(note.id)"
   >
     <div class="post-author">
       <div class="connector-top">
@@ -28,8 +28,8 @@
         </p>
       </div>
       <div class="post-content-body">
-<!--        <BaseMarkdown :content="note.content" />-->
-        {{ note.content }}
+        <BaseMarkdown :content="note.content" />
+<!--        {{ note.content }}-->
       </div>
       <div v-if="actions" class="post-content-actions">
         <div class="action-item comment" @click.stop="app.createPost({ancestor: note.ancestor()})">
@@ -53,12 +53,11 @@
 import BaseIcon from 'components/BaseIcon'
 import UserAvatar from 'components/User/UserAvatar.vue'
 import UserName from 'components/User/UserName.vue'
-// import BaseMarkdown from 'app/tmp/BaseMarkdown.vue'
-// import Note from 'src/nostr/model/Note'
+import BaseMarkdown from 'components/Post/BaseMarkdown.vue'
 import routerMixin from 'src/router/mixin'
-import moment from 'moment'
 import {useAppStore} from 'stores/App'
 import {useNostrStore} from 'src/nostr/NostrStore'
+import DateUtils from 'src/utils/DateUtils'
 
 export default {
   name: 'ListPost',
@@ -66,7 +65,7 @@ export default {
   components: {
     UserAvatar,
     UserName,
-    // BaseMarkdown,
+    BaseMarkdown,
     BaseIcon,
   },
   props: {
@@ -113,22 +112,9 @@ export default {
   },
   methods: {
     formatPostDate(timestamp) {
-      return this.$q.screen.lt.md
-        ? this.shortDateFromNow(timestamp)
-        : moment(timestamp * 1000).fromNow()
+      const format = this.$q.screen.lt.md ? 'short' : 'long'
+      return DateUtils.formatFromNow(timestamp, format)
     },
-    shortDateFromNow(timestamp) {
-      const now = Date.now()
-      const diff = Math.round(Math.max(now - (timestamp * 1000), 0) / 1000)
-      const formatDiff = (div, offset) => Math.max(Math.floor((diff + offset) / div), 1)
-
-      if (diff < 45) return `${formatDiff(1, 0)}s`
-      if (diff < 60 * 45) return `${formatDiff(60, 15)}m`
-      if (diff < 60 * 60 * 22) return `${formatDiff(60 * 60, 60 * 15)}h`
-      if (diff < 60 * 60 * 24 * 26) return `${formatDiff(60 * 60 * 24, 60 * 60 * 2)}d`
-      if (diff < 60 * 60 * 24 * 30 * 320) return `${formatDiff(60 * 60 * 24 * 30, 60 * 60 * 24 * 4)}mo`
-      return `${formatDiff(60 * 60 * 24 * 30 * 365, 60 * 60 * 24 * 45)}y`
-    }
   },
 }
 </script>

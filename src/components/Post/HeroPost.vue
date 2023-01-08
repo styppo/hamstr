@@ -5,46 +5,49 @@
         <div class="connector-top">
           <div v-if="connector" class="connector-line"></div>
         </div>
-        <UserAvatar :pubkey="post.author" />
+        <UserAvatar :pubkey="note.author" clickable />
       </div>
       <div class="post-author-name">
-        <UserName :pubkey="post.author" two-line />
+        <UserName :pubkey="note.author" clickable two-line />
       </div>
     </div>
     <div class="post-content">
       <div class="post-content-header">
-        <p v-if="post.inReplyTo" class="in-reply-to">
-          Replying to <a @click.stop="linkToEvent(post.inReplyTo)">{{ shorten(post.inReplyTo) }}</a>
+        <p v-if="note.isReply()" class="in-reply-to">
+          Replying to
+          <a @click.stop="linkToProfile(ancestor?.author)">
+            <UserName v-if="ancestor?.author" :pubkey="ancestor?.author" />
+          </a>
         </p>
       </div>
       <div class="post-content-body">
         <p>
-<!--          <BaseMarkdown :content="post.content" />-->
+          <BaseMarkdown :content="note.content" />
         </p>
       </div>
       <div class="post-content-footer">
         <p class="created-at">
-          <span>{{ formatPostTime(post.createdAt) }}</span>
+          <span>{{ formatTime(note.createdAt) }}</span>
           <span>&#183;</span>
-          <span>{{ formatPostDate(post.createdAt) }}</span>
+          <span>{{ formatDate(note.createdAt) }}</span>
         </p>
         <div class="post-content-actions">
           <div class="action-item comment">
             <BaseIcon icon="comment" />
-            <span>{{ numComments }}</span>
+            <span>{{ stats.comments }}</span>
           </div>
           <div class="action-item repost">
             <BaseIcon icon="repost" />
-            <span>{{ post.stats.reposts }}</span>
+            <span>{{ stats.shares }}</span>
           </div>
           <div class="action-item like">
             <BaseIcon icon="like" />
-            <span>{{ post.stats.likes }}</span>
+            <span>{{ stats.reactions }}</span>
           </div>
         </div>
       </div>
     </div>
-    <div class="post-reply">
+    <div v-if="app.isSignedIn" class="post-reply">
       <PostEditor
         compact
         placeholder="Post your reply"
@@ -57,57 +60,25 @@
 import BaseIcon from 'components/BaseIcon'
 import UserAvatar from 'components/User/UserAvatar.vue'
 import UserName from 'components/User/UserName.vue'
-// import BaseMarkdown from 'app/tmp/BaseMarkdown.vue'
+import BaseMarkdown from 'components/Post/BaseMarkdown.vue'
 import PostEditor from 'components/CreatePost/PostEditor.vue'
+import {useNostrStore} from 'src/nostr/NostrStore'
+import {useAppStore} from 'stores/App'
 import routerMixin from 'src/router/mixin'
-
-const MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
-
-function countRepliesRecursive(event) {
-  if (!event.replies) {
-    return 0
-  }
-  let count = 0
-  for (const thread of event.replies) {
-    if (!thread || !thread.length) {
-      continue
-    }
-    count += thread.length
-    for (const reply of thread) {
-      count += countRepliesRecursive(reply)
-    }
-  }
-  return count
-}
-
-function postFromEvent(event) {
-  return {
-    id: event.id,
-    author: event.pubkey,
-    createdAt: event.created_at * 1000,
-    content: event.interpolated.text,
-    inReplyTo: event.interpolated.replyEvents[event.interpolated.replyEvents.length - 1],
-    images: [],
-    stats: {
-      comments: '',
-      reposts: '',
-      likes: '',
-    }
-  }
-}
+import DateUtils from 'src/utils/DateUtils'
 
 export default {
   name: 'HeroPost',
   mixins: [routerMixin],
   components: {
-    // BaseMarkdown,
+    BaseMarkdown,
     UserName,
     UserAvatar,
     BaseIcon,
     PostEditor,
   },
   props: {
-    event: {
+    note: {
       type: Object,
       required: true
     },
@@ -116,30 +87,29 @@ export default {
       default: false,
     },
   },
-  data() {
+  setup() {
     return {
-      post: postFromEvent(this.event),
+      app: useAppStore(),
+      nostr: useNostrStore()
     }
   },
   computed: {
-    numComments() {
-      return countRepliesRecursive(this.event)
+    ancestor() {
+      return this.note.isReply()
+        ? this.nostr.getNote(this.note.ancestor())
+        : null
+    },
+    stats() {
+      return {
+        comments: 69,
+        reactions: 420,
+        shares: 4711,
+      }
     },
   },
   methods: {
-    formatPostDate(timestamp) {
-      const date = new Date(timestamp)
-      const month = this.$t(MONTHS[date.getMonth()])
-
-      const sameYear = date.getFullYear() === (new Date().getFullYear())
-      const year = !sameYear ? ' ' + date.getFullYear() : ''
-
-      return `${date.getDate()} ${month}${year}`
-    },
-    formatPostTime(timestamp) {
-      const date = new Date(timestamp)
-      return `${date.getHours()}:${date.getMinutes()}`
-    }
+    formatDate: DateUtils.formatDate,
+    formatTime: DateUtils.formatTime,
   }
 }
 </script>

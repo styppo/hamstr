@@ -18,7 +18,11 @@ const routes = [
     component: () => import('pages/Profile.vue'),
     name: 'profile',
   },
-
+  {
+    path: '/thread/:id(note[a-z0-9A-Z]{59})',
+    component: () => import('pages/Thread.vue'),
+    name: 'thread',
+  },
   // {
   //   path: '/follow',
   //   component: () => import('pages/SearchFollow.vue'),

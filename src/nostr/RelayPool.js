@@ -42,7 +42,7 @@ export default class extends Observable {
   }
 
   subscribe(subId, filters) {
-    // console.log(`Subscribing ${subId}`, filters)
+    console.log(`Subscribing ${subId}`, filters)
     this.subs[subId] = filters
     for (const relay of this.connectedRelays()) {
       relay.subscribe(subId, filters)
@@ -75,7 +75,7 @@ export default class extends Observable {
   onOpen(relay) {
     console.log(`Connected to ${relay}`, relay)
     for (const subId of Object.keys(this.subs)) {
-      console.log(`Subscribing ${subId} with ${relay}`, this.subs[subId])
+      // console.log(`Subscribing ${subId} with ${relay}`, this.subs[subId])
       relay.subscribe(subId, this.subs[subId])
     }
     this.emit('open', relay)

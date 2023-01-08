@@ -10,8 +10,13 @@ export default {
         }
       })
     },
-    linkToEvent(id) {
-      this.$router.push({name: 'event', params: {id}})
+    linkToThread(id) {
+      this.$router.push({
+        name: 'thread',
+        params: {
+          id: hexToBech32(id, 'note')
+        }
+      })
     }
   }
 }
