@@ -83,6 +83,7 @@ export default {
 .create-post-dialog {
   position: relative;
   background-color: $color-bg;
+  box-shadow: $shadow-white;
   padding: 3rem 1rem 1rem;
   min-width: 660px;
   .icon {

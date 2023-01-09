@@ -169,7 +169,7 @@ class ReconnectingWebSocket extends Observable {
   }
 
   onError(error) {
-    console.log(`Socket error from relay ${this.url}: ${error.message || error}`)
+    console.log(`Socket error from relay ${this.url}`, error)
 
     this.emit('error', error, this)
     if (this.opts.reconnect) this.reconnect()

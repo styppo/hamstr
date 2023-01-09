@@ -1,24 +1,18 @@
 import {defineStore} from 'pinia'
+import {markRaw} from 'vue'
 import {EventKind} from 'src/nostr/model/Event'
 import NostrClient from 'src/nostr/NostrClient'
+import FetchQueue from 'src/nostr/FetchQueue'
 import {NoteOrder, useNoteStore} from 'src/nostr/store/NoteStore'
 import {useProfileStore} from 'src/nostr/store/ProfileStore'
-import {markRaw} from 'vue'
-import FetchQueue from 'src/nostr/FetchQueue'
-
-// TODO Move to settings
-const RELAYS = [
-  'wss://relay.damus.io',
-  'wss://nostr-relay.wlvs.space',
-  'wss://nostr-pub.wellorder.net',
-  'wss://nostr.oxtr.dev',
-]
+import {useContactStore} from 'src/nostr/store/ContactStore'
+import {useSettingsStore} from 'stores/Settings'
 
 export const Feeds = {
   GLOBAL: {
     name: 'global',
     filters: {
-      kinds: [EventKind.NOTE, EventKind.DELETE],
+      kinds: [EventKind.NOTE], // TODO Deletions
     },
     initialFetchSize: 100,
   },
@@ -43,6 +37,16 @@ const profileQueue = client => new FetchQueue(
   })
 )
 
+const contactQueue = client => new FetchQueue(
+  client,
+  'contact',
+  event => event.pubkey,
+  pubkeys => ({
+    kinds: [EventKind.CONTACT],
+    authors: pubkeys
+  })
+)
+
 export const useNostrStore = defineStore('nostr', {
   state: () => ({
     // TODO Limit size. Remove oldest.
@@ -50,7 +54,9 @@ export const useNostrStore = defineStore('nostr', {
   }),
   actions: {
     init() {
-      this.client = markRaw(new NostrClient(RELAYS))
+      const settings = useSettingsStore()
+      console.log(settings.relays)
+      this.client = markRaw(new NostrClient(settings.relays))
       this.client.connect()
 
       this.profileQueue = profileQueue(this.client)
@@ -58,6 +64,9 @@ export const useNostrStore = defineStore('nostr', {
 
       this.noteQueue = eventQueue(this.client, 'note')
       this.noteQueue.on('event', this.addEvent.bind(this))
+
+      this.contactQueue = contactQueue(this.client, 'queue')
+      this.contactQueue.on('event', this.addEvent.bind(this))
     },
     addEvent(event, relay = null) {
       // console.log(`[EVENT] from ${relay}`, event)
@@ -83,8 +92,10 @@ export const useNostrStore = defineStore('nostr', {
         }
         case EventKind.RELAY:
           break
-        case EventKind.CONTACT:
-          break
+        case EventKind.CONTACT: {
+          const contacts = useContactStore()
+          return contacts.addEvent(event)
+        }
         case EventKind.DM:
           break
         case EventKind.DELETE:
@@ -145,6 +156,31 @@ export const useNostrStore = defineStore('nostr', {
       )
     },
 
+    getContacts(pubkey) {
+      const store = useContactStore()
+      const contacts = store.getContacts(pubkey)
+      if (!contacts) this.contactQueue.add(pubkey)
+      return contacts
+    },
+
+    getFollowers(pubkey) {
+      const store = useContactStore()
+      const followers = store.getFollowers(pubkey)
+      // TODO fetch
+      return followers
+    },
+
+    fetchFollowers(pubkey, opts = {}) {
+      const limit = opts.limit || 500
+      return this.fetchMultiple(
+        {
+          kinds: [EventKind.CONTACT],
+          '#p': [pubkey],
+        },
+        limit
+      )
+    },
+
     streamThread(rootId, eventCallback, initialFetchCompleteCallback) {
       return this.streamEvents(
         {
@@ -199,6 +235,7 @@ export const useNostrStore = defineStore('nostr', {
 
     fetchMultiple(filters, limit = 100) {
       const filtersWithLimit = Object.assign({}, filters, {limit})
+      let unsubscribeTimeout
       return new Promise(resolve => {
         const objects = []
         this.client.subscribe(
@@ -216,8 +253,11 @@ export const useNostrStore = defineStore('nostr', {
           },
           {
             eoseCallback: (_relay, subId) => {
-              this.client.unsubscribe(subId)
-              resolve(objects)
+              if (unsubscribeTimeout) clearTimeout(unsubscribeTimeout)
+              unsubscribeTimeout = setTimeout(() => {
+                this.client.unsubscribe(subId)
+                resolve(objects)
+              }, 250)
             }
           }
         )

@@ -10,7 +10,7 @@
             <div>
               <div
                 v-for="feed in availableFeeds"
-                :key="feed.name"
+                :key="feed"
                 @click="switchFeed(feed)"
                 class="popup-header"
                 v-close-popup>
@@ -30,7 +30,7 @@
     </div>
 
     <div class="feed">
-      <div class="load-more-container" :class="{'more-available': /* FIXME */false}">
+      <div class="load-more-container" :class="{'more-available': numUnreads}">
         <ButtonLoadMore
           v-if="numUnreads"
           :label="`Load ${numUnreads} unread`"
@@ -78,15 +78,15 @@ export default defineComponent({
   },
   data() {
     return {
-      availableFeeds: [Feeds.GLOBAL],
-      selectedFeed: Feeds.GLOBAL,
+      availableFeeds: ['global'],
+      selectedFeed: 'global',
       feeds: {},
-      initialLoadComplete: false,
+      recentlyLoaded: true,
     }
   },
   computed: {
     activeFeed() {
-      return this.feeds[this.selectedFeed.name]
+      return this.feeds[this.selectedFeed]
     },
     feedItems() {
       return this.activeFeed?.items
@@ -95,15 +95,15 @@ export default defineComponent({
       return this.activeFeed?.unreads
     },
     numUnreads() {
-      if (!this.initialLoadComplete) return 0
+      if (this.recentlyLoaded) return 0
       return this.activeFeed?.unreads.length
     },
   },
   methods: {
-    initFeed(feed) {
-      if (this.feeds[feed.name]) return
+    initFeed(feedId) {
+      if (this.feeds[feedId]) return
 
-      this.feeds[feed.name] = {
+      this.feeds[feedId] = {
         items: [],
         unreads: [],
       }
@@ -111,34 +111,39 @@ export default defineComponent({
       let initialFetchComplete = false
       let initialItems = []
 
-      console.log(`subscribing to feed ${feed.name}`, this.feeds[feed.name])
+      console.log(`subscribing to feed ${feedId}`, this.feeds[feedId])
+
       this.nostr.streamFeed(
-        feed,
+        Feeds[feedId.toUpperCase()],
         event => {
           const target = initialFetchComplete
-            ? this.feeds[feed.name].unreads
+            ? this.feeds[feedId].unreads
             : initialItems
           target.push([event]) // FIXME Single element thread
         },
         () => {
           initialItems.sort(feedOrder)
-          this.feeds[feed.name].items = initialItems
+          this.feeds[feedId].items = initialItems
           initialFetchComplete = true
 
           // Wait a bit before showing the first unreads
-          setTimeout(() => this.initialLoadComplete = true, 5000)
+          setTimeout(() => this.recentlyLoaded = false, 5000)
         }
       )
     },
-    switchFeed(feed) {
-      this.initFeed(feed)
-      this.selectedFeed = feed
+    switchFeed(feedId) {
+      this.initFeed(feedId)
+      this.selectedFeed = feedId
     },
     loadUnreads() {
       const items = this.feedUnreads.concat(this.feedItems)
       items.sort(feedOrder)
       this.activeFeed.items = items
       this.activeFeed.unreads = []
+
+      // Wait a bit before showing unreads again
+      this.recentlyLoaded = true
+      setTimeout(() => this.recentlyLoaded = false, 5000)
     },
   },
   mounted() {
@@ -166,6 +171,9 @@ export default defineComponent({
 .addon-menu {
   display: flex;
   flex-direction: row-reverse;
+  &-icon {
+    cursor: pointer;
+  }
   &-popup {
     min-width: 150px;
     border-radius: 1rem;

@@ -1,8 +1,8 @@
 <template>
   <q-avatar
-    @click="clickable && linkToProfile(pubkey)"
-    class="relative-position"
     :class="{'cursor-pointer': clickable}"
+    :size="size"
+    @click="clickable && linkToProfile(pubkey)"
   >
     <img
       v-if="hasAvatar && !avatarFetchFailed"
@@ -38,6 +38,10 @@ export default {
       type: Boolean,
       default: false,
     },
+    size: {
+      type: String,
+      default: '',
+    }
   },
   data() {
     return {

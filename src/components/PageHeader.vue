@@ -48,7 +48,7 @@ export default defineComponent({
   methods: {
     titleFromRoute() {
       const route = this.$route.name?.toLowerCase()
-      return route.charAt(0).toUpperCase() + route.substring(1)
+      return route?.charAt(0).toUpperCase() + route?.substring(1)
     }
   }
 })

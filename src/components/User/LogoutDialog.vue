@@ -1,6 +1,8 @@
 <template>
   <q-dialog v-model="dialogOpen">
     <div class="logout-dialog">
+      <q-btn icon="close" size="md" class="icon" flat round v-close-popup/>
+
       <h3>Log out from <UserName :pubkey="pubkey" /></h3>
       <p>
         Do you really want to log out from <UserName :pubkey="pubkey" />?
@@ -77,11 +79,25 @@ export default {
   padding: 1rem;
   min-width: 440px;
 
+  .icon {
+    position: absolute;
+    width: 16px;
+    height: 16px;
+    top: .5rem;
+    left: .5rem;
+    fill: #fff;
+  }
+
   h3 {
-    margin-top: 0;
+    margin-top: 3rem;
+    padding: 0 .5rem;
+  }
+  > p {
+    padding: 0 .5rem;
   }
 
   .warning {
+    color: $color-primary;
     display: flex;
     background-color: rgba($color: $color-dark-gray, $alpha: 0.1);
     border-radius: 1rem 1rem 0 0;
@@ -102,13 +118,9 @@ export default {
     padding: 12px 20px;
     border-radius: 0 0 1rem 1rem;
     margin: 0 auto 1rem;
+    outline: none;
     background-color: rgba($color: $color-dark-gray, $alpha: 0.3);
     border: 1px solid rgba($color: $color-dark-gray, $alpha: 0);
-    transition: border 150ms ease;
-    &:focus {
-      border: 1px solid rgba($color: $color-primary, $alpha: 1);
-      outline: none;
-    }
   }
 
   .buttons {

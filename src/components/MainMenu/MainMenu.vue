@@ -20,7 +20,7 @@
       <MenuItem
         v-if="!hideItemsRequiringSignIn || app.isSignedIn"
         icon="profile"
-        :to="`/profile/${app.myPubkey}`"
+        :to="`/profile/${hexToBech32(app.myPubkey, 'npub')}`"
         :enabled="app.isSignedIn"
         @click="$emit('mobile-menu-close')"
       >
@@ -71,6 +71,7 @@ import ProfilePopup from 'components/MainMenu/ProfilePopup'
 import Logo from 'components/Logo.vue'
 import {useAppStore} from 'stores/App'
 import {MENU_ITEMS} from 'components/MainMenu/constants.js'
+import {hexToBech32} from 'src/utils/utils'
 
 export default {
   name: 'MainMenu',
@@ -105,7 +106,8 @@ export default {
     signIn() {
       this.$emit('mobile-menu-close')
       this.app.signIn()
-    }
+    },
+    hexToBech32
   }
 }
 </script>

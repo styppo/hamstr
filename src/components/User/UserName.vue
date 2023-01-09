@@ -4,17 +4,12 @@
     :class="{'two-line': twoLine, clickable}"
   >
     <a @click="clickable && linkToProfile(pubkey)">
-      <span
-        v-if="profile?.name"
-        class="name"
-      >
-        {{ profile.name }}
-        <q-icon v-if="showFollowing && isFollow" name="visibility" color="secondary">
-          <q-tooltip>
-            following
-          </q-tooltip>
-        </q-icon>
-      </span>
+      <span v-if="profile?.name" class="name">{{ profile.name }}</span>
+<!--      <q-icon v-if="showFollowing && isFollow" name="visibility" color="secondary">-->
+<!--        <q-tooltip>-->
+<!--          following-->
+<!--        </q-tooltip>-->
+<!--      </q-icon>-->
       <Bech32Label v-if="twoLine || !profile?.name" prefix="npub" :hex="pubkey" class="pubkey" />
     </a>
 
@@ -88,7 +83,6 @@ export default {
 @import "assets/theme/colors.scss";
 
 .username {
-  cursor: pointer;
   .name {
     font-weight: bold;
   }
@@ -109,6 +103,7 @@ export default {
     }
   }
   &.clickable {
+    cursor: pointer;
     .name:hover {
       text-decoration: underline;
     }
