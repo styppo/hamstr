@@ -32,7 +32,7 @@
           </div>
         </div>
         <div class="controls-submit">
-          <button :disabled="!hasContent() || publishing" @click="publishPost" class="btn">
+          <button :disabled="!hasContent() || publishing" @click="publishPost" class="btn btn-sm">
             <q-spinner v-if="publishing" />
             <span v-else>Post</span>
           </button>
@@ -40,7 +40,7 @@
       </div>
     </div>
     <div class="post-editor-fake-submit" v-if="collapsed">
-      <button class="btn" disabled>Post</button>
+      <button class="btn btn-sm" disabled>Post</button>
     </div>
   </div>
 </template>
@@ -140,7 +140,7 @@ export default {
       this.publishing = true
       try {
         const event = this.buildEvent()
-        await this.app.activeAccount.sign(event)
+        await this.app.signEvent(event)
         //this.nostr.sendEvent(event)
         console.log('Publishing', event)
 
@@ -167,23 +167,6 @@ export default {
 
 <style lang="scss" scoped>
 @import "assets/theme/colors.scss";
-
-button.btn {
-  cursor: pointer;
-  background-color: $color-primary;
-  color: #fff;
-  font-weight: bold;
-  padding: 8px 16px;
-  outline: none;
-  border: none;
-  border-radius: 9999px;
-  height: fit-content;
-  &:disabled {
-    cursor: no-drop;
-    background-color: rgba($color: $color-primary, $alpha: 0.3);
-    color: rgba($color: #fff, $alpha: 0.3);
-  }
-}
 
 .post-editor {
   padding: 0 1rem;

@@ -47,6 +47,12 @@ h3 {
     background-color: rgba($color: $color-primary, $alpha: 0.2);
     border-color: rgba($color: $color-primary, $alpha: 0.7);
   }
+  &:disabled {
+    cursor: no-drop;
+    background-color: rgba($color: $color-primary, $alpha: 0.3);
+    border-color: rgba($color: $color-primary, $alpha: 0.1);
+    color: rgba($color: #fff, $alpha: 0.3);
+  }
 
   &-primary {
     background-color: $color-primary;
@@ -54,5 +60,10 @@ h3 {
       background-color: rgba($color: $color-primary, $alpha: 0.7);
       border-color: rgba($color: $color-primary, $alpha: 0.3);
     }
+  }
+
+  &-sm {
+    padding: 8px 16px;
+    font-weight: 500;
   }
 }

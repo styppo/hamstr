@@ -62,7 +62,12 @@ export const useSettingsStore = defineStore('settings', {
     removeAccount(pubkey) {
       delete this.accounts[pubkey]
       if (this.pubkey === pubkey) {
-        this.pubkey = null
+        const accounts = Object.keys(this.accounts)
+        if (accounts.length) {
+          this.pubkey = accounts[0]
+        } else {
+          this.pubkey = null
+        }
       }
     },
     switchAccount(pubkey) {

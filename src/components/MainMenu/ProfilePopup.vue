@@ -40,7 +40,8 @@
           <hr class="popup-spacing">
           <div
             class="popup-body-item"
-            @click="handleLogOut"
+            @click="$refs.logout.show()"
+            v-close-popup
           >
             <p>Logout from <span><UserName :pubkey="pubkey" /></span></p>
           </div>
@@ -48,18 +49,21 @@
       </div>
     </q-menu>
   </div>
+  <LogoutDialog :pubkey="pubkey" ref="logout" />
 </template>
 
 <script>
 import BaseIcon from 'components/BaseIcon/index.vue'
 import UserAvatar from 'components/User/UserAvatar.vue'
 import UserName from 'components/User/UserName.vue'
+import LogoutDialog from 'components/User/LogoutDialog.vue'
 import {useAppStore} from 'stores/App'
 import {useSettingsStore} from 'stores/Settings'
 
 export default {
   name: 'ProfilePopup',
   components: {
+    LogoutDialog,
     UserName,
     UserAvatar,
     BaseIcon
@@ -78,11 +82,6 @@ export default {
       return this.settings.accounts
     }
   },
-  methods: {
-    handleLogOut() {
-      // TODO
-    }
-  }
 }
 </script>
 

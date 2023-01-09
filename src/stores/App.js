@@ -42,5 +42,9 @@ export const useAppStore = defineStore('app', {
       this.createPostDialog.params = options
       this.createPostDialog.open = true
     },
+    signEvent(event) {
+      // TODO Check if signing is possible, prompt for privkey
+      return this.activeAccount.sign(event)
+    }
   },
 })

@@ -10,8 +10,11 @@
 </template>
 
 <script>
+import {useAppStore} from 'stores/App'
+import {useNostrStore} from 'src/nostr/NostrStore'
 import {useSettingsStore} from 'stores/Settings'
 import {generatePrivateKey} from 'nostr-tools'
+import Event, {EventKind} from 'src/nostr/model/Event'
 
 export default {
   name: 'SignUpForm',
@@ -27,7 +30,7 @@ export default {
     },
   },
   methods: {
-    signUp() {
+    async signUp() {
       if (!this.validUsername) return
 
       const privkey = generatePrivateKey()
@@ -36,8 +39,15 @@ export default {
       const account = settings.addAccount({privkey})
       settings.switchAccount(account.pubkey)
 
-      // FIXME
-      //this.$store.dispatch('setMetadata', {name: this.username})
+      const event = Event.fresh({
+        pubkey: account.pubkey,
+        kind: EventKind.METADATA,
+        content: JSON.stringify({
+          name: this.username
+        })
+      })
+      await useAppStore().signEvent(event)
+      useNostrStore().sendEvent(event)
 
       this.$emit('complete', {
         pubkey: account.pubkey,

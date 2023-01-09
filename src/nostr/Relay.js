@@ -74,7 +74,7 @@ export class Relay extends Observable {
       }
       case 'OK': {
         Relay.enforceArrayLength(array, 4)
-        const [_, eventId, wasSaved, message] = message
+        const [_, eventId, wasSaved, message] = array
         this.emit('ok', eventId, wasSaved, message)
         break
       }
