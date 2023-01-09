@@ -30,6 +30,7 @@
           v-for="note in posts"
           :key="note.id"
           :note="note"
+          clickable
           actions
         />
       </q-tab-panel>

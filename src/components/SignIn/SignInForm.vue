@@ -2,13 +2,13 @@
   <div class="sign-in">
     <h3>Log in</h3>
     <q-form @submit.stop="signIn">
-      <label for="private-key">Paste your private key</label>
+      <label for="private-key">Paste your public or private key</label>
       <input
         ref="input"
-        v-model="privateKey"
+        v-model="key"
         id="private-key"
-        placeholder="nsec..."
-        maxlength="64"
+        placeholder="npub… / nsec…"
+        maxlength="63"
         :class="{
           valid: validKey,
           invalid: invalidKey,
@@ -20,48 +20,53 @@
 </template>
 
 <script>
+import {decode as bech32decode} from 'bech32-buffer'
+import {bech32prefix, bech32ToHex} from 'src/utils/utils'
+import {useSettingsStore} from 'stores/Settings'
+
 export default {
   name: 'SignInForm',
   emits: ['complete'],
   data() {
     return {
-      privateKey: null,
+      key: null,
     }
   },
   computed: {
     validKey() {
-      return this.isValidKey(this.privateKey)
+      return this.isValidKey(this.key)
     },
     invalidKey() {
-      return this.privateKey
-        && this.privateKey.length >= 63
-        && !this.isValidKey(this.privateKey)
+      return this.key
+        && this.key.length >= 63
+        && !this.isValidKey(this.key)
     }
   },
   methods: {
     isValidKey(str) {
-      // FIXME
-      // return this.isBech32Key(str)
-      return false
+      if (!str) return false
+      try {
+        const {data, prefix} = bech32decode(str.toLowerCase())
+        return data.byteLength === 32 && prefix === 'npub' || prefix === 'nsec'
+      } catch (e) {
+        return false
+      }
     },
     signIn() {
       if (!this.validKey) return
 
-      // FIXME
-      // const priv = this.bech32ToHex(this.privateKey)
-      // const pub = getPublicKey(priv)
-      //
-      // const keys = {priv, pub}
-      // this.$store.dispatch('initKeys', keys)
-      // this.$store.dispatch('launch')
-      //
-      // const account = {secret: priv}
-      // this.$store.commit('addOrUpdateAccount', {
-      //   pubkey: pub,
-      //   account
-      // })
-      //
-      // this.$emit('complete', {pubkey: pub})
+      let opts
+      if (bech32prefix(this.key) === 'npub') {
+        opts = {pubkey: bech32ToHex(this.key)}
+      } else {
+        opts = {privkey: bech32ToHex(this.key)}
+      }
+
+      const settings = useSettingsStore()
+      const account = settings.addAccount(opts)
+      settings.switchAccount(account.pubkey)
+
+      this.$emit('complete', {pubkey: account.pubkey})
     },
   },
   mounted() {

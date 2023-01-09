@@ -1,10 +1,8 @@
 import {defineStore} from 'pinia'
+import {useSettingsStore} from 'stores/Settings'
 
 export const useAppStore = defineStore('app', {
   state: () => ({
-    user: null,
-    accounts: {}, // TODO move to own store?
-
     signInDialog: {
       open: false,
       fragment: null,
@@ -16,24 +14,31 @@ export const useAppStore = defineStore('app', {
     },
   }),
   getters: {
+    activeAccount(state) {
+      const settings = useSettingsStore()
+      return settings.activeAccount
+    },
     isSignedIn(state) {
-      return !!state.user
+      return !!this.activeAccount
     },
     myPubkey(state) {
-      return state.user?.pubkey
+      return this.activeAccount?.pubkey
     },
   },
   actions: {
     signIn(fragment = 'welcome') {
-      if (this.isSignedIn) return Promise.resolve(true)
       return new Promise(resolve => {
         this.signInDialog.callback = resolve
         this.signInDialog.fragment = fragment
         this.signInDialog.open = true
       })
     },
+    signInIfNeeded(fragment = 'welcome') {
+      if (this.isSignedIn) return Promise.resolve(true)
+      return this.signIn(fragment)
+    },
     async createPost(options = {}) {
-      if (!await this.signIn()) return
+      if (!await this.signInIfNeeded()) return
       this.createPostDialog.params = options
       this.createPostDialog.open = true
     },

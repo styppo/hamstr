@@ -10,6 +10,9 @@
 </template>
 
 <script>
+import {useSettingsStore} from 'stores/Settings'
+import {generatePrivateKey} from 'nostr-tools'
+
 export default {
   name: 'SignUpForm',
   emits: ['complete'],
@@ -27,23 +30,19 @@ export default {
     signUp() {
       if (!this.validUsername) return
 
+      const privkey = generatePrivateKey()
+
+      const settings = useSettingsStore()
+      const account = settings.addAccount({privkey})
+      settings.switchAccount(account.pubkey)
+
       // FIXME
-      // const priv = generatePrivateKey()
-      // const pub = getPublicKey(priv)
-      // const keys = {pub, priv}
-      //
-      // this.$store.dispatch('initKeys', keys)
-      // this.$store.dispatch('launch')
-      //
-      // const account = {secret: priv}
-      // this.$store.commit('addOrUpdateAccount', {
-      //   pubkey: pub,
-      //   account
-      // })
-      //
-      // this.$store.dispatch('setMetadata', {name: this.username})
-      //
-      // this.$emit('complete', {pubkey: pub, name: this.username})
+      //this.$store.dispatch('setMetadata', {name: this.username})
+
+      this.$emit('complete', {
+        pubkey: account.pubkey,
+        name: this.username
+      })
     }
   },
   mounted() {

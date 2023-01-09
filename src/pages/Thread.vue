@@ -69,7 +69,7 @@ export default defineComponent({
       return this.nostr.getNote(this.noteId)
     },
     noteLoaded() {
-      return this.note?.id === this.noteId
+      return this.noteId && this.note?.id === this.noteId
     },
     rootId() {
       if (!this.noteLoaded) return

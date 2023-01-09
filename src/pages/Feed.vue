@@ -111,6 +111,7 @@ export default defineComponent({
       let initialFetchComplete = false
       let initialItems = []
 
+      console.log(`subscribing to feed ${feed.name}`, this.feeds[feed.name])
       this.nostr.streamFeed(
         feed,
         event => {

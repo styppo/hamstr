@@ -7,7 +7,7 @@
       <div class="menu-profile-items">
         <div class="profile-info">
           <p>
-            <UserName :pubkey="pubkey" :clickable="false" two-line />
+            <UserName :pubkey="pubkey" two-line />
           </p>
         </div>
         <div class="more">
@@ -17,7 +17,7 @@
     </div>
     <q-menu :offset="[0, 20]" target=".menu-profile" class="menu-profile-popup" >
       <div>
-        <div v-for="(_, pk) in $store.state.accounts" :key="pk" class="popup-header" @click="switchAccount(pk)">
+        <div v-for="(_, pk) in settings.accounts" :key="pk" class="popup-header" @click="settings.switchAccount(pk)" v-close-popup>
           <div class="sidebar-profile-pic">
             <UserAvatar :pubkey="pk" :clickable="false"/>
           </div>
@@ -34,7 +34,7 @@
         </div>
         <hr class="popup-spacing">
         <div class="popup-body">
-          <div class="popup-body-item" @click="$store.dispatch('signIn', {}).catch(() => {})" v-close-popup>
+          <div class="popup-body-item" @click="app.signIn()" v-close-popup>
             <p>Add an account</p>
           </div>
           <hr class="popup-spacing">
@@ -42,7 +42,7 @@
             class="popup-body-item"
             @click="handleLogOut"
           >
-            <p>Logout from <span>{{ $store.getters.displayName(pubkey) }}</span></p>
+            <p>Logout from <span><UserName :pubkey="pubkey" /></span></p>
           </div>
         </div>
       </div>
@@ -54,6 +54,8 @@
 import BaseIcon from 'components/BaseIcon/index.vue'
 import UserAvatar from 'components/User/UserAvatar.vue'
 import UserName from 'components/User/UserName.vue'
+import {useAppStore} from 'stores/App'
+import {useSettingsStore} from 'stores/Settings'
 
 export default {
   name: 'ProfilePopup',
@@ -62,24 +64,23 @@ export default {
     UserAvatar,
     BaseIcon
   },
+  setup() {
+    return {
+      app: useAppStore(),
+      settings: useSettingsStore(),
+    }
+  },
   computed: {
     pubkey() {
-      return this.$store.getters.myPubkey
+      return this.app.myPubkey
+    },
+    accounts() {
+      return this.settings.accounts
     }
   },
   methods: {
-    switchAccount(pubkey) {
-      const account = this.$store.state.accounts[pubkey]
-      if (!account) return
-      this.$store.commit('setKeys', {
-        priv: account.secret,
-        pub: pubkey
-      })
-      this.$store.dispatch('useProfile', {pubkey})
-    },
     handleLogOut() {
-      this.$store.dispatch('setLogOut')
-      this.$router.push('/login')
+      // TODO
     }
   }
 }

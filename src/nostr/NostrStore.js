@@ -59,14 +59,16 @@ export const useNostrStore = defineStore('nostr', {
       this.noteQueue = eventQueue(this.client, 'note')
       this.noteQueue.on('event', this.addEvent.bind(this))
     },
-    addEvent(event, relay) {
+    addEvent(event, relay = null) {
       // console.log(`[EVENT] from ${relay}`, event)
 
-      if (this.seenBy[event.id]) {
-        this.seenBy[event.id][relay.url] = Date.now()
-      } else {
-        this.seenBy[event.id] = {
-          [relay.url]: Date.now()
+      if (relay?.url) {
+        if (this.seenBy[event.id]) {
+          this.seenBy[event.id][relay.url] = Date.now()
+        } else {
+          this.seenBy[event.id] = {
+            [relay.url]: Date.now()
+          }
         }
       }
 
@@ -98,6 +100,11 @@ export const useNostrStore = defineStore('nostr', {
 
     hasEvent(id) {
       return !!this.seenBy[id]
+    },
+
+    sendEvent(event) {
+      this.addEvent(event)
+      return this.client.send(event)
     },
 
     getProfile(pubkey) {

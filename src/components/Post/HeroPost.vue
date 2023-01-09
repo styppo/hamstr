@@ -34,21 +34,22 @@
         <div class="post-content-actions">
           <div class="action-item comment">
             <BaseIcon icon="comment" />
-            <span>{{ stats.comments }}</span>
+            <span>{{ stats.comments || '' }}</span>
           </div>
           <div class="action-item repost">
             <BaseIcon icon="repost" />
-            <span>{{ stats.shares }}</span>
+            <span>{{ stats.shares || '' }}</span>
           </div>
           <div class="action-item like">
             <BaseIcon icon="like" />
-            <span>{{ stats.reactions }}</span>
+            <span>{{ stats.reactions || '' }}</span>
           </div>
         </div>
       </div>
     </div>
     <div v-if="app.isSignedIn" class="post-reply">
       <PostEditor
+        :ancestor="note"
         compact
         placeholder="Post your reply"
       />
@@ -101,9 +102,9 @@ export default {
     },
     stats() {
       return {
-        comments: 69,
-        reactions: 420,
-        shares: 4711,
+        comments: 0,
+        reactions: 0,
+        shares: 0,
       }
     },
   },

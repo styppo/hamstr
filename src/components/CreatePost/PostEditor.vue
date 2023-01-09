@@ -51,6 +51,8 @@ import UserAvatar from 'components/User/UserAvatar.vue'
 import BaseIcon from 'components/BaseIcon/index.vue'
 import EmojiPicker from 'components/CreatePost/EmojiPicker.vue'
 import {useAppStore} from 'stores/App'
+import {useNostrStore} from 'src/nostr/NostrStore'
+import Event, {EventKind} from 'src/nostr/model/Event'
 
 export default {
   name: 'PostEditor',
@@ -62,7 +64,7 @@ export default {
   },
   props: {
     ancestor: {
-      type: String,
+      type: Object,
       default: null,
     },
     placeholder: {
@@ -93,6 +95,7 @@ export default {
   setup() {
     return {
       app: useAppStore(),
+      nostr: useNostrStore(),
     }
   },
   methods: {
@@ -109,21 +112,43 @@ export default {
     reset() {
       this.content = ''
     },
+    buildEvent() {
+      return Event.fresh({
+        pubkey: this.app.myPubkey,
+        kind: EventKind.NOTE,
+        tags: this.buildTags(),
+        content: this.content,
+      })
+    },
+    buildTags() {
+      // TODO Extract tags from content
+      const e = []
+      const p = []
+
+      if (this.ancestor) {
+        if (this.ancestor.isReply()) {
+          e.push(this.ancestor.root())
+        }
+        e.push(this.ancestor.id)
+        p.push(this.ancestor.author)
+      }
+
+      return e.map(e => ['e', e])
+        .concat(p.map(p => ['p', p]))
+    },
     async publishPost() {
       this.publishing = true
-      const post = {
-        message: this.content,
-        tags: this.buildTags(),
-      }
       try {
-        // FIXME
-        const event = await this.$store.dispatch('sendPost', post)
+        const event = this.buildEvent()
+        await this.app.activeAccount.sign(event)
+        //this.nostr.sendEvent(event)
+        console.log('Publishing', event)
 
         this.reset()
         this.$emit('publish', event)
 
         // TODO i18n
-        const postType = this.replyTo.length ? 'Reply' : 'Post'
+        const postType = this.ancestor ? 'Reply' : 'Post'
         this.$q.notify({
           message: `${postType} published`,
           color: 'positive',
@@ -136,19 +161,7 @@ export default {
       }
       this.publishing = false
     },
-    buildTags() {
-      // FIXME
-      const e = []
-      const p = []
-      for (const {id, pubkey} of this.replyTo) {
-        e.push(['e', id])
-        if (pubkey) {
-          p.push(['p', pubkey])
-        }
-      }
-      return e.concat(p)
-    }
-  }
+  },
 }
 </script>
 

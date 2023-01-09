@@ -1,3 +1,5 @@
+import {getEventHash} from 'nostr-tools'
+
 export const EventKind = {
   METADATA: 0,
   NOTE: 1,
@@ -35,23 +37,36 @@ class EventRefs extends Array {
 }
 
 export default class Event {
-  constructor(args) {
-    this.id = args.id
-    this.pubkey = args.pubkey
-    this.createdAt = args.createdAt || args.created_at
-    this.kind = args.kind
-    this.tags = args.tags || []
-    this.content = args.content
-    this.sig = args.sig
+  constructor(opts) {
+    this.id = opts.id
+    this.pubkey = opts.pubkey
+    this.created_at = opts.createdAt || opts.created_at
+    this.kind = opts.kind
+    this.tags = opts.tags || []
+    this.content = opts.content
+    this.sig = opts.sig
   }
 
   static from(obj) {
     return new Event(obj)
   }
 
+  static fresh(opts) {
+    opts.createdAt = opts.createdAt || Math.floor(Date.now() / 1000)
+    return new Event(opts)
+  }
+
+  get createdAt() {
+    return this.created_at
+  }
+
   validate() {
     // TODO
     return true
+  }
+
+  hash() {
+    return getEventHash(this)
   }
 
   pubkeyRefs() {

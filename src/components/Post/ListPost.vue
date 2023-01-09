@@ -32,17 +32,17 @@
 <!--        {{ note.content }}-->
       </div>
       <div v-if="actions" class="post-content-actions">
-        <div class="action-item comment" @click.stop="app.createPost({ancestor: note.ancestor()})">
+        <div class="action-item comment" @click.stop="app.createPost({ancestor: note.id})">
           <BaseIcon icon="comment" />
-          <span>{{ stats.comments }}</span>
+          <span>{{ stats.comments || '' }}</span>
         </div>
         <div class="action-item repost" @click.stop>
           <BaseIcon icon="repost" />
-          <span>{{ stats.shares }}</span>
+          <span>{{ stats.shares || '' }}</span>
         </div>
         <div class="action-item like" @click.stop>
           <BaseIcon icon="like" />
-          <span>{{ stats.reactions }}</span>
+          <span>{{ stats.reactions || '' }}</span>
         </div>
       </div>
     </div>
@@ -104,9 +104,9 @@ export default {
     },
     stats() {
       return {
-        comments: 69,
-        reactions: 420,
-        shares: 4711,
+        comments: 0,
+        reactions: 0,
+        shares: 0,
       }
     },
   },

@@ -29,8 +29,12 @@
         <p class="prompt">
           {{ prompt }}
         </p>
-        <button class="btn btn-primary" @click.stop="fragment = 'sign-up'">Create Account</button>
-        <button class="btn" @click.stop="fragment = 'sign-in'">Log in</button>
+        <button v-if="nip07available" class="btn btn-primary" @click.stop="signInNip07()">Log in with Extension</button>
+        <button class="btn" :class="{'btn-primary': !nip07available}" @click.stop="fragment = 'sign-up'">
+          Create Account
+        </button>
+        <button v-if="!nip07available" class="btn" @click.stop="fragment = 'sign-in'">Log in</button>
+        <a v-else @click.stop="fragment = 'sign-in'">Log in with key</a>
       </div>
 
       <SignUpForm v-if="fragment === 'sign-up'" @complete="onComplete" />
@@ -54,6 +58,8 @@ import UserName from 'components/User/UserName.vue'
 import SignUpForm from 'components/SignIn/SignUpForm.vue'
 import SignInForm from 'components/SignIn/SignInForm.vue'
 import {useAppStore} from 'stores/App'
+import {useSettingsStore} from 'stores/Settings'
+import Nip07 from 'src/utils/Nip07'
 
 export default {
   name: 'SignInDialog',
@@ -73,13 +79,14 @@ export default {
   setup() {
     return {
       app: useAppStore(),
+      settings: useSettingsStore(),
     }
   },
   data() {
     return {
       fragment: 'welcome',
-      pubkey: null,
       backAllowed: true,
+      pubkey: null,
     }
   },
   computed: {
@@ -89,6 +96,9 @@ export default {
     },
     showBack() {
       return this.fragment !== 'complete' && !this.showClose
+    },
+    nip07available() {
+      return Nip07.isAvailable()
     }
   },
   methods: {
@@ -106,7 +116,19 @@ export default {
     updateFragment() {
       this.fragment = this.app.signInDialog.fragment || 'welcome'
       this.backAllowed = this.fragment === 'welcome'
-    }
+    },
+    async signInNip07() {
+      const pubkey = await Nip07.getPublicKey()
+
+      const account = {
+        pubkey,
+        useExtension: true,
+      }
+      this.settings.addAccount(account)
+      this.settings.switchAccount(pubkey)
+
+      this.onComplete({pubkey})
+    },
   },
 }
 </script>
@@ -142,6 +164,15 @@ export default {
     button {
       width: 100%;
       margin-top: 20px;
+    }
+    a {
+      display: inline-block;
+      margin-top: 1rem;
+      cursor: pointer;
+      color: $color-primary;
+      &:hover {
+        text-decoration: underline;
+      }
     }
   }
   .complete {
