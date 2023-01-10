@@ -1,58 +1,21 @@
 <template>
-  <q-page class="profile">
-    <PageHeader back-button />
-
-    <div class="profile-header">
-      <UserAvatar :pubkey="pubkey" class="profile-header-avatar" />
-      <div class="profile-header-content">
-        <p class="username"><UserName :pubkey="pubkey" two-line show-verified /></p>
-        <p class="about">{{ profile?.about }}</p>
-        <p class="followers">
-          <span>
-            <strong>{{ contacts?.length || 0 }}</strong> Following
-          </span>
-          <span>
-            <strong>{{ followers?.length || 0 }}</strong> Followers
-          </span>
-        </p>
-      </div>
-    </div>
+  <q-page class="followers">
+    <PageHeader :title="profile?.name || hexToBech32(pubkey) || 'Followers'" back-button />
 
     <div class="profile-tabs">
       <q-tabs
         v-model="activeTab"
-        dense
         outline
-        align="left"
+        align="justify"
+        indicator-color="primary"
         :breakpoint="0"
       >
-        <q-tab name="posts" label="Posts" />
-        <q-tab name="replies" label="Replies" />
         <q-tab name="following" label="Following" />
         <q-tab name="followers" label="Followers" />
-        <q-tab name="relays" label="Relays" />
       </q-tabs>
     </div>
 
     <q-tab-panels v-model="activeTab" class="profile-tab-panels" animated>
-      <q-tab-panel name="posts" class="no-padding">
-        <ListPost
-          v-for="note in posts"
-          :key="note.id"
-          :note="note"
-          clickable
-          actions
-        />
-      </q-tab-panel>
-      <q-tab-panel name="replies" class="no-padding">
-        <ListPost
-          v-for="note in replies"
-          :key="note.id"
-          :note="note"
-          clickable
-          actions
-        />
-      </q-tab-panel>
       <q-tab-panel name="following" class="no-padding">
         <UserCard
           v-for="contact in contacts"
@@ -76,22 +39,16 @@
 <script>
 import {defineComponent} from 'vue'
 import PageHeader from 'components/PageHeader.vue'
-import UserAvatar from 'components/User/UserAvatar.vue'
-import UserName from 'components/User/UserName.vue'
-import ListPost from 'components/Post/ListPost.vue'
 import UserCard from 'components/User/UserCard.vue'
 import {useAppStore} from 'stores/App'
 import {useNostrStore} from 'src/nostr/NostrStore'
-import {bech32ToHex} from 'src/utils/utils'
+import {bech32ToHex, hexToBech32} from 'src/utils/utils'
 
 export default defineComponent({
   name: 'Profile',
   components: {
     UserCard,
     PageHeader,
-    UserAvatar,
-    UserName,
-    ListPost,
   },
   setup() {
     return {
@@ -101,7 +58,7 @@ export default defineComponent({
   },
   data() {
     return {
-      activeTab: 'posts',
+      activeTab: this.$route.params.tab || 'following',
     }
   },
   computed: {
@@ -111,15 +68,6 @@ export default defineComponent({
     profile() {
       return this.nostr.getProfile(this.pubkey)
     },
-    notes() {
-      return this.nostr.getNotesByAuthor(this.pubkey)
-    },
-    posts() {
-      return this.notes.filter(note => !note.isReply())
-    },
-    replies() {
-      return this.notes.filter(note => note.isReply())
-    },
     contacts() {
       return this.nostr.getContacts(this.pubkey)
     },
@@ -127,14 +75,27 @@ export default defineComponent({
       return this.nostr.getFollowers(this.pubkey)
     },
   },
+  methods: {
+    hexToBech32,
+  },
   mounted() {
-    this.nostr.fetchNotesByAuthor(this.pubkey)
-    this.nostr.fetchFollowers(this.pubkey)
+    this.nostr.fetchFollowers(this.pubkey, 1000)
+  },
+  watch: {
+    activeTab() {
+      this.$router.replace({
+        params: {
+          tab: this.activeTab
+        }
+      })
+    }
   }
 })
 </script>
 
 <style lang="scss" scoped>
+@import "assets/theme/colors.scss";
+
 .profile {
   &-header {
     display: flex;
@@ -146,11 +107,14 @@ export default defineComponent({
     }
     &-content {
       .followers {
-        span + span {
+        a + a {
           margin-left: 1rem;
         }
       }
     }
+  }
+  &-tabs {
+    border-bottom: $border-dark;
   }
   &-tab-panels {
     background-color: unset;
@@ -158,6 +122,10 @@ export default defineComponent({
 }
 </style>
 <style lang="scss">
+.profile-tabs {
+  .q-tab {
+  }
+}
 .profile-header-content .username {
   .name, .pubkey:first-child {
     font-size: 1.4rem;

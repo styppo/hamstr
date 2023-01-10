@@ -1,12 +1,14 @@
 import {defineStore} from 'pinia'
 import {markRaw} from 'vue'
 import {EventKind} from 'src/nostr/model/Event'
+import Note from 'src/nostr/model/Note'
 import NostrClient from 'src/nostr/NostrClient'
 import FetchQueue from 'src/nostr/FetchQueue'
 import {NoteOrder, useNoteStore} from 'src/nostr/store/NoteStore'
 import {useProfileStore} from 'src/nostr/store/ProfileStore'
 import {useContactStore} from 'src/nostr/store/ContactStore'
 import {useSettingsStore} from 'stores/Settings'
+import {ReactionOrder, useReactionStore} from 'src/nostr/store/ReactionStore'
 
 export const Feeds = {
   GLOBAL: {
@@ -87,8 +89,13 @@ export const useNostrStore = defineStore('nostr', {
           return profiles.addEvent(event)
         }
         case EventKind.NOTE: {
-          const notes = useNoteStore()
-          return notes.addEvent(event)
+          if (Note.isReaction(event)) {
+            const reactions = useReactionStore()
+            return reactions.addEvent(event)
+          } else {
+            const notes = useNoteStore()
+            return notes.addEvent(event)
+          }
         }
         case EventKind.RELAY:
           break
@@ -102,8 +109,10 @@ export const useNostrStore = defineStore('nostr', {
           break
         case EventKind.SHARE:
           break
-        case EventKind.REACTION:
-          break
+        case EventKind.REACTION: {
+          const reactions = useReactionStore()
+          return reactions.addEvent(event)
+        }
         case EventKind.CHATROOM:
           break
       }
@@ -181,6 +190,40 @@ export const useNostrStore = defineStore('nostr', {
       )
     },
 
+    getReactionsTo(id, order = ReactionOrder.CREATION_DATE_DESC) {
+      const store = useReactionStore()
+      const reactions = store.allByEvent(id, order)
+      // TODO fetch?
+      return reactions
+    },
+
+    fetchReactionsTo(id, limit = 500) {
+      return this.fetchMultiple(
+        {
+          kinds: [EventKind.REACTION],
+          '#e': [id],
+        },
+        limit
+      )
+    },
+
+    getReactionsByAuthor(pubkey, order = ReactionOrder.CREATION_DATE_DESC) {
+      const store = useReactionStore()
+      const reactions = store.allByAuthor(pubkey, order)
+      // TODO fetch?
+      return reactions
+    },
+
+    fetchReactionsByAuthor(pubkey, limit = 500) {
+      return this.fetchMultiple(
+        {
+          kinds: [EventKind.REACTION],
+          authors: [pubkey],
+        },
+        limit
+      )
+    },
+
     streamThread(rootId, eventCallback, initialFetchCompleteCallback) {
       return this.streamEvents(
         {
@@ -208,8 +251,40 @@ export const useNostrStore = defineStore('nostr', {
       )
     },
 
-    cancelStream(subId) {
-      this.client.unsubscribe(subId)
+    streamFullProfile(pubkey) {
+      const handles = []
+      // Everything authored by pubkey
+      handles.push(this.client.subscribe({
+        kinds: [EventKind.NOTE],
+        authors: [pubkey],
+        limit: 200,
+      }, () => {}, { subId: 'foo' }))
+      handles.push(this.client.subscribe({
+        kinds: [EventKind.REACTION],
+        authors: [pubkey],
+        limit: 100,
+      }))
+      handles.push(this.client.subscribe({
+        kinds: [EventKind.METADATA, EventKind.CONTACT],
+        authors: [pubkey],
+      }))
+      // handles.push(this.client.subscribe({
+      //   kinds: [EventKind.METADATA, EventKind.NOTE, EventKind.RELAY, EventKind.CONTACT, EventKind.REACTION],
+      //   authors: [pubkey],
+      // }))
+      // Followers
+      handles.push(this.client.subscribe({
+        kinds: [EventKind.CONTACT],
+        '#p': [pubkey]
+      }))
+      return handles
+    },
+
+    cancelStream(subIds) {
+      if (!Array.isArray(subIds)) subIds = [subIds]
+      for (const subId of subIds) {
+        this.client.unsubscribe(subId)
+      }
     },
 
     fetchEvent(id) {

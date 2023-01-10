@@ -29,6 +29,7 @@ export class Relay extends Observable {
   }
 
   subscribe(subId, filters) {
+    console.log(`${this} subscribing to ${subId}`, filters)
     this.socket.send(['REQ', subId, filters])
   }
 

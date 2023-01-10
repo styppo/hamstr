@@ -41,7 +41,7 @@ export default class FetchQueue extends Observable {
     const ids = Object.keys(this.queue).slice(0, this.batchSize)
     if (!ids.length) return
 
-    console.log(`Fetching ${ids.length}/${Object.keys(this.queue).length} ${this.subId}s`, ids)
+    //console.log(`Fetching ${ids.length}/${Object.keys(this.queue).length} ${this.subId}s`, ids)
 
     // Remove ids that we have tried too many times.
     const filteredIds = []

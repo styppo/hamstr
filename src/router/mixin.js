@@ -2,7 +2,7 @@ import {hexToBech32} from 'src/utils/utils'
 
 export default {
   methods: {
-    linkToProfile(pubkey) {
+    goToProfile(pubkey) {
       this.$router.push({
         name: 'profile',
         params: {
@@ -10,7 +10,7 @@ export default {
         }
       })
     },
-    linkToThread(id) {
+    goToThread(id) {
       this.$router.push({
         name: 'thread',
         params: {

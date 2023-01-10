@@ -1,11 +1,11 @@
 <template>
   <div class="thread">
     <ListPost
-      v-for="(note, index) in thread"
+      v-for="(note, index) in filteredThread"
       :key="note.id"
       :note="note"
-      :connector-top="thread.length > 1 && index > 0"
-      :connector-bottom="(thread.length > 1 && index < thread.length - 1) || forceBottomConnector"
+      :connector-top="filteredThread.length > 1 && index > 0"
+      :connector-bottom="(filteredThread.length > 1 && index < filteredThread.length - 1) || forceBottomConnector"
       actions
       clickable
     />
@@ -30,6 +30,11 @@ export default {
       default: false,
     },
   },
+  computed: {
+    filteredThread() {
+      return this.thread.filter(note => !!note)
+    }
+  }
 }
 </script>
 

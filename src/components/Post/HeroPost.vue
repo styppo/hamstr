@@ -15,7 +15,7 @@
       <div class="post-content-header">
         <p v-if="note.isReply()" class="in-reply-to">
           Replying to
-          <a @click.stop="linkToProfile(ancestor?.author)">
+          <a @click.stop="goToProfile(ancestor?.author)">
             <UserName v-if="ancestor?.author" :pubkey="ancestor?.author" />
           </a>
         </p>

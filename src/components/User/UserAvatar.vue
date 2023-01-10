@@ -2,7 +2,7 @@
   <q-avatar
     :class="{'cursor-pointer': clickable}"
     :size="size"
-    @click="clickable && linkToProfile(pubkey)"
+    @click="clickable && goToProfile(pubkey)"
   >
     <img
       v-if="hasAvatar && !avatarFetchFailed"

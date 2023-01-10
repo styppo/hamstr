@@ -1,8 +1,10 @@
 import {EventKind} from 'src/nostr/model/Event'
+import {isEmoji} from 'src/utils/utils'
 
 export default class Note {
   constructor(id, args) {
     this.id = id
+    this.kind = args.kind || EventKind.NOTE
     this.author = args.author || args.pubkey
     this.createdAt = args.createdAt
     this.content = args.content
@@ -13,11 +15,15 @@ export default class Note {
   }
 
   static from(event) {
-    console.assert(event.kind === EventKind.NOTE)
+    const content = Note.isReaction(event)
+      ? Note.normalizeReactionContent(event.content)
+      : event.content
+
     return new Note(event.id, {
+      kind: event.kind,
       author: event.pubkey,
       createdAt: event.createdAt,
-      content: event.content,
+      content,
       refs: {
         events: event.eventRefs(),
         pubkeys: event.pubkeyRefs(),
@@ -29,11 +35,37 @@ export default class Note {
     return !this.refs.events.isEmpty()
   }
 
+  canReply() {
+    return this.kind === EventKind.NOTE
+  }
+
   root() {
     return this.refs.events.root()
   }
 
   ancestor() {
     return this.refs.events.ancestor()
+  }
+
+  isReaction() {
+    return this.kind === EventKind.REACTION
+      || (this.isReply() && Note.isReactionContent(this.content))
+  }
+
+  static isReaction(event) {
+    return event.kind === EventKind.REACTION
+      || (!event.eventRefs().isEmpty() && Note.isReactionContent(event.content))
+  }
+
+  static isReactionContent(content) {
+    return content === '+'
+      || content === ''
+      || isEmoji(content)
+  }
+
+  static normalizeReactionContent(content) {
+    return isEmoji(content)
+      ? content
+      : '❤️'
   }
 }

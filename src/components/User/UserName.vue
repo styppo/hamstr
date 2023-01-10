@@ -3,7 +3,7 @@
     class="username"
     :class="{'two-line': twoLine, clickable}"
   >
-    <a @click="clickable && linkToProfile(pubkey)">
+    <a @click="clickable && goToProfile(pubkey)">
       <span v-if="profile?.name" class="name">{{ profile.name }}</span>
 <!--      <q-icon v-if="showFollowing && isFollow" name="visibility" color="secondary">-->
 <!--        <q-tooltip>-->

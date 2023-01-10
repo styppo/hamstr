@@ -15,8 +15,13 @@ const routes = [
   },
   {
     path: '/profile/:pubkey(npub[a-z0-9A-Z]{59})',
-    component: () => import('pages/Profile.vue'),
+    component: () => import('pages/profile/Profile.vue'),
     name: 'profile',
+  },
+  {
+    path: '/profile/:pubkey(npub[a-z0-9A-Z]{59})/:tab(following|followers)',
+    component: () => import('pages/profile/Followers.vue'),
+    name: 'followers',
   },
   {
     path: '/thread/:id(note[a-z0-9A-Z]{59})',

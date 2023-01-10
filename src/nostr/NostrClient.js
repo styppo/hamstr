@@ -31,7 +31,7 @@ export default class NostrClient {
     return this.pool.connectedRelays()
   }
 
-  subscribe(filters, callback, opts) {
+  subscribe(filters, callback, opts = {}) {
     let subId
     if (opts?.subId) {
       //if (this.subs[opts.subId]) throw new Error(`SubId '${opts.subId}' already exists`)
@@ -69,7 +69,7 @@ export default class NostrClient {
 
     const sub = this.subs[subId]
     if (!sub) {
-      console.warn(`Event for invalid subId ${subId} from ${relay}`)
+      //console.warn(`Event for invalid subId ${subId} from ${relay}`)
       return
     }
 
@@ -83,7 +83,7 @@ export default class NostrClient {
   }
 
   onEose(relay, subId) {
-    console.log(`[EOSE] from ${relay} for ${subId}`)
+    //console.log(`[EOSE] from ${relay} for ${subId}`)
 
     const sub = this.subs[subId]
     if (!sub) return

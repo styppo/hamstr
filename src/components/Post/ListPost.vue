@@ -2,7 +2,7 @@
   <div
     class="post"
     :class="{clickable}"
-    @click.stop="clickable && linkToThread(note.id)"
+    @click.stop="clickable && goToThread(note.id)"
   >
     <div class="post-author">
       <div class="connector-top">
@@ -22,7 +22,7 @@
         </p>
         <p v-if="note.isReply()" class="in-reply-to">
           Replying to
-          <a @click.stop="linkToProfile(ancestor?.author)">
+          <a @click.stop="goToProfile(ancestor?.author)">
             <UserName v-if="ancestor?.author" :pubkey="ancestor?.author" />
           </a>
         </p>
@@ -31,7 +31,7 @@
         <BaseMarkdown :content="note.content" />
 <!--        {{ note.content }}-->
       </div>
-      <div v-if="actions" class="post-content-actions">
+      <div v-if="showActions" class="post-content-actions">
         <div class="action-item comment" @click.stop="app.createPost({ancestor: note.id})">
           <BaseIcon icon="comment" />
           <span>{{ stats.comments || '' }}</span>
@@ -108,6 +108,9 @@ export default {
         reactions: 0,
         shares: 0,
       }
+    },
+    showActions() {
+      return this.actions && this.note.canReply()
     },
   },
   methods: {
