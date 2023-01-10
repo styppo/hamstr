@@ -65,6 +65,7 @@ import BaseMarkdown from 'components/Post/BaseMarkdown.vue'
 import PostEditor from 'components/CreatePost/PostEditor.vue'
 import {useNostrStore} from 'src/nostr/NostrStore'
 import {useAppStore} from 'stores/App'
+import {useStatStore} from 'src/nostr/store/StatStore'
 import routerMixin from 'src/router/mixin'
 import DateUtils from 'src/utils/DateUtils'
 
@@ -91,7 +92,8 @@ export default {
   setup() {
     return {
       app: useAppStore(),
-      nostr: useNostrStore()
+      nostr: useNostrStore(),
+      stat: useStatStore(),
     }
   },
   computed: {
@@ -101,11 +103,7 @@ export default {
         : null
     },
     stats() {
-      return {
-        comments: 0,
-        reactions: 0,
-        shares: 0,
-      }
+      return this.stat.get(this.note.id)
     },
   },
   methods: {

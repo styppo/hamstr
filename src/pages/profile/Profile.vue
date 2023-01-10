@@ -5,7 +5,10 @@
     <div class="profile-header">
       <UserAvatar :pubkey="pubkey" class="profile-header-avatar" />
       <div class="profile-header-content">
-        <p class="username"><UserName :pubkey="pubkey" two-line show-verified /></p>
+        <p class="username">
+          <UserName :pubkey="pubkey" two-line header show-verified />
+          <FollowButton :pubkey="pubkey" />
+        </p>
         <p class="about">{{ profile?.about }}</p>
         <p class="followers">
           <a @click="goToFollowers('following')">
@@ -60,6 +63,9 @@
         />
         <EmptyPlaceholder v-if="!reactions?.length" />
       </q-tab-panel>
+      <q-tab-panel name="relays" class="no-padding">
+        <EmptyPlaceholder />
+      </q-tab-panel>
     </q-tab-panels>
   </q-page>
 </template>
@@ -75,10 +81,12 @@ import {useAppStore} from 'stores/App'
 import {useNostrStore} from 'src/nostr/NostrStore'
 import {bech32ToHex, hexToBech32} from 'src/utils/utils'
 import EmptyPlaceholder from 'components/EmptyPlaceholder.vue'
+import FollowButton from 'components/User/FollowButton.vue'
 
 export default defineComponent({
   name: 'Profile',
   components: {
+    FollowButton,
     EmptyPlaceholder,
     Thread,
     PageHeader,
@@ -119,6 +127,10 @@ export default defineComponent({
       return this.nostr.getReactionsByAuthor(this.pubkey)
         .map(note => [this.nostr.getNote(note.ancestor()), note])
     },
+    relays() {
+      // TODO
+      return []
+    },
     contacts() {
       return this.nostr.getContacts(this.pubkey)
     },
@@ -139,13 +151,13 @@ export default defineComponent({
   },
   mounted() {
     // FIXME
-    // this.stream = this.nostr.streamFullProfile(this.pubkey)
     this.nostr.fetchNotesByAuthor(this.pubkey)
     this.nostr.fetchReactionsByAuthor(this.pubkey, 100)
     this.nostr.fetchFollowers(this.pubkey, 1000)
+    this.stream = this.nostr.streamFullProfile(this.pubkey)
   },
   unmounted() {
-    // if (this.stream) this.nostr.cancelStream(this.stream)
+    if (this.stream) this.nostr.cancelStream(this.stream)
   }
 })
 </script>
@@ -163,6 +175,13 @@ export default defineComponent({
       margin-right: 1rem;
     }
     &-content {
+      flex-grow: 1;
+      .username {
+        display: flex;
+        > span:first-child {
+          flex-grow: 1;
+        }
+      }
       .followers {
         a {
           cursor: pointer;
@@ -185,17 +204,6 @@ export default defineComponent({
   }
   &-tab-panels {
     background-color: unset;
-  }
-}
-</style>
-<style lang="scss">
-.profile-tabs {
-  .q-tab {
-  }
-}
-.profile-header-content .username {
-  .name, .pubkey:first-child {
-    font-size: 1.4rem;
   }
 }
 </style>

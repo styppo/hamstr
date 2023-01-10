@@ -83,11 +83,14 @@ export default defineComponent({
     },
     rootLoaded() {
       if (!this.noteLoaded) return
-      return this.root?.id === this.note.root()
+      return this.root?.id === this.rootId
     },
     ancestors() {
       if (!this.rootLoaded) return []
-      return [this.root].concat(this.predecessors)
+      const root = this.rootId !== this.noteId
+        ? [this.root]
+        : []
+      return root.concat(this.predecessors)
     }
   },
   methods: {
@@ -156,12 +159,41 @@ export default defineComponent({
 
       // Get children of target
       const targetReplies = this.nostr.getRepliesTo(target.id, NoteOrder.CREATION_DATE_DESC)
-      // FIXME Single element threads
       for (const reply of targetReplies) {
-        children.push([reply])
+        children.push(this.unrollLongest(reply))
       }
 
       return children
+    },
+
+    // Unrolls linear replies until first "fork"
+    unrollLinear(root) {
+      const thread = [root]
+      let replies = this.nostr.getRepliesTo(root.id, NoteOrder.CREATION_DATE_ASC)
+      while (replies.length === 1) {
+        thread.push(replies[0])
+        root = replies[0]
+        replies = this.nostr.getRepliesTo(root.id, NoteOrder.CREATION_DATE_ASC)
+      }
+      return thread
+    },
+
+    // Unrolls the longest thread in the subtree
+    unrollLongest(root) {
+      let threads = []
+      let replies = this.nostr.getRepliesTo(root.id, NoteOrder.CREATION_DATE_ASC)
+      for (const reply of replies) {
+        threads.push(this.unrollLongest(reply))
+      }
+
+      let longest = []
+      for (const sub of threads) {
+        if (sub.length >= longest.length) {
+          longest = sub
+        }
+      }
+
+      return [root].concat(longest)
     },
 
     allAncestors(note) {

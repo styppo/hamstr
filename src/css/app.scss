@@ -49,8 +49,8 @@ h3 {
   }
   &:disabled {
     cursor: no-drop;
-    background-color: rgba($color: $color-primary, $alpha: 0.3);
-    border-color: rgba($color: $color-primary, $alpha: 0.1);
+    background-color: transparent;
+    border-color: rgba($color: $color-primary, $alpha: 0.3);
     color: rgba($color: #fff, $alpha: 0.3);
   }
 
@@ -59,6 +59,10 @@ h3 {
     &:hover {
       background-color: rgba($color: $color-primary, $alpha: 0.7);
       border-color: rgba($color: $color-primary, $alpha: 0.3);
+    }
+    &:disabled {
+      background-color: rgba($color: $color-primary, $alpha: 0.3);
+      border-color: rgba($color: $color-primary, $alpha: 0.1);
     }
   }
 

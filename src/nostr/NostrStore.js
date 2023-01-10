@@ -9,6 +9,7 @@ import {useProfileStore} from 'src/nostr/store/ProfileStore'
 import {useContactStore} from 'src/nostr/store/ContactStore'
 import {useSettingsStore} from 'stores/Settings'
 import {ReactionOrder, useReactionStore} from 'src/nostr/store/ReactionStore'
+import {useStatStore} from 'src/nostr/store/StatStore'
 
 export const Feeds = {
   GLOBAL: {
@@ -57,7 +58,6 @@ export const useNostrStore = defineStore('nostr', {
   actions: {
     init() {
       const settings = useSettingsStore()
-      console.log(settings.relays)
       this.client = markRaw(new NostrClient(settings.relays))
       this.client.connect()
 
@@ -80,6 +80,9 @@ export const useNostrStore = defineStore('nostr', {
           this.seenBy[event.id] = {
             [relay.url]: Date.now()
           }
+
+          const stats = useStatStore()
+          stats.addEvent(event)
         }
       }
 

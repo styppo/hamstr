@@ -21,7 +21,8 @@
         <div class="layout-sidebar-fixed">
           <SearchBox />
           <WelcomeBox />
-          <Trends />
+          <FollowingBox />
+<!--          <Trends />-->
         </div>
       </div>
 
@@ -45,18 +46,20 @@ import {useQuasar} from 'quasar'
 import MainMenu from 'components/MainMenu/MainMenu.vue'
 import SearchBox from 'components/SearchBox/SearchBox.vue'
 import WelcomeBox from 'components/Sidebar/WelcomeBox.vue'
-import Trends from 'components/Trends/index.vue'
+// import Trends from 'components/Trends/index.vue'
 import BaseIcon from 'components/BaseIcon/index.vue'
 import SignInDialog from 'components/SignIn/SignInDialog.vue'
 import CreatePostDialog from 'components/CreatePost/CreatePostDialog.vue'
+import FollowingBox from 'components/Sidebar/FollowingBox.vue'
 
 export default defineComponent({
   name: 'MainLayout',
   components: {
+    FollowingBox,
     MainMenu,
     SearchBox,
     WelcomeBox,
-    Trends,
+    // Trends,
     BaseIcon,
     SignInDialog,
     CreatePostDialog,

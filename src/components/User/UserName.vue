@@ -1,7 +1,7 @@
 <template>
   <span
     class="username"
-    :class="{'two-line': twoLine, clickable}"
+    :class="{'two-line': twoLine, clickable, header}"
   >
     <a @click="clickable && goToProfile(pubkey)">
       <span v-if="profile?.name" class="name">{{ profile.name }}</span>
@@ -46,6 +46,10 @@ export default {
     twoLine: {
       type: Boolean,
       default: false
+    },
+    header: {
+      type: Boolean,
+      default: false,
     },
     showFollowing: {
       type: Boolean,
@@ -109,6 +113,11 @@ export default {
     }
     .pubkey:first-child:hover {
       text-decoration: underline;
+    }
+  }
+  &.header {
+    .name, .pubkey:first-child {
+      font-size: 1.5rem;
     }
   }
 }

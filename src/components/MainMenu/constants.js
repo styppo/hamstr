@@ -14,7 +14,7 @@ export const MENU_ITEMS = [
   },
   {
     name: 'Messages',
-    path: '/messages/inbox',
+    path: '/messages',
     signInRequired: true,
   },
   // {

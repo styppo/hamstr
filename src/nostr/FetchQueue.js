@@ -17,6 +17,9 @@ export default class FetchQueue extends Observable {
     this.fetching = false
     this.fetchQueued = false
     this.retryInterval = null
+
+    // XXX
+    setInterval(() => this.failed = {}, 5000)
   }
 
   add(id) {

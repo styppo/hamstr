@@ -32,7 +32,7 @@
           </div>
         </div>
         <div class="controls-submit">
-          <button :disabled="!hasContent() || publishing" @click="publishPost" class="btn btn-sm">
+          <button :disabled="!hasContent() || publishing" @click="publishPost" class="btn btn-primary btn-sm">
             <q-spinner v-if="publishing" />
             <span v-else>Post</span>
           </button>
@@ -40,7 +40,7 @@
       </div>
     </div>
     <div class="post-editor-fake-submit" v-if="collapsed">
-      <button class="btn btn-sm" disabled>Post</button>
+      <button class="btn btn-primary btn-sm" disabled>Post</button>
     </div>
   </div>
 </template>

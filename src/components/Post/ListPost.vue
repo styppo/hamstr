@@ -29,7 +29,6 @@
       </div>
       <div class="post-content-body">
         <BaseMarkdown :content="note.content" />
-<!--        {{ note.content }}-->
       </div>
       <div v-if="showActions" class="post-content-actions">
         <div class="action-item comment" @click.stop="app.createPost({ancestor: note.id})">
@@ -58,6 +57,7 @@ import routerMixin from 'src/router/mixin'
 import {useAppStore} from 'stores/App'
 import {useNostrStore} from 'src/nostr/NostrStore'
 import DateUtils from 'src/utils/DateUtils'
+import {useStatStore} from 'src/nostr/store/StatStore'
 
 export default {
   name: 'ListPost',
@@ -94,6 +94,7 @@ export default {
     return {
       app: useAppStore(),
       nostr: useNostrStore(),
+      stat: useStatStore(),
     }
   },
   computed: {
@@ -103,11 +104,7 @@ export default {
         : null
     },
     stats() {
-      return {
-        comments: 0,
-        reactions: 0,
-        shares: 0,
-      }
+      return this.stat.get(this.note.id)
     },
     showActions() {
       return this.actions && this.note.canReply()

@@ -2,26 +2,28 @@
   <q-page>
     <div class="page-header-container">
       <PageHeader>
-        <div class="addon-menu">
-          <div class="addon-menu-icon">
-            <q-icon name="more_vert" size="sm" />
-          </div>
-          <q-menu target=".addon-menu-icon" anchor="top left" self="top right" class="addon-menu-popup">
-            <div>
-              <div
-                v-for="feed in availableFeeds"
-                :key="feed"
-                @click="switchFeed(feed)"
-                class="popup-header"
-                v-close-popup>
-                <p>{{ feed.name }}</p>
-                <div v-if="feed === selectedFeed" class="more">
-                  <BaseIcon icon="tick" />
+        <template #addon>
+          <div class="addon-menu">
+            <div class="addon-menu-icon">
+              <q-icon name="more_vert" size="sm" />
+            </div>
+            <q-menu target=".addon-menu-icon" anchor="top left" self="top right" class="addon-menu-popup">
+              <div>
+                <div
+                  v-for="feed in availableFeeds"
+                  :key="feed"
+                  @click="switchFeed(feed)"
+                  class="popup-header"
+                  v-close-popup>
+                  <p>{{ feed.name }}</p>
+                  <div v-if="feed === selectedFeed" class="more">
+                    <BaseIcon icon="tick" />
+                  </div>
                 </div>
               </div>
-            </div>
-          </q-menu>
-        </div>
+            </q-menu>
+          </div>
+        </template>
       </PageHeader>
     </div>
 

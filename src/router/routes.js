@@ -9,11 +9,6 @@ const routes = [
     name: 'home',
   },
   {
-    path: '/settings',
-    // TODO component: () => import('pages/Settings.vue'),
-    name: 'settings',
-  },
-  {
     path: '/profile/:pubkey(npub[a-z0-9A-Z]{59})',
     component: () => import('pages/profile/Profile.vue'),
     name: 'profile',
@@ -28,16 +23,21 @@ const routes = [
     component: () => import('pages/Thread.vue'),
     name: 'thread',
   },
-  // {
-  //   path: '/follow',
-  //   component: () => import('pages/SearchFollow.vue'),
-  //   name: 'follow',
-  // },
-  // {
-  //   path: '/settings/:initUser?',
-  //   component: () => import('pages/Settings.vue'),
-  //   name: 'settings',
-  // },
+  {
+    path: '/notifications',
+    component: () => import('pages/Notifications.vue'),
+    name: 'notifications',
+  },
+  {
+    path: '/messages',
+    component: () => import('pages/Messages.vue'),
+    name: 'messages',
+  },
+  {
+    path: '/settings',
+    component: () => import('pages/Settings.vue'),
+    name: 'settings',
+  },
   // {
   //   path: '/messages/inbox',
   //   component: () => import('pages/Inbox.vue'),
@@ -58,11 +58,7 @@ const routes = [
   //   component: () => import('pages/Thread.vue'),
   //   name: 'thread',
   // },
-  // {
-  //   path: '/notifications',
-  //   component: () => import('pages/Notifications.vue'),
-  //   name: 'notifications',
-  // },
+
   // {
   //   path: '/hashtag/:hashtagId([a-zA-Z0-9_]{1,63})',
   //   component: () => import('pages/Hashtag.vue'),

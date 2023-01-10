@@ -1,6 +1,8 @@
 <template>
   <q-page class="followers">
-    <PageHeader :title="profile?.name || hexToBech32(pubkey) || 'Followers'" back-button />
+    <PageHeader back-button>
+      <UserName :pubkey="pubkey" two-line header />
+    </PageHeader>
 
     <div class="profile-tabs">
       <q-tabs
@@ -43,10 +45,12 @@ import UserCard from 'components/User/UserCard.vue'
 import {useAppStore} from 'stores/App'
 import {useNostrStore} from 'src/nostr/NostrStore'
 import {bech32ToHex, hexToBech32} from 'src/utils/utils'
+import UserName from 'components/User/UserName.vue'
 
 export default defineComponent({
   name: 'Profile',
   components: {
+    UserName,
     UserCard,
     PageHeader,
   },

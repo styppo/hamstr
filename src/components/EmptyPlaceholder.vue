@@ -1,5 +1,5 @@
 <template>
-  <p>Nothing here 🤷</p>
+  <p>Nothing here</p>
 </template>
 
 <script>

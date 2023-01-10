@@ -8,11 +8,13 @@
       <base-icon icon="back" />
     </div>
     <div :class="{'profile-info': !!subline}">
-      <h2>{{ title || titleFromRoute() || 'Home' }}</h2>
-      <span v-if="subline">{{ subline }}</span>
+      <slot>
+        <h2>{{ title || titleFromRoute() || 'Home' }}</h2>
+        <span v-if="subline">{{ subline }}</span>
+      </slot>
     </div>
     <div class="addon">
-      <slot />
+      <slot name="addon" />
     </div>
     <router-link class="logo" to="/">
       <Logo />
