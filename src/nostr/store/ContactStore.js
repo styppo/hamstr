@@ -1,5 +1,5 @@
 import {defineStore} from 'pinia'
-import {EventKind, Tag} from 'src/nostr/model/Event'
+import {EventKind} from 'src/nostr/model/Event'
 
 export const useContactStore = defineStore('contact', {
   state: () => ({
@@ -26,12 +26,11 @@ export const useContactStore = defineStore('contact', {
       const newContacts = []
       newContacts.lastUpdatedAt = event.createdAt
 
-      const tags = event.tags.filter(tag => tag[0] === Tag.PUBKEY && tag[1])
-      for (const tag of tags) {
+      for (const tag of event.pubkeyTags()) {
         newContacts.push({
-          pubkey: tag[1],
-          relay: tag[2],
-          name: tag[3],
+          pubkey: tag.ref,
+          relay: tag.relay,
+          name: tag.meta,
         })
       }
 

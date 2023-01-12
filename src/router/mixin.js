@@ -1,4 +1,10 @@
-import {hexToBech32} from 'src/utils/utils'
+import {hexToBech32, isBech32} from 'src/utils/utils'
+
+function ensureBech32(str, prefix) {
+  return isBech32(str)
+    ? str
+    : hexToBech32(str, prefix)
+}
 
 export default {
   methods: {
@@ -6,7 +12,7 @@ export default {
       this.$router.push({
         name: 'profile',
         params: {
-          pubkey: hexToBech32(pubkey, 'npub')
+          pubkey: ensureBech32(pubkey, 'npub')
         }
       })
     },
@@ -14,9 +20,16 @@ export default {
       this.$router.push({
         name: 'thread',
         params: {
-          id: hexToBech32(id, 'note')
+          id: ensureBech32(id, 'note')
         }
       })
+    },
+    // TODO There must be a better way to do this
+    linkToProfile(pubkey) {
+      return `/profile/${ensureBech32(pubkey, 'npub')}`
+    },
+    linkToThread(id) {
+      return `/thread/${ensureBech32(id, 'note')}`
     }
   }
 }

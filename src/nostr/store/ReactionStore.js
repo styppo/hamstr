@@ -52,7 +52,7 @@ export const useReactionStore = defineStore('reaction', {
   actions: {
     addEvent(event) {
       const note = Note.from(event)
-      if (!note || !note.isReply()) return false
+      if (!note || !note.hasAncestor()) return false
 
       // Skip if reaction already exists
       if (this.reactions[note.id]) return this.reactions[note.id]

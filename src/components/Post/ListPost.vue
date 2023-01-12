@@ -20,7 +20,7 @@
           <span>&#183;</span>
           <span class="created-at">{{ formatPostDate(note.createdAt) }}</span>
         </p>
-        <p v-if="note.isReply()" class="in-reply-to">
+        <p v-if="note.hasAncestor()" class="in-reply-to">
           Replying to
           <a @click.stop="goToProfile(ancestor?.author)">
             <UserName v-if="ancestor?.author" :pubkey="ancestor?.author" />
@@ -28,7 +28,7 @@
         </p>
       </div>
       <div class="post-content-body">
-        <BaseMarkdown :content="note.content" />
+        <PostRenderer :note="note" />
       </div>
       <div v-if="showActions" class="post-content-actions">
         <div class="action-item comment" @click.stop="app.createPost({ancestor: note.id})">
@@ -52,12 +52,12 @@
 import BaseIcon from 'components/BaseIcon'
 import UserAvatar from 'components/User/UserAvatar.vue'
 import UserName from 'components/User/UserName.vue'
-import BaseMarkdown from 'components/Post/BaseMarkdown.vue'
-import routerMixin from 'src/router/mixin'
+import PostRenderer from 'components/Post/Renderer/PostRenderer.vue'
 import {useAppStore} from 'stores/App'
 import {useNostrStore} from 'src/nostr/NostrStore'
-import DateUtils from 'src/utils/DateUtils'
 import {useStatStore} from 'src/nostr/store/StatStore'
+import routerMixin from 'src/router/mixin'
+import DateUtils from 'src/utils/DateUtils'
 
 export default {
   name: 'ListPost',
@@ -65,7 +65,7 @@ export default {
   components: {
     UserAvatar,
     UserName,
-    BaseMarkdown,
+    PostRenderer,
     BaseIcon,
   },
   props: {
@@ -99,7 +99,7 @@ export default {
   },
   computed: {
     ancestor() {
-      return this.note.isReply()
+      return this.note.hasAncestor()
         ? this.nostr.getNote(this.note.ancestor())
         : null
     },
@@ -165,6 +165,7 @@ export default {
         color: $color-dark-gray;
         a {
           color: $color-primary;
+          cursor: pointer;
           &:hover {
             text-decoration: underline;
           }

@@ -126,7 +126,7 @@ export default {
       const p = []
 
       if (this.ancestor) {
-        if (this.ancestor.isReply()) {
+        if (this.ancestor.hasAncestor()) {
           e.push(this.ancestor.root())
         }
         e.push(this.ancestor.id)

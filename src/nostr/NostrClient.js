@@ -1,22 +1,11 @@
 import RelayPool from 'src/nostr/RelayPool'
-import Event from 'src/nostr/model/Event'
-
-export const CancelAfter = {
-  SINGLE: 'single',
-  EOSE: 'eose',
-  NEVER: 'never',
-}
+import {CloseAfter} from 'src/nostr/Relay'
 
 export default class NostrClient {
   constructor(relays) {
     this.pool = new RelayPool(relays)
-    this.pool.on('event', this.onEvent.bind(this))
-    this.pool.on('eose', this.onEose.bind(this))
     this.pool.on('notice', this.onNotice.bind(this))
     this.pool.on('ok', this.onOk.bind(this))
-
-    this.subs = {}
-    this.nextSubId = 0
   }
 
   connect() {
@@ -31,70 +20,57 @@ export default class NostrClient {
     return this.pool.connectedRelays()
   }
 
-  subscribe(filters, callback, opts = {}) {
-    let subId
-    if (opts?.subId) {
-      //if (this.subs[opts.subId]) throw new Error(`SubId '${opts.subId}' already exists`)
-      subId = opts.subId
-    } else {
-      subId = `sub${this.nextSubId++}`
-    }
-
-    this.subs[subId] = {
-      eventCallback: callback,
-      eoseCallback: opts.eoseCallback,
-      cancelAfter: opts.cancelAfter || CancelAfter.NEVER,
-    }
-    this.pool.subscribe(subId, filters)
-
-    return subId
+  subscribe(filters, subId = null) {
+    return this.pool.subscribe(filters, subId)
   }
 
   unsubscribe(subId) {
     this.pool.unsubscribe(subId)
-    delete this.subs[subId]
   }
 
-  send(event) {
-    return this.pool.send(event)
+  publish(event) {
+    return this.pool.publish(event)
   }
 
-  onEvent(relay, subId, ev) {
-    const event = Event.from(ev)
-    if (!event.validate()) {
-      // TODO Close relay?
-      console.error(`Invalid event from ${relay}`, event)
-      return
-    }
+  // fetchSingle(filters) {
+  //   const filtersWithLimit = Object.assign({}, filters, {limit: 1})
+  //   return new Promise(resolve => {
+  //     const sub = this.pool.subscribe(filters)
+  //     sub.on('event')
+  //     this.client.subscribe(
+  //       filtersWithLimit,
+  //       (event, relay) => {
+  //         resolve(this.addEvent(event, relay))
+  //       },
+  //       {
+  //         closeAfter: 'single'
+  //       }
+  //     )
+  //   })
+  // }
 
-    const sub = this.subs[subId]
-    if (!sub) {
-      //console.warn(`Event for invalid subId ${subId} from ${relay}`)
-      return
-    }
-
-    if (typeof sub.eventCallback === 'function') {
-      sub.eventCallback(event, relay, subId)
-    }
-
-    if (sub.cancelAfter === CancelAfter.SINGLE) {
-      this.unsubscribe(subId)
-    }
-  }
-
-  onEose(relay, subId) {
-    //console.log(`[EOSE] from ${relay} for ${subId}`)
-
-    const sub = this.subs[subId]
-    if (!sub) return
-
-    if (typeof sub.eoseCallback === 'function') {
-      sub.eoseCallback(relay, subId)
-    }
-
-    if (sub.cancelAfter === CancelAfter.EOSE) {
-      this.unsubscribe(subId)
-    }
+  fetchMultiple(filters, limit = 100, timeout = 5000) {
+    return new Promise(resolve => {
+      const objects = {}
+      const filtersWithLimit = Object.assign({}, filters, {limit})
+      const sub = this.pool.subscribe(filtersWithLimit, null, CloseAfter.EOSE)
+      const timer = setTimeout(() => {
+        sub.close()
+        resolve(objects)
+      }, timeout)
+      sub.on('event', event => {
+        objects[event.id] = event
+        if (Object.keys(objects).length >= limit) {
+          clearTimeout(timer)
+          sub.close()
+          resolve(objects)
+        }
+      })
+      sub.on('close', () => {
+        clearTimeout(timer)
+        resolve(objects)
+      })
+    })
   }
 
   onNotice(relay, message) {

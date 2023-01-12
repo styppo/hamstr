@@ -1,15 +1,14 @@
 import {defineStore} from 'pinia'
 import {markRaw} from 'vue'
 import {EventKind} from 'src/nostr/model/Event'
-import Note from 'src/nostr/model/Note'
 import NostrClient from 'src/nostr/NostrClient'
 import FetchQueue from 'src/nostr/FetchQueue'
 import {NoteOrder, useNoteStore} from 'src/nostr/store/NoteStore'
 import {useProfileStore} from 'src/nostr/store/ProfileStore'
 import {useContactStore} from 'src/nostr/store/ContactStore'
 import {useSettingsStore} from 'stores/Settings'
-import {ReactionOrder, useReactionStore} from 'src/nostr/store/ReactionStore'
 import {useStatStore} from 'src/nostr/store/StatStore'
+import {CloseAfter} from 'src/nostr/Relay'
 
 export const Feeds = {
   GLOBAL: {
@@ -92,13 +91,8 @@ export const useNostrStore = defineStore('nostr', {
           return profiles.addEvent(event)
         }
         case EventKind.NOTE: {
-          if (Note.isReaction(event)) {
-            const reactions = useReactionStore()
-            return reactions.addEvent(event)
-          } else {
-            const notes = useNoteStore()
-            return notes.addEvent(event)
-          }
+          const notes = useNoteStore()
+          return notes.addEvent(event)
         }
         case EventKind.RELAY:
           break
@@ -113,8 +107,8 @@ export const useNostrStore = defineStore('nostr', {
         case EventKind.SHARE:
           break
         case EventKind.REACTION: {
-          const reactions = useReactionStore()
-          return reactions.addEvent(event)
+          const notes = useNoteStore()
+          return notes.addEvent(event)
         }
         case EventKind.CHATROOM:
           break
@@ -127,7 +121,7 @@ export const useNostrStore = defineStore('nostr', {
 
     sendEvent(event) {
       this.addEvent(event)
-      return this.client.send(event)
+      return this.client.publish(event)
     },
 
     getProfile(pubkey) {
@@ -139,7 +133,7 @@ export const useNostrStore = defineStore('nostr', {
 
     getNote(id) {
       const notes = useNoteStore()
-      const note = notes.get(id)
+      let note = notes.get(id)
       if (!note) this.noteQueue.add(id)
       return note
     },
@@ -154,7 +148,7 @@ export const useNostrStore = defineStore('nostr', {
     getNotesByAuthor(pubkey, opts = {}) {
       const order = opts.order || NoteOrder.CREATION_DATE_DESC
       const notes = useNoteStore()
-      return notes.allByAuthor(pubkey, order)
+      return notes.getNotesByAuthor(pubkey, order)
     },
 
     fetchNotesByAuthor(pubkey, opts = {}) {
@@ -193,9 +187,9 @@ export const useNostrStore = defineStore('nostr', {
       )
     },
 
-    getReactionsTo(id, order = ReactionOrder.CREATION_DATE_DESC) {
-      const store = useReactionStore()
-      const reactions = store.allByEvent(id, order)
+    getReactionsTo(id, order = NoteOrder.CREATION_DATE_DESC) {
+      const store = useNoteStore()
+      const reactions = store.reactionsTo(id, order)
       // TODO fetch?
       return reactions
     },
@@ -210,9 +204,9 @@ export const useNostrStore = defineStore('nostr', {
       )
     },
 
-    getReactionsByAuthor(pubkey, order = ReactionOrder.CREATION_DATE_DESC) {
-      const store = useReactionStore()
-      const reactions = store.allByAuthor(pubkey, order)
+    getReactionsByAuthor(pubkey, order = NoteOrder.CREATION_DATE_DESC) {
+      const store = useNoteStore()
+      const reactions = store.getReactionsByAuthor(pubkey, order)
       // TODO fetch?
       return reactions
     },
@@ -225,6 +219,30 @@ export const useNostrStore = defineStore('nostr', {
         },
         limit
       )
+    },
+
+    fetchMultiple(filters, limit = 100, timeout = 5000) {
+      return new Promise(resolve => {
+        const objects = {}
+        const filtersWithLimit = Object.assign({}, filters, {limit})
+        const sub = this.client.subscribe(filtersWithLimit, null, CloseAfter.EOSE)
+        const timer = setTimeout(() => {
+          sub.close()
+          resolve(objects)
+        }, timeout)
+        sub.on('event', event => {
+          objects[event.id] = this.addEvent(event)
+          if (Object.keys(objects).length >= limit) {
+            clearTimeout(timer)
+            sub.close()
+            resolve(objects)
+          }
+        })
+        sub.on('close', () => {
+          clearTimeout(timer)
+          resolve(objects)
+        })
+      })
     },
 
     streamThread(rootId, eventCallback, initialFetchCompleteCallback) {
@@ -255,91 +273,42 @@ export const useNostrStore = defineStore('nostr', {
     },
 
     streamFullProfile(pubkey) {
-      const handles = []
-      // Everything authored by pubkey
-      handles.push(this.client.subscribe({
-        kinds: [EventKind.NOTE],
-        authors: [pubkey],
-        limit: 200,
-      }, () => {}, { subId: 'foo' }))
-      handles.push(this.client.subscribe({
-        kinds: [EventKind.REACTION],
-        authors: [pubkey],
-        limit: 100,
-      }))
-      handles.push(this.client.subscribe({
-        kinds: [EventKind.METADATA, EventKind.CONTACT],
-        authors: [pubkey],
-      }))
+      // FIXME
+      // const handles = []
+      // // Everything authored by pubkey
       // handles.push(this.client.subscribe({
-      //   kinds: [EventKind.METADATA, EventKind.NOTE, EventKind.RELAY, EventKind.CONTACT, EventKind.REACTION],
+      //   kinds: [EventKind.NOTE],
+      //   authors: [pubkey],
+      //   limit: 200,
+      // }, () => {}, { subId: 'foo' }))
+      // handles.push(this.client.subscribe({
+      //   kinds: [EventKind.REACTION],
+      //   authors: [pubkey],
+      //   limit: 100,
+      // }))
+      // handles.push(this.client.subscribe({
+      //   kinds: [EventKind.METADATA, EventKind.CONTACT],
       //   authors: [pubkey],
       // }))
-      // Followers
-      handles.push(this.client.subscribe({
-        kinds: [EventKind.CONTACT],
-        '#p': [pubkey]
-      }))
-      return handles
+      // // handles.push(this.client.subscribe({
+      // //   kinds: [EventKind.METADATA, EventKind.NOTE, EventKind.RELAY, EventKind.CONTACT, EventKind.REACTION],
+      // //   authors: [pubkey],
+      // // }))
+      // // Followers
+      // handles.push(this.client.subscribe({
+      //   kinds: [EventKind.CONTACT],
+      //   '#p': [pubkey],
+      //   limit: 2000,
+      // }))
+      // return handles
     },
 
     cancelStream(subIds) {
+      // FIXME
       if (!Array.isArray(subIds)) subIds = [subIds]
       for (const subId of subIds) {
         this.client.unsubscribe(subId)
       }
-    },
-
-    fetchEvent(id) {
-      this.fetchSingle({
-        ids: [id],
-      })
-    },
-
-    fetchSingle(filters) {
-      const filtersWithLimit = Object.assign({}, filters, {limit: 1})
-      return new Promise(resolve => {
-        this.client.subscribe(
-          filtersWithLimit,
-          (event, relay) => {
-            resolve(this.addEvent(event, relay))
-          },
-          {
-            cancelAfter: 'single'
-          }
-        )
-      })
-    },
-
-    fetchMultiple(filters, limit = 100) {
-      const filtersWithLimit = Object.assign({}, filters, {limit})
-      let unsubscribeTimeout
-      return new Promise(resolve => {
-        const objects = []
-        this.client.subscribe(
-          filtersWithLimit,
-          (event, relay, subId) => {
-            const obj = this.addEvent(event, relay)
-            if (!obj) return
-
-            // TODO Deduplicate
-            objects.push(obj)
-            if (objects.length >= limit) {
-              this.client.unsubscribe(subId)
-              resolve(objects)
-            }
-          },
-          {
-            eoseCallback: (_relay, subId) => {
-              if (unsubscribeTimeout) clearTimeout(unsubscribeTimeout)
-              unsubscribeTimeout = setTimeout(() => {
-                this.client.unsubscribe(subId)
-                resolve(objects)
-              }, 250)
-            }
-          }
-        )
-      })
     },
 
     streamEvents(filters, initialFetchSize, eventCallback, initialFetchCompleteCallback, opts) {
@@ -348,31 +317,35 @@ export const useNostrStore = defineStore('nostr', {
       let numEventsSeen = 0
       let initialFetchComplete = false
 
-      return this.client.subscribe(
-        filtersWithLimit,
-        (event, relay) => {
-          const known = this.hasEvent(event.id)
-          const obj = this.addEvent(event, relay)
-          if (!obj || known) return
-
-          if (eventCallback) eventCallback(obj, relay)
-
-          if (++numEventsSeen >= initialFetchSize && !initialFetchComplete) {
-            initialFetchComplete = true
-            if (initialFetchCompleteCallback) initialFetchCompleteCallback()
-          }
-        },
-        {
-          subId: opts.subId || null,
-          cancelAfter: 'never',
-          eoseCallback: () => {
-            if (!initialFetchComplete) {
-              initialFetchComplete = true
-              if (initialFetchCompleteCallback) initialFetchCompleteCallback()
-            }
-          }
+      const sub = this.client.subscribe(filtersWithLimit, opts.subId || null)
+      const timer = setTimeout(() => {
+        if (!initialFetchComplete) {
+          initialFetchComplete = true
+          if (initialFetchCompleteCallback) initialFetchCompleteCallback()
         }
-      )
+      }, opts.timeout || 5000)
+      sub.on('event', (event, relay) => {
+        const known = this.hasEvent(event.id)
+        const obj = this.addEvent(event, relay)
+        if (!obj || known) return
+
+        if (eventCallback) eventCallback(obj, relay)
+
+        if (++numEventsSeen >= initialFetchSize && !initialFetchComplete) {
+          initialFetchComplete = true
+          clearTimeout(timer)
+          if (initialFetchCompleteCallback) initialFetchCompleteCallback()
+        }
+      })
+      sub.on('complete', () => {
+        if (!initialFetchComplete) {
+          initialFetchComplete = true
+          clearTimeout(timer)
+          if (initialFetchCompleteCallback) initialFetchCompleteCallback()
+        }
+      })
+
+      return sub
     }
   },
 })

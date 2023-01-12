@@ -12,12 +12,31 @@ export const EventKind = {
   CHATROOM: 42,
 }
 
-export const Tag = {
+export const TagType = {
   PUBKEY: 'p',
   EVENT: 'e',
 }
 
-class EventRefs extends Array {
+export class Tag {
+  constructor(type, ref, relay = null, meta = null) {
+    this.type = type
+    this.ref = ref
+    this.relay = relay
+    this.meta = meta
+  }
+
+  static from(array) {
+    if (!array || !array[0] || !array[1]) return
+    return new Tag(
+      array[0],
+      array[1],
+      array[2] || null,
+      array[3] || null,
+    )
+  }
+}
+
+export class EventRefs extends Array {
   constructor(refs) {
     // FIXME limit number of refs here
     super(...refs)
@@ -42,7 +61,7 @@ export default class Event {
     this.pubkey = opts.pubkey
     this.created_at = opts.createdAt || opts.created_at
     this.kind = opts.kind
-    this.tags = opts.tags || []
+    this.tags = Event.parseTags(opts.tags || [])
     this.content = opts.content
     this.sig = opts.sig
   }
@@ -54,6 +73,16 @@ export default class Event {
   static fresh(opts) {
     opts.createdAt = opts.createdAt || Math.floor(Date.now() / 1000)
     return new Event(opts)
+  }
+
+  static parseTags(tags) {
+    const res = []
+    for (const tag of tags) {
+      const parsed = Tag.from(tag)
+      if (!parsed) continue
+      res.push(parsed)
+    }
+    return res
   }
 
   get createdAt() {
@@ -69,16 +98,19 @@ export default class Event {
     return getEventHash(this)
   }
 
+  pubkeyTags() {
+    return this.tags.filter(tag => tag.type === TagType.PUBKEY)
+  }
+
+  eventTags() {
+    return this.tags.filter(tag => tag.type === TagType.EVENT)
+  }
+
   pubkeyRefs() {
-    return this.tags
-      .filter(tag => tag[0] === Tag.PUBKEY && tag[1])
-      .map(tag => tag[1])
+    return this.pubkeyTags().map(tag => tag.ref)
   }
 
   eventRefs() {
-    const refs = this.tags
-      .filter(tag => tag[0] === Tag.EVENT && tag[1])
-      .map(tag => tag[1])
-    return new EventRefs(refs)
+    return new EventRefs(this.eventTags().map(tag => tag.ref))
   }
 }

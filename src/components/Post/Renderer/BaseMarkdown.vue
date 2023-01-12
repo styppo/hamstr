@@ -28,7 +28,7 @@ import superscript from 'markdown-it-sup'
 import deflist from 'markdown-it-deflist'
 import emoji from 'markdown-it-emoji'
 import * as Bolt11Decoder from 'light-bolt11-decoder'
-import BaseInvoice from 'components/post/BaseInvoice.vue'
+import BaseInvoice from 'components/Post/Renderer/BaseInvoice.vue'
 
 const md = MarkdownIt({
   html: false,
@@ -194,7 +194,7 @@ export default {
   props: {
     content: {
       type: String,
-      default: 'todo needs to be updated'
+      required: true,
     },
     longForm: {
       type: Boolean,
@@ -225,6 +225,12 @@ export default {
 
   updated() {
     this.render()
+  },
+
+  watch: {
+    content() {
+      this.render()
+    }
   },
 
   methods: {

@@ -9,7 +9,7 @@ export default class FetchQueue extends Observable {
     this.fnCreateFilter = fnCreateFilter
     this.throttle = opts.throttle || 250
     this.batchSize = opts.batchSize || 50
-    this.retryDelay = opts.retryDelay || 3000
+    this.retryDelay = opts.retryDelay || 5000
     this.maxRetries = opts.maxRetries || 3
 
     this.queue = {}
@@ -19,7 +19,7 @@ export default class FetchQueue extends Observable {
     this.retryInterval = null
 
     // XXX
-    setInterval(() => this.failed = {}, 5000)
+    setInterval(() => this.failed = {}, 10000)
   }
 
   add(id) {
@@ -29,9 +29,7 @@ export default class FetchQueue extends Observable {
     if (this.failed[id]) return // TODO improve this
     this.queue[id] = 0
 
-    if (!this.fetching) {
-      this.fetch()
-    } else if (!this.fetchQueued) {
+    if (!this.fetching && !this.fetchQueued) {
       setTimeout(this.fetch.bind(this), this.throttle)
       this.fetchQueued = true
     }
@@ -43,8 +41,6 @@ export default class FetchQueue extends Observable {
 
     const ids = Object.keys(this.queue).slice(0, this.batchSize)
     if (!ids.length) return
-
-    //console.log(`Fetching ${ids.length}/${Object.keys(this.queue).length} ${this.subId}s`, ids)
 
     // Remove ids that we have tried too many times.
     const filteredIds = []
@@ -58,38 +54,51 @@ export default class FetchQueue extends Observable {
         filteredIds.push(id)
       }
     }
+
     if (!filteredIds.length) return
+
+    console.log(`Fetching ${ids.length}/${Object.keys(this.queue).length} ${this.subId}s`, ids)
 
     this.fetching = true
     this.retryInterval = setInterval(this.fetch.bind(this), this.retryDelay)
 
     // XXX Needed for some relays?
-    this.client.unsubscribe(this.subId)
+    //this.client.unsubscribe(this.subId)
 
-    this.client.subscribe(
-      this.fnCreateFilter(filteredIds),
-      (event, relay, subId) => {
-        const id = this.fnGetId(event)
-        delete this.queue[id]
-        filteredIds.splice(filteredIds.indexOf(id), 1)
+    const sub = this.client.subscribe(this.fnCreateFilter(filteredIds), this.subId)
+    sub.on('event', (event, relay, subId) => {
+      const id = this.fnGetId(event)
+      if (!this.queue[id]) return
 
-//        console.log(`Fetched ${this.subId} ${id}, ${filteredIds.length} remaining`)
+      delete this.queue[id]
+      filteredIds.splice(filteredIds.indexOf(id), 1)
 
-        this.emit('event', event, relay)
+      console.log(`Fetched ${this.subId} ${id}, ${filteredIds.length} remaining`)
 
-        if (Object.keys(this.queue).length === 0) {
-//          console.log(`Fetched all ${this.subId}s`)
-          if (this.retryInterval) clearInterval(this.retryInterval)
-          this.client.unsubscribe(subId)
-          this.fetching = false
-        } else if (filteredIds.length === 0) {
-//          console.log(`Batch ${this.subId} fetched, requesting more (${Object.keys(this.queue).length} remain)`)
-          this.fetch()
-        }
-      },
-      {
-        subId: this.subId,
+      this.emit('event', event, relay)
+
+      if (Object.keys(this.queue).length === 0) {
+        if (this.retryInterval) clearInterval(this.retryInterval)
+        this.fetching = false
+        sub.close()
+      } else if (filteredIds.length === 0) {
+        this.fetch()
       }
-    )
+    })
+    sub.on('complete', () => {
+      if (this.fetching && Object.keys(this.queue).length > 0) {
+        this.fetch()
+      } else {
+        console.log('[COMPLETE]', this)
+        if (this.retryInterval) clearInterval(this.retryInterval)
+        this.fetching = false
+        sub.close()
+      }
+    })
+    sub.on('close', () => {
+      if (this.fetching && Object.keys(this.queue).length > 0) {
+        this.fetch()
+      }
+    })
   }
 }

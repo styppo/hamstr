@@ -6,7 +6,7 @@
 </template>
 
 <script>
-import {hexToBech32} from 'src/utils/utils'
+import {hexToBech32, shortenBech32} from 'src/utils/utils'
 
 export default {
   name: 'Bech32Label',
@@ -34,14 +34,9 @@ export default {
       const value = this.bech32
         ? this.bech32.substring(4)
         : hexToBech32(this.hex, '')
-      return this.shorten(value)
+      return shortenBech32(value)
     },
   },
-  methods: {
-    shorten(str) {
-      return str.substr(0, 5) + '…' + str.substr(-5)
-    }
-  }
 }
 </script>
 

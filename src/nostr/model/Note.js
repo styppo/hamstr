@@ -1,4 +1,4 @@
-import {EventKind} from 'src/nostr/model/Event'
+import {EventKind, EventRefs, TagType} from 'src/nostr/model/Event'
 import {isEmoji} from 'src/utils/utils'
 
 export default class Note {
@@ -7,11 +7,8 @@ export default class Note {
     this.kind = args.kind || EventKind.NOTE
     this.author = args.author || args.pubkey
     this.createdAt = args.createdAt
-    this.content = args.content
-    this.refs = {
-      events: args.refs?.events || [],
-      pubkeys: args.refs?.pubkeys || [],
-    }
+    this.content = args.content || ''
+    this.tags = args.tags || []
   }
 
   static from(event) {
@@ -24,15 +21,12 @@ export default class Note {
       author: event.pubkey,
       createdAt: event.createdAt,
       content,
-      refs: {
-        events: event.eventRefs(),
-        pubkeys: event.pubkeyRefs(),
-      }
+      tags: event.tags,
     })
   }
 
-  isReply() {
-    return !this.refs.events.isEmpty()
+  hasAncestor() {
+    return !this.eventRefs().isEmpty()
   }
 
   canReply() {
@@ -40,16 +34,39 @@ export default class Note {
   }
 
   root() {
-    return this.refs.events.root()
+    return this.eventRefs().root()
   }
 
   ancestor() {
-    return this.refs.events.ancestor()
+    return this.eventRefs().ancestor()
+  }
+
+  pubkeyRefs() {
+    return this.tags
+      .filter(tag => tag.type === TagType.PUBKEY)
+      .map(tag => tag.ref)
+  }
+
+  eventRefs() {
+    const refs = this.tags
+      .filter(tag => tag.type === TagType.EVENT)
+      .map(tag => tag.ref)
+    return new EventRefs(refs)
+  }
+
+  contentTagRefs() {
+    const regex = /#\[([0-9]+)]/ig
+    let refs = []
+    let match
+    while ((match = regex.exec(this.content))) {
+      refs.push(match[1])
+    }
+    return refs
   }
 
   isReaction() {
     return this.kind === EventKind.REACTION
-      || (this.isReply() && Note.isReactionContent(this.content))
+      || (this.hasAncestor() && Note.isReactionContent(this.content))
   }
 
   static isReaction(event) {

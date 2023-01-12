@@ -1,7 +1,7 @@
 <template>
   <button
     v-if="app.isSignedIn"
-    class="btn"
+    class="btn btn-sm"
     :class="{'btn-primary': !isFollowing}"
   >
     {{ isFollowing ? 'Unfollow' : 'Follow' }}

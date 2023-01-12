@@ -31,10 +31,15 @@ h3 {
   letter-spacing: unset;
 }
 
+a {
+  cursor: pointer;
+}
+
 .btn {
   display: block;
-  text-align: center;
+  height: fit-content;
   padding: 1rem 2rem;
+  text-align: center;
   cursor: pointer;
   background-color: transparent;
   color: #fff;
@@ -68,6 +73,7 @@ h3 {
 
   &-sm {
     padding: 8px 16px;
-    font-weight: 500;
+    font-weight: 700;
+    font-size: 1rem;
   }
 }

@@ -6,6 +6,10 @@ export function isEmoji(str) {
   return !/\w/.test(str) && PATTERN_EMOJI.test(str)
 }
 
+export function isBech32(str) {
+  return /^(note|npub|nsec)[a-z0-9]{59}$/i.test(str)
+}
+
 export function bech32prefix(bech32) {
   if (!bech32 || bech32.length < 4) return
   return bech32.substr(0, 4).toLowerCase()
@@ -37,4 +41,10 @@ export function hexToBech32(hex, prefix = '') {
     buffer[i] = parseInt(hex.substr(2 * i, 2), 16)
   }
   return bech32encode(prefix, buffer)
+}
+
+export function shortenBech32(str) {
+  if (!str) return str
+  let keepStart = isBech32(str) ? 9 : 5
+  return str.substr(0, keepStart) + '…' + str.substr(-5)
 }

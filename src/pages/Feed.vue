@@ -1,7 +1,7 @@
 <template>
   <q-page>
     <div class="page-header-container">
-      <PageHeader>
+      <PageHeader logo>
         <template #addon>
           <div class="addon-menu">
             <div class="addon-menu-icon">
@@ -40,7 +40,7 @@
         />
       </div>
 
-      <Thread v-for="thread in feedItems" :key="thread.id" :thread="thread" class="full-width" />
+      <Thread v-for="thread in feedItems" :key="thread[0].id" :thread="thread" class="full-width" />
 
 <!--      <ButtonLoadMore-->
 <!--        :loading="loadingMore"-->
@@ -80,9 +80,9 @@ export default defineComponent({
   },
   data() {
     return {
+      feeds: {},
       availableFeeds: ['global'],
       selectedFeed: 'global',
-      feeds: {},
       recentlyLoaded: true,
     }
   },

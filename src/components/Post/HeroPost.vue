@@ -13,7 +13,7 @@
     </div>
     <div class="post-content">
       <div class="post-content-header">
-        <p v-if="note.isReply()" class="in-reply-to">
+        <p v-if="note.hasAncestor()" class="in-reply-to">
           Replying to
           <a @click.stop="goToProfile(ancestor?.author)">
             <UserName v-if="ancestor?.author" :pubkey="ancestor?.author" />
@@ -22,7 +22,7 @@
       </div>
       <div class="post-content-body">
         <p>
-          <BaseMarkdown :content="note.content" />
+          <PostRenderer :note="note" />
         </p>
       </div>
       <div class="post-content-footer">
@@ -59,9 +59,9 @@
 
 <script>
 import BaseIcon from 'components/BaseIcon'
-import UserAvatar from 'components/User/UserAvatar.vue'
 import UserName from 'components/User/UserName.vue'
-import BaseMarkdown from 'components/Post/BaseMarkdown.vue'
+import UserAvatar from 'components/User/UserAvatar.vue'
+import PostRenderer from 'components/Post/Renderer/PostRenderer.vue'
 import PostEditor from 'components/CreatePost/PostEditor.vue'
 import {useNostrStore} from 'src/nostr/NostrStore'
 import {useAppStore} from 'stores/App'
@@ -73,11 +73,11 @@ export default {
   name: 'HeroPost',
   mixins: [routerMixin],
   components: {
-    BaseMarkdown,
+    BaseIcon,
     UserName,
     UserAvatar,
-    BaseIcon,
     PostEditor,
+    PostRenderer,
   },
   props: {
     note: {
@@ -98,7 +98,7 @@ export default {
   },
   computed: {
     ancestor() {
-      return this.note.isReply()
+      return this.note.hasAncestor()
         ? this.nostr.getNote(this.note.ancestor())
         : null
     },
@@ -149,6 +149,7 @@ export default {
         margin: 0 0 8px;
         a {
           color: $color-primary;
+          cursor: pointer;
           &:hover {
             text-decoration: underline;
           }

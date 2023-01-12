@@ -16,7 +16,7 @@
     <div class="addon">
       <slot name="addon" />
     </div>
-    <router-link class="logo" to="/">
+    <router-link v-if="logo" class="logo" to="/">
       <Logo />
     </router-link>
   </div>
@@ -45,7 +45,11 @@ export default defineComponent({
     backButton: {
       type: Boolean,
       default: false,
-    }
+    },
+    logo: {
+      type: Boolean,
+      default: false,
+    },
   },
   methods: {
     titleFromRoute() {

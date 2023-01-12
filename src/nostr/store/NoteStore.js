@@ -10,7 +10,9 @@ export const useNoteStore = defineStore('note', {
   state: () => ({
     notes: {},
     replies: {},
-    byAuthor: {},
+    reactions: {},
+    notesByAuthor: {},
+    reactionsByAuthor: {},
   }),
   getters: {
     get(state) {
@@ -19,9 +21,15 @@ export const useNoteStore = defineStore('note', {
     repliesTo(state) {
       return (id, order) => (state.replies[id] || []).sort(order || NoteOrder.CREATION_DATE_ASC)
     },
-    allByAuthor(state) {
-      return (pubkey, order) => (state.byAuthor[pubkey] || []).sort(order || NoteOrder.CREATION_DATE_ASC)
-    }
+    reactionsTo(state) {
+      return (id, order) => (state.reactions[id] || []).sort(order || NoteOrder.CREATION_DATE_ASC)
+    },
+    getNotesByAuthor(state) {
+      return (pubkey, order) => (state.notesByAuthor[pubkey] || []).sort(order || NoteOrder.CREATION_DATE_ASC)
+    },
+    getReactionsByAuthor(state) {
+      return (pubkey, order) => (state.reactionsByAuthor[pubkey] || []).sort(order || NoteOrder.CREATION_DATE_ASC)
+    },
   },
   actions: {
     addEvent(event) {
@@ -30,19 +38,24 @@ export const useNoteStore = defineStore('note', {
 
       // Skip if note already exists
       if (this.notes[note.id]) return this.notes[note.id]
-
       this.notes[note.id] = note
 
-      if (!this.byAuthor[note.author]) {
-        this.byAuthor[note.author] = []
+      const byAuthor = note.isReaction()
+        ? this.reactionsByAuthor
+        : this.notesByAuthor
+      if (!byAuthor[note.author]) {
+        byAuthor[note.author] = []
       }
-      this.byAuthor[note.author].push(note)
+      byAuthor[note.author].push(note)
 
-      if (note.isReply()) {
-        if (!this.replies[note.ancestor()]) {
-          this.replies[note.ancestor()] = []
+      if (note.hasAncestor()) {
+        const map = note.isReaction()
+          ? this.reactions
+          : this.replies
+        if (!map[note.ancestor()]) {
+          map[note.ancestor()] = []
         }
-        this.replies[note.ancestor()].push(note)
+        map[note.ancestor()].push(note)
       }
 
       return this.notes[note.id]

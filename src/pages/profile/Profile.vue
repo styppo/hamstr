@@ -117,10 +117,10 @@ export default defineComponent({
       return this.nostr.getNotesByAuthor(this.pubkey)
     },
     posts() {
-      return this.notes.filter(note => !note.isReply())
+      return this.notes.filter(note => !note.hasAncestor())
     },
     replies() {
-      return this.notes.filter(note => note.isReply())
+      return this.notes.filter(note => note.hasAncestor())
         .map(note => [this.nostr.getNote(note.ancestor()), note])
     },
     reactions() {
@@ -143,7 +143,7 @@ export default defineComponent({
       this.$router.push({
         name: 'followers',
         params: {
-          pubkey: hexToBech32(this.pubkey),
+          pubkey: hexToBech32(this.pubkey, 'npub'),
           tab,
         }
       })

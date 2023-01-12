@@ -73,7 +73,7 @@ export default defineComponent({
     },
     rootId() {
       if (!this.noteLoaded) return
-      return this.note.isReply()
+      return this.note.hasAncestor()
         ? this.note.root()
         : this.note.id
     },
@@ -197,7 +197,7 @@ export default defineComponent({
     },
 
     allAncestors(note) {
-      if (!note.isReply()) return []
+      if (!note.hasAncestor()) return []
       const ancestor = this.nostr.getNote(note.ancestor())
       if (!ancestor) {
         console.error(`Couldn't fetch ancestor ${note.ancestor()}`)

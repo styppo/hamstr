@@ -1,4 +1,51 @@
 import {Observable} from 'src/nostr/utils'
+import Event from 'src/nostr/model/Event'
+
+export class Subscription extends Observable {
+  constructor(relay, subId, closeAfter) {
+    super()
+    this.relay = relay
+    this.subId = subId
+    this.closeAfter = closeAfter
+    this.closed = false
+  }
+
+  close() {
+    if (this.closed) return
+    this.closed = true
+    this.relay.unsubscribe(this.subId)
+    this.emit('close', this.relay, this.subId)
+  }
+
+  onEvent(ev) {
+    const event = Event.from(ev)
+    if (!event.validate()) {
+      // TODO Close relay?
+      console.error(`Invalid event from ${this.relay}`, event)
+      return
+    }
+
+    this.emit('event', event, this.relay, this.subId)
+
+    if (this.closeAfter === CloseAfter.SINGLE) {
+      this.close()
+    }
+  }
+
+  onEose() {
+    this.emit('eose', this.relay, this.subId)
+
+    if (this.closeAfter === CloseAfter.EOSE) {
+      this.close()
+    }
+  }
+}
+
+export const CloseAfter = {
+  SINGLE: 'single',
+  EOSE: 'eose',
+  NEVER: 'never',
+}
 
 export class Relay extends Observable {
   constructor(url, opts) {
@@ -10,6 +57,9 @@ export class Relay extends Observable {
     this.socket.on('close', this.emit.bind(this, 'close', this))
     this.socket.on('error', this.emit.bind(this, 'error', this))
     this.socket.on('message', this.onMessage.bind(this))
+
+    this.subs = {}
+    this.nextSubId = 0
   }
 
   connect() {
@@ -24,16 +74,21 @@ export class Relay extends Observable {
     return this.socket.isConnected()
   }
 
-  send(event) {
+  publish(event) {
     this.socket.send(['EVENT', event])
   }
 
-  subscribe(subId, filters) {
-    console.log(`${this} subscribing to ${subId}`, filters)
+  subscribe(filters, subId = null, closeAfter = CloseAfter.NEVER) {
+    if (!subId) subId = `sub${this.nextSubId++}`
+    const sub = new Subscription(this, subId, closeAfter)
+    this.subs[subId] = sub
     this.socket.send(['REQ', subId, filters])
+    return sub
   }
 
   unsubscribe(subId) {
+    if (!this.subs[subId]) return
+    delete this.subs[subId]
     this.socket.send(['CLOSE', subId])
   }
 
@@ -49,7 +104,7 @@ export class Relay extends Observable {
   processMessage(msg) {
     const array = JSON.parse(msg)
 
-    if (!Array.isArray(array) || array.length === 0) {
+    if (!Array.isArray(array) || !array.length) {
       throw new Error('not a nostr message')
     }
 
@@ -58,12 +113,22 @@ export class Relay extends Observable {
       case 'EVENT': {
         Relay.enforceArrayLength(array, 3)
         const [_, subId, event] = array
+
+        const sub = this.subs[subId]
+        if (sub) sub.onEvent(event)
+
+        // still needed?
         this.emit('event', subId, event)
         break
       }
       case 'EOSE': {
         Relay.enforceArrayLength(array, 2)
         const [_, subId] = array
+
+        const sub = this.subs[subId]
+        if (sub) sub.onEose()
+
+        // still needed?
         this.emit('eose', subId)
         break
       }
