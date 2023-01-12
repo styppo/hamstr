@@ -69,6 +69,7 @@ export const useNostrStore = defineStore('nostr', {
       this.contactQueue = contactQueue(this.client, 'queue')
       this.contactQueue.on('event', this.addEvent.bind(this))
     },
+
     addEvent(event, relay = null) {
       // console.log(`[EVENT] from ${relay}`, event)
 
@@ -119,7 +120,7 @@ export const useNostrStore = defineStore('nostr', {
       return !!this.seenBy[id]
     },
 
-    sendEvent(event) {
+    publish(event) {
       this.addEvent(event)
       return this.client.publish(event)
     },

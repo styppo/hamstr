@@ -47,7 +47,7 @@ export default {
         })
       })
       await useAppStore().signEvent(event)
-      useNostrStore().sendEvent(event)
+      useNostrStore().publish(event)
 
       this.$emit('complete', {
         pubkey: account.pubkey,

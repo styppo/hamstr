@@ -1,4 +1,4 @@
-import {EventKind, EventRefs, TagType} from 'src/nostr/model/Event'
+import Event, {EventKind, EventRefs, TagType} from 'src/nostr/model/Event'
 import {isEmoji} from 'src/utils/utils'
 
 export default class Note {
@@ -21,7 +21,7 @@ export default class Note {
       author: event.pubkey,
       createdAt: event.createdAt,
       content,
-      tags: event.tags,
+      tags: Event.parseTags(event.tags),
     })
   }
 

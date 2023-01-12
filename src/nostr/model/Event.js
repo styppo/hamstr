@@ -61,7 +61,7 @@ export default class Event {
     this.pubkey = opts.pubkey
     this.created_at = opts.createdAt || opts.created_at
     this.kind = opts.kind
-    this.tags = Event.parseTags(opts.tags || [])
+    this.tags = opts.tags || []
     this.content = opts.content
     this.sig = opts.sig
   }
@@ -99,11 +99,11 @@ export default class Event {
   }
 
   pubkeyTags() {
-    return this.tags.filter(tag => tag.type === TagType.PUBKEY)
+    return Event.parseTags(this.tags).filter(tag => tag.type === TagType.PUBKEY)
   }
 
   eventTags() {
-    return this.tags.filter(tag => tag.type === TagType.EVENT)
+    return Event.parseTags(this.tags).filter(tag => tag.type === TagType.EVENT)
   }
 
   pubkeyRefs() {

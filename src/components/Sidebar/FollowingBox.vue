@@ -1,11 +1,10 @@
 <template>
-  <div v-if="app.isSignedIn" class="following">
+  <div v-if="app.isSignedIn && contacts?.length" class="following">
     <div class="following-wrapper">
       <div class="following-header">
         <h3>Following</h3>
       </div>
       <div
-        v-if="contacts?.length"
         class="following-body"
       >
         <UserCard

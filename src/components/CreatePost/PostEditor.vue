@@ -141,8 +141,7 @@ export default {
       try {
         const event = this.buildEvent()
         await this.app.signEvent(event)
-        //this.nostr.sendEvent(event)
-        console.log('Publishing', event)
+        this.nostr.publish(event)
 
         this.reset()
         this.$emit('publish', event)
