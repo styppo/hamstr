@@ -24,6 +24,7 @@
           :key="contact.pubkey"
           :pubkey="contact.pubkey"
           clickable
+          follow-button
         />
       </q-tab-panel>
       <q-tab-panel name="followers" class="no-padding">
@@ -32,6 +33,7 @@
           :key="follower"
           :pubkey="follower"
           clickable
+          follow-button
         />
       </q-tab-panel>
     </q-tab-panels>
