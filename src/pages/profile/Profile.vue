@@ -15,7 +15,7 @@
             <strong>{{ contacts?.length || 0 }}</strong> Following
           </a>
           <a @click="goToFollowers('followers')">
-            <strong>{{ `${followers?.length}+` || 0 }}</strong> Followers
+            <strong>{{ followers?.length ? `${followers?.length}+` : 0 }}</strong> Followers
           </a>
         </p>
       </div>
@@ -176,7 +176,7 @@ export default defineComponent({
     }
     &-content {
       flex-grow: 1;
-      .username {
+      > p.username {
         display: flex;
         > span:first-child {
           flex-grow: 1;

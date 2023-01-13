@@ -8,7 +8,7 @@
         <UserAvatar :pubkey="note.author" clickable />
       </div>
       <div class="post-author-name">
-        <UserName :pubkey="note.author" clickable two-line />
+        <UserName :pubkey="note.author" clickable two-line show-verified />
       </div>
     </div>
     <div class="post-content">

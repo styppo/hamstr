@@ -3,19 +3,17 @@
     class="username"
     :class="{'two-line': twoLine, clickable, header}"
   >
-    <a @click="clickable && goToProfile(pubkey)">
-      <span v-if="profile?.name" class="name">
-        {{ profile.name }}
-      </span>
-<!--      <q-icon v-if="showFollowing && isFollow" name="visibility" color="secondary">-->
-<!--        <q-tooltip>-->
-<!--          following-->
-<!--        </q-tooltip>-->
-<!--      </q-icon>-->
-      <Bech32Label v-if="twoLine || !profile?.name" prefix="npub" :hex="pubkey" class="pubkey" />
-    </a>
+    <span class="name">
+      <a @click="clickable && goToProfile(pubkey)">
+        <span v-if="profile?.name">
+          {{ profile.name }}
+        </span>
+        <Bech32Label v-else prefix="npub" :hex="pubkey" />
+      </a>
+      <Nip05Badge v-if="showVerified" :pubkey="pubkey" :size="header ? '18px' : '14px'" class="verified-badge" />
+    </span>
 
-    <Nip05Badge :pubkey="pubkey" />
+    <Bech32Label v-if="twoLine && profile?.name" prefix="npub" :hex="pubkey" class="pubkey" />
   </span>
 </template>
 
@@ -48,13 +46,9 @@ export default {
       type: Boolean,
       default: false,
     },
-    showFollowing: {
-      type: Boolean,
-      default: false
-    },
     showVerified: {
       type: Boolean,
-      default: true
+      default: false
     },
   },
   setup() {
@@ -66,10 +60,6 @@ export default {
     profile() {
       return this.nostr.getProfile(this.pubkey)
     },
-    isFollow() {
-      // FIXME
-      return false
-    },
   },
 }
 </script>
@@ -79,35 +69,30 @@ export default {
 
 .username {
   .name {
-    font-weight: bold;
+    display: inline-flex;
+    align-items: center;
+    a {
+      font-weight: 600;
+    }
+    .verified-badge {
+      margin-left: 4px;
+    }
   }
-  > span + span {
-    margin-left: 8px;
+  .pubkey {
+    color: $color-dark-gray;
+    display: block;
   }
   &.two-line {
     display: block;
-    > a > span {
-      display: block;
-      margin-left: 0;
-    }
-    .pubkey:not(:first-child) {
-      color: $color-dark-gray;
-      .pubkey-value {
-        font-weight: normal;
-      }
-    }
   }
   &.clickable {
     cursor: pointer;
-    .name:hover {
-      text-decoration: underline;
-    }
-    .pubkey:first-child:hover {
+    .name a:hover {
       text-decoration: underline;
     }
   }
   &.header {
-    .name, .pubkey:first-child {
+    .name {
       font-size: 1.5rem;
     }
   }

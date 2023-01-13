@@ -40,7 +40,7 @@ export default {
       if (!this.profile?.nip05.url) return
       return this.profile.nip05.url
         .split('@')
-        .filter(part => part !== '_' && part !== this.profile.name)
+        .filter(part => part !== '_' && part?.toLowerCase() !== this.profile.name?.toLowerCase())
         .join('@')
     }
   },
@@ -58,6 +58,8 @@ export default {
 <style lang="scss" scoped>
 .nip05-badge {
   font-size: 12px;
+  display: inline-flex;
+  align-items: center;
   &-text {
     margin-left: 2px;
   }

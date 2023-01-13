@@ -16,7 +16,7 @@
     <div class="post-content">
       <div class="post-content-header">
         <p>
-          <UserName :pubkey="note.author" clickable @click.stop />
+          <UserName :pubkey="note.author" clickable show-verified @click.stop />
           <span>&#183;</span>
           <span class="created-at">{{ formatPostDate(note.createdAt) }}</span>
         </p>

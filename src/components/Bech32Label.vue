@@ -47,7 +47,7 @@ export default {
     opacity: .9;
   }
   &-value {
-    font-weight: 500;
+    font-weight: 600;
   }
 }
 </style>

@@ -7,7 +7,7 @@
       <div class="menu-profile-items">
         <div class="profile-info">
           <p>
-            <UserName :pubkey="pubkey" two-line />
+            <UserName :pubkey="pubkey" two-line show-verified />
           </p>
         </div>
         <div class="more">

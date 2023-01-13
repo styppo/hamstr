@@ -1,7 +1,7 @@
 <template>
   <div class="user-card">
     <UserAvatar :pubkey="pubkey" :clickable="clickable" />
-    <UserName :pubkey="pubkey" :clickable="clickable" class="username" two-line />
+    <UserName :pubkey="pubkey" :clickable="clickable" class="username" two-line show-verified />
     <FollowButton v-if="followButton" :pubkey="pubkey" />
   </div>
 </template>
