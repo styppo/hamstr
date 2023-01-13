@@ -53,13 +53,17 @@ export const useSettingsStore = defineStore('settings', {
       this.pubkey = pubkey
     },
     addRelay(url) {
+      if (this.hasRelay(url)) return
       this.relays.push(url)
     },
     removeRelay(url) {
       const idx = this.relays.indexOf(url)
       if (idx < 0) return
       this.relays.splice(idx, 1)
-    }
+    },
+    hasRelay(url) {
+      return this.relays.indexOf(url) >= 0
+    },
   },
   persist: true,
 })

@@ -20,6 +20,11 @@ export default class NostrClient {
     return this.pool.connectedRelays()
   }
 
+  isConnectedTo(url) {
+    // TODO remove linear scan
+    return this.connectedRelays().some(relay => relay.url === url)
+  }
+
   subscribe(filters, subId = null) {
     return this.pool.subscribe(filters, subId)
   }

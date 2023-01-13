@@ -1,19 +1,26 @@
 <template>
   <PageHeader />
-  <h3>Under construction</h3>
+  <div class="settings">
+    <h3>Relays</h3>
+    <RelaySettings />
+  </div>
 </template>
 
 <script>
 import PageHeader from 'components/PageHeader.vue'
+import RelaySettings from 'components/Settings/RelaySettings.vue'
 
 export default {
   name: 'Settings',
-  components: {PageHeader}
+  components: {
+    PageHeader,
+    RelaySettings
+  }
 }
 </script>
 
 <style scoped>
-h3 {
+.settings {
   padding: 0 1rem;
 }
 </style>
