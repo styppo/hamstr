@@ -15,7 +15,7 @@
             <strong>{{ contacts?.length || 0 }}</strong> Following
           </a>
           <a @click="goToFollowers('followers')">
-            <strong>{{ followers?.length || 0 }}</strong> Followers
+            <strong>{{ `${followers?.length}+` || 0 }}</strong> Followers
           </a>
         </p>
       </div>
@@ -151,8 +151,8 @@ export default defineComponent({
   },
   mounted() {
     // FIXME
-    this.nostr.fetchNotesByAuthor(this.pubkey)
-    this.nostr.fetchReactionsByAuthor(this.pubkey, 100)
+    this.nostr.fetchNotesByAuthor(this.pubkey, 50)
+    this.nostr.fetchReactionsByAuthor(this.pubkey, 50)
     this.nostr.fetchFollowers(this.pubkey, 1000)
     this.stream = this.nostr.streamFullProfile(this.pubkey)
   },

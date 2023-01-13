@@ -79,13 +79,13 @@ md.use(subscript)
         trimmed.endsWith('.jpg') ||
         trimmed.endsWith('.svg')
       ) {
-        return `<img src="${src}" crossorigin async loading='lazy' style="max-width: 90%; max-height: 50vh;">`
+        return `<img src="${src}" loading='lazy' style="max-width: 90%; max-height: 50vh;">`
       } else if (
         trimmed.endsWith('.mp4') ||
         trimmed.endsWith('.webm') ||
         trimmed.endsWith('.ogg')
       ) {
-        return `<video src="${src}" controls crossorigin async style="max-width: 90%; max-height: 50vh;"></video>`
+        return `<video src="${src}" controls style="max-width: 90%; max-height: 50vh;"></video>`
       }
     }
 

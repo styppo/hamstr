@@ -68,6 +68,8 @@ export const useNostrStore = defineStore('nostr', {
 
       this.contactQueue = contactQueue(this.client, 'queue')
       this.contactQueue.on('event', this.addEvent.bind(this))
+
+      this.getProfiles(Object.keys(settings.accounts))
     },
 
     addEvent(event, relay = null) {
@@ -132,10 +134,18 @@ export const useNostrStore = defineStore('nostr', {
       return profile
     },
 
+    getProfiles(pubkeys) {
+      const profiles = []
+      for (const pubkey of pubkeys) {
+        profiles.push(this.getProfile(pubkey))
+      }
+      return profiles
+    },
+
     getNote(id) {
       const notes = useNoteStore()
       let note = notes.get(id)
-      if (!note) this.noteQueue.add(id)
+      if (!note && !this.hasEvent(id)) this.noteQueue.add(id)
       return note
     },
 
@@ -152,8 +162,7 @@ export const useNostrStore = defineStore('nostr', {
       return notes.getNotesByAuthor(pubkey, order)
     },
 
-    fetchNotesByAuthor(pubkey, opts = {}) {
-      const limit = opts.limit || 100
+    fetchNotesByAuthor(pubkey, limit = 100) {
       return this.fetchMultiple(
         {
           kinds: [EventKind.NOTE],
@@ -320,11 +329,12 @@ export const useNostrStore = defineStore('nostr', {
 
       const sub = this.client.subscribe(filtersWithLimit, opts.subId || null)
       const timer = setTimeout(() => {
+        console.log(`[TIMEOUT] ${sub.subId}, intialFetchComplete=${initialFetchComplete}`)
         if (!initialFetchComplete) {
           initialFetchComplete = true
           if (initialFetchCompleteCallback) initialFetchCompleteCallback()
         }
-      }, opts.timeout || 5000)
+      }, opts.timeout || 3000)
       sub.on('event', (event, relay) => {
         const known = this.hasEvent(event.id)
         const obj = this.addEvent(event, relay)
@@ -332,13 +342,18 @@ export const useNostrStore = defineStore('nostr', {
 
         if (eventCallback) eventCallback(obj, relay)
 
-        if (++numEventsSeen >= initialFetchSize && !initialFetchComplete) {
-          initialFetchComplete = true
-          clearTimeout(timer)
-          if (initialFetchCompleteCallback) initialFetchCompleteCallback()
-        }
+        // if (++numEventsSeen >= initialFetchSize && !initialFetchComplete) {
+        //   console.log(`[EVENTS_SEEN] ${sub.subId} ${numEventsSeen}, intialFetchComplete=${initialFetchComplete}`)
+        //   initialFetchComplete = true
+        //   clearTimeout(timer)
+        //   if (initialFetchCompleteCallback) initialFetchCompleteCallback()
+        // }
+      })
+      sub.on('eose', (relay, subId) => {
+        console.log(`[EOSE] ${subId} ${relay} ${this.client.connectedRelays().length}`)
       })
       sub.on('complete', () => {
+        console.log(`[COMPLETE] ${sub.subId}, intialFetchComplete=${initialFetchComplete}`)
         if (!initialFetchComplete) {
           initialFetchComplete = true
           clearTimeout(timer)

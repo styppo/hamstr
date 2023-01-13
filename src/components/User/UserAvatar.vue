@@ -9,7 +9,6 @@
       :src="avatarUrl"
       ref="image"
       loading="lazy"
-      crossorigin
       @error.once="onFetchFailed"
     />
     <Identicon

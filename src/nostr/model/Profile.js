@@ -1,4 +1,5 @@
 import {EventKind} from 'src/nostr/model/Event'
+import Nip05 from 'src/utils/Nip05'
 
 export default class Profile {
   constructor(pubkey, lastUpdatedAt, metadata) {
@@ -10,7 +11,7 @@ export default class Profile {
     this.picture = metadata.picture
     this.nip05 = {
       url: metadata.nip05,
-      verified: false,
+      verified: null,
     }
   }
 
@@ -23,5 +24,21 @@ export default class Profile {
       console.error(`Failed to parse METADATA event: ${e.message || e}`, event, e)
       return null
     }
+  }
+
+  async isNip05Verified() {
+    if (this.nip05.verified !== null) {
+      return this.nip05.verified
+    }
+    if (!this.nip05.url) { // TODO more validation
+      return false
+    }
+    try {
+      const pubkey = await Nip05.fetchPubkey(this.nip05.url)
+      this.nip05.verified = pubkey && pubkey === this.pubkey
+    } catch (e) {
+      this.nip05.verified = false
+    }
+    return this.nip05.verified
   }
 }

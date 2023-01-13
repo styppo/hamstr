@@ -1,5 +1,6 @@
 <template>
   <div class="relay-settings">
+    <h3>Relays</h3>
     <div v-for="relay in settings.relays" :key="relay" class="relay">
       <span class="relay-url">{{ relay }}</span>
 <!--      <q-icon v-if="isConnected(relay)" icon="fiber_manual_record" size="sm" class="connected" />-->
@@ -85,6 +86,12 @@ export default {
 .relay-settings {
   background-color: rgba($color: $color-dark-gray, $alpha: 0.1);
   border-radius: 1rem;
+  h3 {
+    margin: 0;
+    padding: 1rem;
+    font-size: 1.4rem;
+    border-bottom: $border-dark;
+  }
   .relay {
     display: flex;
     align-items: center;
@@ -122,6 +129,7 @@ export default {
       outline: none;
       background-color: transparent;
       border: 0;
+      padding: 0;
     }
     &:hover, &.focused {
       background-color: rgba($color: $color-light-gray, $alpha: 0.2);

@@ -4,7 +4,9 @@
     :class="{'two-line': twoLine, clickable, header}"
   >
     <a @click="clickable && goToProfile(pubkey)">
-      <span v-if="profile?.name" class="name">{{ profile.name }}</span>
+      <span v-if="profile?.name" class="name">
+        {{ profile.name }}
+      </span>
 <!--      <q-icon v-if="showFollowing && isFollow" name="visibility" color="secondary">-->
 <!--        <q-tooltip>-->
 <!--          following-->
@@ -13,12 +15,7 @@
       <Bech32Label v-if="twoLine || !profile?.name" prefix="npub" :hex="pubkey" class="pubkey" />
     </a>
 
-    <span v-if="showVerified && profile?.nip05?.verified">
-      <Nip05Badge :pubkey="pubkey" />
-      <span style="opacity: .9; font-size: 90%; font-weight: 300; line-height: 90%">
-        {{ niceNip05 }}
-      </span>
-    </span>
+    <Nip05Badge :pubkey="pubkey" />
   </span>
 </template>
 
@@ -57,7 +54,7 @@ export default {
     },
     showVerified: {
       type: Boolean,
-      default: false
+      default: true
     },
   },
   setup() {
@@ -69,17 +66,11 @@ export default {
     profile() {
       return this.nostr.getProfile(this.pubkey)
     },
-    niceNip05() {
-      return this.profile.nip05.url
-        .split('@')
-        .filter(part => part !== '_' && part !== this.profile.name)
-        .join('@')
-    },
     isFollow() {
       // FIXME
       return false
     },
-  }
+  },
 }
 </script>
 

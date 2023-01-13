@@ -73,7 +73,7 @@ export default class FetchQueue extends Observable {
       delete this.queue[id]
       filteredIds.splice(filteredIds.indexOf(id), 1)
 
-      console.log(`Fetched ${this.subId} ${id}, ${filteredIds.length} remaining`)
+      // console.log(`Fetched ${this.subId} ${id}, ${filteredIds.length} remaining`)
 
       this.emit('event', event, relay)
 

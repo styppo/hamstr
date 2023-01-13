@@ -59,10 +59,12 @@ class MultiSubscription extends Observable {
 }
 
 export default class ReplayPool extends Observable {
-  constructor(urls) {
+  constructor(urls, minRelays = 5) {
     super()
 
     this.relays = {}
+    this.minRelays = Math.min(minRelays, urls.length)
+
     this.subs = {}
     this.nextSubId = 0
 
@@ -106,9 +108,15 @@ export default class ReplayPool extends Observable {
     sub.on('close', this.unsubscribe.bind(this, subId))
 
     this.subs[subId] = {sub, filters, closeAfter}
-    for (const relay of this.connectedRelays()) {
-      sub.add(relay.subscribe(filters, subId, closeAfter))
+    const connectedRelays = this.connectedRelays()
+    if (connectedRelays.length >= this.minRelays) {
+      for (const relay of connectedRelays) {
+        sub.add(relay.subscribe(filters, subId, closeAfter))
+      }
+    } else {
+      this.subs[subId].pending = true
     }
+
     return sub
   }
 
@@ -135,12 +143,28 @@ export default class ReplayPool extends Observable {
     return Object.values(this.relays).filter(relay => relay.isConnected())
   }
 
+  numConnectedRelays() {
+    return this.connectedRelays().length
+  }
+
   onOpen(relay) {
     console.log(`Connected to ${relay}`, relay)
+
     for (const subId of Object.keys(this.subs)) {
       const sub = this.subs[subId]
-      sub.sub.add(relay.subscribe(sub.filters, subId, sub.closeAfter))
+      const connectedRelays = this.connectedRelays()
+      if (connectedRelays.length >= this.minRelays) {
+        if (sub.pending) {
+          sub.pending = false
+          for (const relay of connectedRelays) {
+            sub.sub.add(relay.subscribe(sub.filters, subId, sub.closeAfter))
+          }
+        } else {
+          sub.sub.add(relay.subscribe(sub.filters, subId, sub.closeAfter))
+        }
+      }
     }
+
     this.emit('open', relay)
   }
 }
