@@ -66,6 +66,7 @@ export default {
 
 <style lang="scss" scoped>
 @import "assets/theme/colors.scss";
+@import "assets/variables.scss";
 
 .username {
   .name {
@@ -75,12 +76,13 @@ export default {
       font-weight: 600;
     }
     .verified-badge {
-      margin-left: 4px;
+      margin: 0 4px;
     }
   }
   .pubkey {
     color: $color-dark-gray;
     display: block;
+    line-height: 1rem;
   }
   &.two-line {
     display: block;
@@ -94,6 +96,20 @@ export default {
   &.header {
     .name {
       font-size: 1.5rem;
+    }
+  }
+}
+
+@media screen and (max-width: $phone-lg) {
+  .username.two-line {
+    .name {
+      display: block;
+      .verified-badge {
+        margin-left: 0;
+      }
+    }
+    a {
+      margin-right: 4px;
     }
   }
 }

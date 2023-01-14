@@ -15,7 +15,7 @@
     </div>
     <div class="post-content">
       <div class="post-content-header">
-        <p>
+        <p class="author-line">
           <UserName :pubkey="note.author" clickable show-verified @click.stop />
           <span>&#183;</span>
           <span class="created-at">{{ formatPostDate(note.createdAt) }}</span>
@@ -161,6 +161,14 @@ export default {
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
+      .author-line {
+        display: flex;
+        .username {
+          overflow: hidden;
+          white-space: nowrap;
+          text-overflow: ellipsis;
+        }
+      }
       .in-reply-to {
         color: $color-dark-gray;
         a {
@@ -202,7 +210,7 @@ export default {
       align-items: center;
       justify-content: space-between;
       max-width: 450px;
-      width: 100%;
+      width: calc(100% + 9px);
       margin-left: -9px;
       .action-item {
         display: flex;
@@ -256,14 +264,9 @@ export default {
 @media screen and (max-width: $phone) {
   .post {
     &-content {
-      &-header {
-        .nip05 {
-          display: unset;
-          color: $color-dark-gray;
-        }
-      }
-      &-actions {
-        max-width: unset;
+      max-width: calc(100% - 48px - 1rem);
+      &-body {
+        margin-bottom: .5rem;
       }
     }
   }

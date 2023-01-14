@@ -42,6 +42,7 @@ export default {
 
 <style lang="scss" scoped>
 .bech32 {
+  white-space: nowrap;
   &-prefix {
     font-size: 0.7em;
     opacity: .9;

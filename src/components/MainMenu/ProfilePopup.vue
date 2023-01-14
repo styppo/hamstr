@@ -146,6 +146,7 @@ export default {
     padding: 10px;
     background-color: $color-bg;
     box-shadow: $shadow-white;
+    overflow: hidden;
     .popup-spacing {
       border: none;
       background-color: rgba($color: $color-dark-gray, $alpha: 0.2);
