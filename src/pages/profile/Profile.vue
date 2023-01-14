@@ -38,29 +38,35 @@
 
     <q-tab-panels v-model="activeTab" class="profile-tab-panels" animated>
       <q-tab-panel name="posts" class="no-padding">
-        <ListPost
-          v-for="note in posts"
-          :key="note.id"
-          :note="note"
-          clickable
-          actions
-        />
+        <template v-for="(note, i) in posts">
+          <ListPost
+            v-if="defer(i)"
+            :key="note.id"
+            :note="note"
+            clickable
+            actions
+          />
+        </template>
         <EmptyPlaceholder v-if="!posts?.length" />
       </q-tab-panel>
       <q-tab-panel name="replies" class="no-padding">
-        <Thread
-          v-for="thread in replies"
-          :key="thread[1].id"
-          :thread="thread"
-        />
+        <template v-for="(thread, i) in replies">
+          <Thread
+            v-if="defer(i)"
+            :key="thread[1].id"
+            :thread="thread"
+          />
+        </template>
         <EmptyPlaceholder v-if="!replies?.length" />
       </q-tab-panel>
       <q-tab-panel name="reactions" class="no-padding">
-        <Thread
-          v-for="thread in reactions"
-          :key="thread[1].id"
-          :thread="thread"
-        />
+        <template v-for="(thread, i) in reactions">
+          <Thread
+            v-if="defer(i)"
+            :key="thread[1].id"
+            :thread="thread"
+          />
+        </template>
         <EmptyPlaceholder v-if="!reactions?.length" />
       </q-tab-panel>
       <q-tab-panel name="relays" class="no-padding">
@@ -77,11 +83,12 @@ import UserAvatar from 'components/User/UserAvatar.vue'
 import UserName from 'components/User/UserName.vue'
 import ListPost from 'components/Post/ListPost.vue'
 import Thread from 'components/Post/Thread.vue'
+import EmptyPlaceholder from 'components/EmptyPlaceholder.vue'
+import FollowButton from 'components/User/FollowButton.vue'
 import {useAppStore} from 'stores/App'
 import {useNostrStore} from 'src/nostr/NostrStore'
 import {bech32ToHex, hexToBech32} from 'src/utils/utils'
-import EmptyPlaceholder from 'components/EmptyPlaceholder.vue'
-import FollowButton from 'components/User/FollowButton.vue'
+import Defer from 'src/utils/Defer'
 
 export default defineComponent({
   name: 'Profile',
@@ -94,6 +101,7 @@ export default defineComponent({
     UserName,
     ListPost,
   },
+  mixins: [Defer()],
   setup() {
     return {
       app: useAppStore(),
@@ -164,6 +172,7 @@ export default defineComponent({
 
 <style lang="scss" scoped>
 @import "assets/theme/colors.scss";
+@import "assets/variables.scss";
 
 .profile {
   &-header {
@@ -204,6 +213,19 @@ export default defineComponent({
   }
   &-tab-panels {
     background-color: unset;
+  }
+}
+
+@media screen and (max-width: $phone-lg) {
+  .profile {
+    &-header {
+      display: flex;
+      padding: 1rem;
+      &-avatar {
+        height: 96px;
+        width: 96px;
+      }
+    }
   }
 }
 </style>

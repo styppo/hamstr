@@ -15,7 +15,7 @@
                   @click="switchFeed(feed)"
                   class="popup-header"
                   v-close-popup>
-                  <p>{{ feed.name }}</p>
+                  <p>{{ feed }}</p>
                   <div v-if="feed === selectedFeed" class="more">
                     <BaseIcon icon="tick" />
                   </div>
@@ -34,13 +34,16 @@
     <div class="feed">
       <div class="load-more-container" :class="{'more-available': numUnreads}">
         <ButtonLoadMore
-          v-if="numUnreads"
+          v-if="loading || numUnreads"
           :label="`Load ${numUnreads} unread`"
+          :loading="loading"
           @click="loadUnreads"
         />
       </div>
 
-      <Thread v-for="thread in feedItems" :key="thread[0].id" :thread="thread" class="full-width" />
+      <template v-for="(thread, i) in feedItems">
+        <Thread v-if="defer(i)" :key="thread[0].id" :thread="thread" class="full-width" />
+      </template>
 
 <!--      <ButtonLoadMore-->
 <!--        :loading="loadingMore"-->
@@ -60,6 +63,7 @@ import BaseIcon from 'components/BaseIcon/index.vue'
 import ButtonLoadMore from 'components/ButtonLoadMore.vue'
 import {useAppStore} from 'stores/App'
 import {useNostrStore, Feeds} from 'src/nostr/NostrStore'
+import Defer from 'src/utils/Defer'
 
 const feedOrder = (a, b) => b[0].createdAt - a[0].createdAt
 
@@ -72,6 +76,7 @@ export default defineComponent({
     BaseIcon,
     ButtonLoadMore,
   },
+  mixins: [Defer()],
   setup() {
     return {
       app: useAppStore(),
@@ -83,6 +88,7 @@ export default defineComponent({
       feeds: {},
       availableFeeds: ['global'],
       selectedFeed: 'global',
+      loading: true,
       recentlyLoaded: true,
     }
   },
@@ -125,8 +131,9 @@ export default defineComponent({
         },
         () => {
           initialItems.sort(feedOrder)
-          this.feeds[feedId].items = initialItems
+          this.feeds[feedId].items = initialItems.slice(0, 50)
           initialFetchComplete = true
+          this.loading = false
 
           // Wait a bit before showing the first unreads
           setTimeout(() => this.recentlyLoaded = false, 5000)
@@ -138,10 +145,12 @@ export default defineComponent({
       this.selectedFeed = feedId
     },
     loadUnreads() {
+      this.loading = true
       const items = this.feedUnreads.concat(this.feedItems)
       items.sort(feedOrder)
       this.activeFeed.items = items
       this.activeFeed.unreads = []
+      this.loading = false
 
       // Wait a bit before showing unreads again
       this.recentlyLoaded = true
@@ -150,7 +159,7 @@ export default defineComponent({
   },
   mounted() {
     this.initFeed(this.selectedFeed)
-  }
+  },
 })
 </script>
 
