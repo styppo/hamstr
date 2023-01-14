@@ -2,17 +2,17 @@
   <q-form v-if="app.isSignedIn" class="profile-settings" @submit.stop="updateProfile">
     <h3>Profile</h3>
     <div class="input">
-      <q-input v-model="name" label="Name" maxlength="64" autogrow dense />
+      <q-input v-model="name" label="Name" maxlength="64" dense />
     </div>
     <div class="input">
       <q-input v-model="about" label="About" maxlength="150" autogrow dense />
     </div>
     <div class="input">
-      <q-input v-model="picture" label="Picture URL" autogrow dense />
+      <q-input v-model="picture" label="Picture URL" dense />
       <img v-if="picture" :src="picture" class="picture-preview" loading="lazy" />
     </div>
     <div class="input">
-      <q-input v-model="nip05" label="NIP05 Identifier" autogrow dense />
+      <q-input v-model="nip05" label="NIP05 Identifier" dense />
       <q-icon v-if="verified" name="verified" class="nip05-verified" size="sm" />
     </div>
     <div class="buttons">
@@ -145,17 +145,22 @@ export default {
     color: $color-light-gray;
     margin: 0 .5rem;
   }
-  textarea {
+  input, textarea {
     color: #fff;
     padding: 0 .5rem;
     font-weight: 500;
   }
-  .q-field__control:before {
-    border-bottom: $border-dark;
+  .q-field__control {
+    min-height: 50px;
+    &:before {
+      border-bottom: $border-dark;
+    }
   }
-  .q-field__control-container {
+  .q-textarea .q-field__control-container {
     padding-top: 20px !important;
-    padding-bottom: 6px;
+  }
+  .q-input .q-field__control-container {
+    padding-top: 12px !important;
   }
   .q-field--dense .q-field__label {
     top: 14px;

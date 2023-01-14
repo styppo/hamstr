@@ -1,31 +1,29 @@
 <template>
   <q-page>
-    <div class="page-header-container">
-      <PageHeader logo>
-        <template #addon>
-          <div class="addon-menu">
-            <div class="addon-menu-icon">
-              <q-icon name="more_vert" size="sm" />
-            </div>
-            <q-menu target=".addon-menu-icon" anchor="top left" self="top right" class="addon-menu-popup">
-              <div>
-                <div
-                  v-for="feed in availableFeeds"
-                  :key="feed"
-                  @click="switchFeed(feed)"
-                  class="popup-header"
-                  v-close-popup>
-                  <p>{{ feed }}</p>
-                  <div v-if="feed === selectedFeed" class="more">
-                    <BaseIcon icon="tick" />
-                  </div>
+    <PageHeader logo class="page-header">
+      <template #addon>
+        <div class="addon-menu">
+          <div class="addon-menu-icon">
+            <q-icon name="more_vert" size="sm" />
+          </div>
+          <q-menu target=".addon-menu-icon" anchor="top left" self="top right" class="addon-menu-popup">
+            <div>
+              <div
+                v-for="feed in availableFeeds"
+                :key="feed"
+                @click="switchFeed(feed)"
+                class="popup-header"
+                v-close-popup>
+                <p>{{ feed }}</p>
+                <div v-if="feed === selectedFeed" class="more">
+                  <BaseIcon icon="tick" />
                 </div>
               </div>
-            </q-menu>
-          </div>
-        </template>
-      </PageHeader>
-    </div>
+            </div>
+          </q-menu>
+        </div>
+      </template>
+    </PageHeader>
 
     <div class="post-editor" v-if="app.isSignedIn">
       <PostEditor />
@@ -34,7 +32,7 @@
     <div class="feed">
       <div class="load-more-container" :class="{'more-available': numUnreads}">
         <ButtonLoadMore
-          v-if="loading || numUnreads"
+          v-if="numUnreads"
           :label="`Load ${numUnreads} unread`"
           :loading="loading"
           @click="loadUnreads"
@@ -44,6 +42,8 @@
       <template v-for="(thread, i) in feedItems">
         <Thread v-if="defer(i)" :key="thread[0].id" :thread="thread" class="full-width" />
       </template>
+
+      <ListPlaceholder :count="feedItems?.length" :loading="loading" />
 
 <!--      <ButtonLoadMore-->
 <!--        :loading="loadingMore"-->
@@ -61,6 +61,7 @@ import PostEditor from 'components/CreatePost/PostEditor.vue'
 import Thread from 'components/Post/Thread.vue'
 import BaseIcon from 'components/BaseIcon/index.vue'
 import ButtonLoadMore from 'components/ButtonLoadMore.vue'
+import ListPlaceholder from 'components/ListPlaceholder.vue'
 import {useAppStore} from 'stores/App'
 import {useNostrStore, Feeds} from 'src/nostr/NostrStore'
 import Defer from 'src/utils/Defer'
@@ -75,6 +76,7 @@ export default defineComponent({
     Thread,
     BaseIcon,
     ButtonLoadMore,
+    ListPlaceholder,
   },
   mixins: [Defer()],
   setup() {
@@ -90,6 +92,7 @@ export default defineComponent({
       selectedFeed: 'global',
       loading: true,
       recentlyLoaded: true,
+      sub: null,
     }
   },
   computed: {
@@ -121,7 +124,7 @@ export default defineComponent({
 
       console.log(`subscribing to feed ${feedId}`, this.feeds[feedId])
 
-      this.nostr.streamFeed(
+      this.sub = this.nostr.streamFeed(
         Feeds[feedId.toUpperCase()],
         event => {
           const target = initialFetchComplete
@@ -160,6 +163,9 @@ export default defineComponent({
   mounted() {
     this.initFeed(this.selectedFeed)
   },
+  unmounted() {
+    if (this.sub) this.nostr.cancelStream(this.sub)
+  }
 })
 </script>
 
@@ -220,7 +226,7 @@ export default defineComponent({
 }
 
 @media screen and (max-width: $phone) {
-  .page-header-container {
+  .page-header {
     border-bottom: $border-dark;
   }
   .post-editor {

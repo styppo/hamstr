@@ -7,7 +7,7 @@
       <q-btn icon="delete_outline" size="sm" class="btn-icon" flat round @click="removeRelay(relay)" />
     </div>
     <q-form class="add-relay" @submit.stop="addRelay">
-      <q-input v-model="newRelayUrl" label="Add a relay" autogrow dense />
+      <q-input v-model="newRelayUrl" label="Add a relay" dense />
       <q-btn type="submit" icon="add_circle_outline" size="sm" flat round class="btn-icon" />
     </q-form>
   </div>
@@ -102,15 +102,6 @@ export default {
   }
   .add-relay {
     transition: 200ms ease;
-    input {
-      color: #fff;
-      font-weight: 500;
-      width: 100%;
-      outline: none;
-      background-color: transparent;
-      border: 0;
-      padding: 0;
-    }
     &:hover {
       //background-color: rgba($color: $color-dark-gray, $alpha: 0.2);
     }
@@ -133,20 +124,19 @@ export default {
     color: $color-light-gray;
     margin: 0 .5rem;
   }
-  textarea {
+  input {
     color: #fff;
     padding: 0 .5rem;
     font-weight: 500;
   }
-  .q-field__control:before {
-    border-bottom: $border-dark;
-  }
-  .q-field__control-container {
-    padding-top: 17px !important;
-    padding-bottom: 4px;
+  .q-field__control {
+    height: 45px;
+    &:before {
+      border-bottom: $border-dark;
+    }
   }
   .q-field--dense .q-field__label {
-    top: 12px;
+    top: 11px;
   }
 }
 </style>

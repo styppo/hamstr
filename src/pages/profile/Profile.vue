@@ -47,7 +47,7 @@
             actions
           />
         </template>
-        <EmptyPlaceholder v-if="!posts?.length" />
+        <ListPlaceholder :count="posts?.length" :loading="loadingNotes" />
       </q-tab-panel>
       <q-tab-panel name="replies" class="no-padding">
         <template v-for="(thread, i) in replies">
@@ -57,7 +57,7 @@
             :thread="thread"
           />
         </template>
-        <EmptyPlaceholder v-if="!replies?.length" />
+        <ListPlaceholder :count="replies?.length" :loading="loadingNotes" />
       </q-tab-panel>
       <q-tab-panel name="reactions" class="no-padding">
         <template v-for="(thread, i) in reactions">
@@ -67,10 +67,10 @@
             :thread="thread"
           />
         </template>
-        <EmptyPlaceholder v-if="!reactions?.length" />
+        <ListPlaceholder :count="reactions?.length" :loading="loadingReactions" />
       </q-tab-panel>
       <q-tab-panel name="relays" class="no-padding">
-        <EmptyPlaceholder />
+        <ListPlaceholder :count="0" />
       </q-tab-panel>
     </q-tab-panels>
   </q-page>
@@ -83,7 +83,7 @@ import UserAvatar from 'components/User/UserAvatar.vue'
 import UserName from 'components/User/UserName.vue'
 import ListPost from 'components/Post/ListPost.vue'
 import Thread from 'components/Post/Thread.vue'
-import EmptyPlaceholder from 'components/EmptyPlaceholder.vue'
+import ListPlaceholder from 'components/ListPlaceholder.vue'
 import FollowButton from 'components/User/FollowButton.vue'
 import {useAppStore} from 'stores/App'
 import {useNostrStore} from 'src/nostr/NostrStore'
@@ -94,7 +94,7 @@ export default defineComponent({
   name: 'Profile',
   components: {
     FollowButton,
-    EmptyPlaceholder,
+    ListPlaceholder,
     Thread,
     PageHeader,
     UserAvatar,
@@ -111,7 +111,9 @@ export default defineComponent({
   data() {
     return {
       activeScreen: 'posts',
-      activeTab: 'posts',
+      activeTab: this.$route.params.tab || 'posts',
+      loadingNotes: true,
+      loadingReactions: true,
     }
   },
   computed: {
@@ -125,15 +127,17 @@ export default defineComponent({
       return this.nostr.getNotesByAuthor(this.pubkey)
     },
     posts() {
-      return this.notes.filter(note => !note.hasAncestor())
+      return this.notes?.filter(note => !note.hasAncestor()).slice(0, 50)
     },
     replies() {
-      return this.notes.filter(note => note.hasAncestor())
+      return this.notes?.filter(note => note.hasAncestor())
         .map(note => [this.nostr.getNote(note.ancestor()), note])
+        .slice(0, 50)
     },
     reactions() {
       return this.nostr.getReactionsByAuthor(this.pubkey)
         .map(note => [this.nostr.getNote(note.ancestor()), note])
+        .slice(0, 50)
     },
     relays() {
       // TODO
@@ -157,11 +161,23 @@ export default defineComponent({
       })
     }
   },
+  watch: {
+    activeTab() {
+      this.$router.replace({
+        params: {
+          tab: this.activeTab
+        }
+      })
+    },
+  },
   mounted() {
-    // FIXME
     this.nostr.fetchNotesByAuthor(this.pubkey, 50)
+      .then(() => this.loadingNotes = false)
     this.nostr.fetchReactionsByAuthor(this.pubkey, 50)
+      .then(() => this.loadingReactions = false)
     this.nostr.fetchFollowers(this.pubkey, 1000)
+
+    // FIXME
     this.stream = this.nostr.streamFullProfile(this.pubkey)
   },
   unmounted() {

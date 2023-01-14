@@ -9,7 +9,7 @@ const routes = [
     name: 'home',
   },
   {
-    path: '/profile/:pubkey(npub[a-z0-9A-Z]{59})',
+    path: '/profile/:pubkey(npub[a-z0-9A-Z]{59})/:tab(posts|replies|reactions|relays)?',
     component: () => import('pages/profile/Profile.vue'),
     name: 'profile',
   },
