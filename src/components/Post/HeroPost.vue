@@ -122,7 +122,7 @@ export default {
   padding-bottom: 1rem;
   &-author {
     display: flex;
-    flex-direction: row;
+    align-items: center;
     padding: 0 1rem;
     &-name {
       margin-top: 1rem;

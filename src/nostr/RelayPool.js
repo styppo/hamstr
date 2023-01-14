@@ -148,7 +148,7 @@ export default class ReplayPool extends Observable {
   }
 
   onOpen(relay) {
-    console.log(`Connected to ${relay}`, relay)
+    console.log(`[RELAY] Connected to ${relay}`)
 
     for (const subId of Object.keys(this.subs)) {
       const sub = this.subs[subId]

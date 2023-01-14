@@ -7,7 +7,7 @@
       <div class="menu-profile-items">
         <div class="profile-info">
           <p>
-            <UserName :pubkey="pubkey" two-line show-verified />
+            <UserName :pubkey="pubkey" two-line wrap show-verified />
           </p>
         </div>
         <div class="more">
@@ -119,6 +119,8 @@ export default {
     justify-content: space-between;
     .profile-info {
       user-select: none;
+      max-width: 125px;
+      overflow: hidden;
       p {
         margin: 0;
         & + p {
@@ -134,7 +136,7 @@ export default {
       width: 2rem;
       height: 2rem;
       svg {
-        width: 100%;
+        width: inherit;
         fill: #fff;
         display: block;
       }

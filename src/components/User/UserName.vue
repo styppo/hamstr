@@ -1,7 +1,7 @@
 <template>
   <span
     class="username"
-    :class="{'two-line': twoLine, clickable, header}"
+    :class="{'two-line': twoLine, clickable, header, wrap}"
   >
     <span class="name">
       <a @click="clickable && goToProfile(pubkey)">
@@ -41,6 +41,10 @@ export default {
     twoLine: {
       type: Boolean,
       default: false
+    },
+    wrap: {
+      type: Boolean,
+      default: false,
     },
     header: {
       type: Boolean,
@@ -86,6 +90,17 @@ export default {
   }
   &.two-line {
     display: block;
+    &.wrap {
+      .name {
+        flex-wrap: wrap;
+        .verified-badge {
+          margin-left: 0;
+        }
+      }
+      a {
+        margin-right: 4px;
+      }
+    }
   }
   &.clickable {
     cursor: pointer;
@@ -103,7 +118,7 @@ export default {
 @media screen and (max-width: $phone-lg) {
   .username.two-line {
     .name {
-      display: block;
+      flex-wrap: wrap;
       .verified-badge {
         margin-left: 0;
       }

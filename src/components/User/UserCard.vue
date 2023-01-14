@@ -34,6 +34,7 @@ export default {
 <style lang="scss" scoped>
 .user-card {
   display: flex;
+  align-items: center;
   margin: 1rem;
   * + * {
     margin-left: 1rem;

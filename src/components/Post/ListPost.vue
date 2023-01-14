@@ -128,6 +128,9 @@ export default {
   display: flex;
   transition: 100ms ease background-color;
   border-bottom: $border-dark;
+  &:last-child {
+    border-bottom: 0;
+  }
   &.clickable {
     cursor: pointer;
     &:hover {
@@ -203,7 +206,7 @@ export default {
     }
     &-body {
       color: #fff;
-      margin-bottom: 1rem;
+      margin-bottom: .5rem;
     }
     &-actions {
       display: flex;
