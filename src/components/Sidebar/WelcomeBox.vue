@@ -16,6 +16,7 @@
 
 <script>
 import {useAppStore} from 'stores/App'
+import {useNostrStore} from 'src/nostr/NostrStore'
 import {useSettingsStore} from 'stores/Settings'
 import Nip07 from 'src/utils/Nip07'
 
@@ -24,6 +25,7 @@ export default {
   setup() {
     return {
       app: useAppStore(),
+      nostr: useNostrStore(),
       settings: useSettingsStore(),
     }
   },
@@ -48,6 +50,8 @@ export default {
       }
       this.settings.addAccount(account)
       this.settings.switchAccount(pubkey)
+
+      this.nostr.getProfile(pubkey)
     },
   },
   mounted() {
