@@ -169,8 +169,7 @@ export default defineComponent({
 })
 </script>
 
-<!--FIXME Should be scoped-->
-<style lang="scss">
+<style lang="scss" scoped>
 @import "assets/theme/colors.scss";
 @import "assets/variables.scss";
 
@@ -191,38 +190,6 @@ export default defineComponent({
   &-icon {
     cursor: pointer;
   }
-  &-popup {
-    min-width: 150px;
-    border-radius: 1rem;
-    padding: 10px;
-    background-color: $color-bg;
-    box-shadow: $shadow-white;
-    .popup-header {
-      display: flex;
-      width: 100%;
-      padding: 8px;
-      cursor: pointer;
-      border-radius: .5rem;
-      p {
-        margin: 0;
-        flex-grow: 1;
-        font-size: 1.1em;
-        font-weight: bold;
-        text-transform: capitalize;
-      }
-      &:hover {
-        background-color: rgba($color: $color-dark-gray, $alpha: 0.3);
-      }
-      .more {
-        width: 1.5rem;
-        height: 1.5rem;
-        svg {
-          fill: $color-primary;
-          width: 100%;
-        }
-      }
-    }
-  }
 }
 
 @media screen and (max-width: $phone) {
@@ -238,6 +205,42 @@ export default defineComponent({
       min-height: 0;
       &.more-available {
         border-bottom: $border-dark;
+      }
+    }
+  }
+}
+</style>
+<style lang="scss">
+@import "assets/theme/colors.scss";
+
+.addon-menu-popup {
+  min-width: 150px;
+  border-radius: 1rem;
+  padding: 10px;
+  background-color: $color-bg;
+  box-shadow: $shadow-white;
+  .popup-header {
+    display: flex;
+    width: 100%;
+    padding: 8px;
+    cursor: pointer;
+    border-radius: .5rem;
+    p {
+      margin: 0;
+      flex-grow: 1;
+      font-size: 1.1em;
+      font-weight: bold;
+      text-transform: capitalize;
+    }
+    &:hover {
+      background-color: rgba($color: $color-dark-gray, $alpha: 0.3);
+    }
+    .more {
+      width: 1.5rem;
+      height: 1.5rem;
+      svg {
+        fill: $color-primary;
+        width: 100%;
       }
     }
   }
