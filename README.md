@@ -1,15 +1,15 @@
-# Hamstr (hamstr)
+# Hamstr
 
-A twitter-style nostr web client
+[Hamstr](https://hamstr.to) is a twitter-style [Nostr](https://github.com/fiatjaf/nostr) web client.
 
-## Install the dependencies
+### Install the dependencies
 ```bash
 yarn
 # or
 npm install
 ```
 
-### Start the app in development mode (hot-code reloading, error reporting, etc.)
+### Start the app in development mode
 ```bash
 quasar dev
 ```
@@ -31,11 +31,8 @@ npm run format
 ```
 
 
-
 ### Build the app for production
 ```bash
 quasar build
 ```
 
-### Customize the configuration
-See [Configuring quasar.config.js](https://v2.quasar.dev/quasar-cli-webpack/quasar-config-js).
