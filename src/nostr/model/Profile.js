@@ -33,12 +33,7 @@ export default class Profile {
     if (!this.nip05.url) { // TODO more validation
       return false
     }
-    try {
-      const pubkey = await Nip05.fetchPubkey(this.nip05.url)
-      this.nip05.verified = pubkey && pubkey === this.pubkey
-    } catch (e) {
-      this.nip05.verified = false
-    }
+    this.nip05.verified = await Nip05.verify(this.pubkey, this.nip05.url)
     return this.nip05.verified
   }
 }

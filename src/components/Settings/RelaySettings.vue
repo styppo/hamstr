@@ -6,13 +6,8 @@
 <!--      <q-icon v-if="isConnected(relay)" icon="fiber_manual_record" size="sm" class="connected" />-->
       <q-btn icon="delete_outline" size="sm" class="btn-icon" flat round @click="removeRelay(relay)" />
     </div>
-    <q-form class="add-relay" :class="{focused}" @submit.stop="addRelay">
-      <input
-        v-model="newRelayUrl"
-        placeholder="Add a relay"
-        @focus="focused = true"
-        @blur="focused = false"
-      />
+    <q-form class="add-relay" @submit.stop="addRelay">
+      <q-input v-model="newRelayUrl" label="Add a relay" autogrow dense />
       <q-btn type="submit" icon="add_circle_outline" size="sm" flat round class="btn-icon" />
     </q-form>
   </div>
@@ -34,7 +29,6 @@ export default {
   data() {
     return {
       newRelayUrl: '',
-      focused: false,
     }
   },
   methods: {
@@ -57,7 +51,6 @@ export default {
         return
       }
       let href = url.href
-      console.log(url)
       if (url.pathname === '/') {
         href = href.slice(0, -1)
       }
@@ -69,6 +62,7 @@ export default {
         return
       }
       this.settings.addRelay(href)
+      this.newRelayUrl = ''
     },
     removeRelay(url) {
       this.settings.removeRelay(url)
@@ -84,43 +78,29 @@ export default {
 @import "assets/theme/colors.scss";
 
 .relay-settings {
-  background-color: rgba($color: $color-dark-gray, $alpha: 0.1);
-  border-radius: 1rem;
   h3 {
     margin: 0;
-    padding: 1rem;
-    font-size: 1.4rem;
+    padding: 0 0 1rem;
     border-bottom: $border-dark;
   }
   .relay {
     display: flex;
     align-items: center;
-    padding: .5rem .5rem .5rem 1rem;
+    padding: .5rem;
     border-bottom: $border-dark;
     transition: 200ms ease;
     &:hover {
-      background-color: rgba($color: $color-dark-gray, $alpha: 0.2);
-    }
-    &:first-child {
-      border-radius: 1rem 1rem 0 0;
+      //background-color: rgba($color: $color-dark-gray, $alpha: 0.2);
     }
     &:last-child {
       border: 0;
-      border-radius: 0 0 1rem 1rem;
     }
     &-url {
       flex-grow: 1;
       font-weight: 500;
     }
-    .connected {
-      color: $positive;
-    }
   }
   .add-relay {
-    display: flex;
-    background-color: rgba($color: $color-dark-gray, $alpha: 0.2);
-    border-radius: 0 0 1rem 1rem;
-    padding: .5rem .5rem .5rem 1rem;
     transition: 200ms ease;
     input {
       color: #fff;
@@ -131,12 +111,42 @@ export default {
       border: 0;
       padding: 0;
     }
-    &:hover, &.focused {
-      background-color: rgba($color: $color-light-gray, $alpha: 0.2);
+    &:hover {
+      //background-color: rgba($color: $color-dark-gray, $alpha: 0.2);
+    }
+    .btn-icon {
+      position: absolute;
+      right: .5rem;
+      top: 7px;
     }
   }
   .btn-icon {
     color: $color-primary;
+  }
+}
+</style>
+<style lang="scss">
+@import "assets/theme/colors.scss";
+
+.relay-settings .add-relay {
+  .q-field__label {
+    color: $color-light-gray;
+    margin: 0 .5rem;
+  }
+  textarea {
+    color: #fff;
+    padding: 0 .5rem;
+    font-weight: 500;
+  }
+  .q-field__control:before {
+    border-bottom: $border-dark;
+  }
+  .q-field__control-container {
+    padding-top: 17px !important;
+    padding-bottom: 4px;
+  }
+  .q-field--dense .q-field__label {
+    top: 12px;
   }
 }
 </style>
