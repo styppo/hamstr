@@ -262,6 +262,21 @@ export const useNostrStore = defineStore('nostr', {
       )
     },
 
+    streamNotifications(pubkey, eventCallback, initialFetchCompleteCallback) {
+      return this.streamEvents(
+        {
+          kinds: [EventKind.NOTE, EventKind.REACTION], // TODO SHARE, CONTACT
+          '#p': [pubkey],
+        },
+        50,
+        eventCallback,
+        initialFetchCompleteCallback,
+        {
+          subId: `notifications:${pubkey}`,
+        }
+      )
+    },
+
     streamFullProfile(pubkey) {
       // FIXME
       // const handles = []

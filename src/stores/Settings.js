@@ -16,6 +16,9 @@ export const useSettingsStore = defineStore('settings', {
     accounts: {},
     pubkey: null,
     relays: RELAYS,
+    // TODO move somewhere else?
+    notificationsLastRead: 0,
+    messagesLastRead: 0,
   }),
   getters: {
     activeAccount(state) {
