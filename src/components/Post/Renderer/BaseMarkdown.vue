@@ -95,20 +95,18 @@ md.use(subscript)
       var aIndexTarget = token.attrIndex('target')
       var aIndexHref = token.attrIndex('href')
 
-      // // this works but errors bc youtube needs to add header Cross-Origin-Embedder-Policy "require-corp"
-      // // see issue https://issuetracker.google.com/issues/240387105
-      // var ytRegex = /^https:\/\/(www.|m.)youtu(be.com|.be)\/(watch\?v=|shorts\/)(?<v>[a-zA-Z0-9_-]{11})(&t=(?<s>[0-9]+)s)?/
-      // let ytMatch = token.attrs[aIndexHref][1].match(ytRegex)
+      var ytRegex = /\bhttps:\/\/(www.|m.)?youtu(be.com|.be)\/(watch\?v=|shorts\/)?(?<v>[a-zA-Z0-9_-]{11})(&t=(?<s>[0-9]+)s)?/
+      let ytMatch = token.attrs[aIndexHref][1].match(ytRegex)
       // console.log('ytMatch', ytMatch, token.attrs[aIndexHref][1])
-      // if (ytMatch) {
-      //   let src = `https://www.youtube.com/embed/${ytMatch.groups.v}`
-      //   if (ytMatch.groups.s) src = src + `?start=${ytMatch.groups.s}`
-      //   src = src + `&origin=http://localhost:8080/`
-      // console.log('ytMatch', src)
-      //   return `<iframe crossorigin anonymous async style="max-width: 90%; max-height: 50vh;"" src="${src}"
-      //     title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen>
-      //     </iframe>`
-      // }
+      if (ytMatch) {
+        let src = `https://www.youtube.com/embed/${ytMatch.groups.v}`
+        if (ytMatch.groups.s) src = src + `?start=${ytMatch.groups.s}`
+        // src = src + `&origin=http://localhost:8080/`
+        // console.log('ytMatch', src)
+        return `<iframe anonymous async style="height: 15rem; width: 90%; object-fit: cover;" src="${src}"
+          title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen>
+          </iframe>`
+      }
 
       var httpRegex = /^https?:\/\//
 
@@ -301,11 +299,13 @@ export default {
 }
 </script>
 
-<style lang='scss'>
+<style lang="scss">
+@import "assets/theme/colors.scss";
+
 .markdown {
   a {
     text-decoration: underline;
-    color: #448195;
+    color: $color-primary;
   }
 
   p {
@@ -363,7 +363,7 @@ export default {
 .break-word-wrap img,
 .break-word-wrap video {
   border-radius: 1rem;
-  border: 1px solid var(--q-accent);
+  border: 1px solid rgba($color: $color-dark-gray, $alpha: 0.5);
   display: block;
 }
 .break-word-wrap pre {

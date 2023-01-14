@@ -1,5 +1,5 @@
 <template>
-  <PageHeader />
+  <PageHeader back-button />
   <h3>Under construction</h3>
 </template>
 
@@ -14,6 +14,7 @@ export default {
 
 <style scoped>
 h3 {
+  margin: 0;
   padding: 0 1rem;
 }
 </style>

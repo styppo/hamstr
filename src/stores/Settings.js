@@ -6,7 +6,6 @@ const RELAYS = [
   'wss://nostr.onsats.org',
   'wss://nostr-relay.wlvs.space',
   'wss://nostr.bitcoiner.social',
-  'wss://relay.damus.io',
   'wss://nostr.zebedee.cloud',
   'wss://relay.nostr.info',
   'wss://nostr-pub.semisol.dev',

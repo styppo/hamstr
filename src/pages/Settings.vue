@@ -1,5 +1,5 @@
 <template>
-  <PageHeader />
+  <PageHeader back-button />
   <div class="settings">
     <ProfileSettings />
     <RelaySettings />
@@ -24,8 +24,8 @@ export default {
 <style lang="scss" scoped>
 .settings {
   padding: 0 1rem;
-  > * + * {
-    margin-top: 2rem;
+  > * {
+    margin-bottom: 2rem;
   }
 }
 </style>

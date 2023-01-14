@@ -1,5 +1,5 @@
 <template>
-  <q-form class="profile-settings" @submit.stop="updateProfile">
+  <q-form v-if="app.isSignedIn" class="profile-settings" @submit.stop="updateProfile">
     <h3>Profile</h3>
     <div class="input">
       <q-input v-model="name" label="Name" maxlength="64" autogrow dense />
@@ -51,6 +51,7 @@ export default {
       return this.app.myPubkey
     },
     profile() {
+      if (!this.pubkey) return
       return this.nostr.getProfile(this.pubkey)
     },
     changed() {
