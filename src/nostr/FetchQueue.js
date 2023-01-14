@@ -57,7 +57,7 @@ export default class FetchQueue extends Observable {
 
     if (!filteredIds.length) return
 
-    console.log(`Fetching ${filteredIds.length}/${Object.keys(this.queue).length} ${this.subId}s`, ids)
+    // console.log(`Fetching ${filteredIds.length}/${Object.keys(this.queue).length} ${this.subId}s`, ids)
 
     this.fetching = true
     this.retryInterval = setInterval(this.fetch.bind(this), this.retryDelay)

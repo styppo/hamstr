@@ -8,7 +8,6 @@ import {useProfileStore} from 'src/nostr/store/ProfileStore'
 import {useContactStore} from 'src/nostr/store/ContactStore'
 import {useSettingsStore} from 'stores/Settings'
 import {useStatStore} from 'src/nostr/store/StatStore'
-import {CloseAfter} from 'src/nostr/Relay'
 
 export const Feeds = {
   GLOBAL: {
@@ -231,28 +230,9 @@ export const useNostrStore = defineStore('nostr', {
       )
     },
 
-    fetchMultiple(filters, limit = 100, timeout = 5000) {
-      return new Promise(resolve => {
-        const objects = {}
-        const filtersWithLimit = Object.assign({}, filters, {limit})
-        const sub = this.client.subscribe(filtersWithLimit, null, CloseAfter.EOSE)
-        const timer = setTimeout(() => {
-          sub.close()
-          resolve(objects)
-        }, timeout)
-        sub.on('event', event => {
-          objects[event.id] = this.addEvent(event)
-          if (Object.keys(objects).length >= limit) {
-            clearTimeout(timer)
-            sub.close()
-            resolve(objects)
-          }
-        })
-        sub.on('close', () => {
-          clearTimeout(timer)
-          resolve(objects)
-        })
-      })
+    async fetchMultiple(filters, limit = 100, timeout = 5000) {
+      const events = await this.client.fetchMultiple(filters, limit, timeout)
+      return events.map(event => this.addEvent(event))
     },
 
     streamThread(rootId, eventCallback, initialFetchCompleteCallback) {
@@ -324,7 +304,6 @@ export const useNostrStore = defineStore('nostr', {
     streamEvents(filters, initialFetchSize, eventCallback, initialFetchCompleteCallback, opts) {
       const filtersWithLimit = Object.assign({}, filters, {limit: initialFetchSize})
 
-      let numEventsSeen = 0
       let initialFetchComplete = false
 
       const sub = this.client.subscribe(filtersWithLimit, opts.subId || null)
@@ -339,15 +318,7 @@ export const useNostrStore = defineStore('nostr', {
         const known = this.hasEvent(event.id)
         const obj = this.addEvent(event, relay)
         if (!obj || known) return
-
         if (eventCallback) eventCallback(obj, relay)
-
-        // if (++numEventsSeen >= initialFetchSize && !initialFetchComplete) {
-        //   console.log(`[EVENTS_SEEN] ${sub.subId} ${numEventsSeen}, intialFetchComplete=${initialFetchComplete}`)
-        //   initialFetchComplete = true
-        //   clearTimeout(timer)
-        //   if (initialFetchCompleteCallback) initialFetchCompleteCallback()
-        // }
       })
       sub.on('eose', (relay, subId) => {
         console.log(`[EOSE] ${subId} ${relay} ${this.client.connectedRelays().length}`)

@@ -61,19 +61,19 @@ export default class NostrClient {
       const sub = this.pool.subscribe(filtersWithLimit, null, CloseAfter.EOSE)
       const timer = setTimeout(() => {
         sub.close()
-        resolve(objects)
+        resolve(Object.values(objects))
       }, timeout)
       sub.on('event', event => {
         objects[event.id] = event
-        if (Object.keys(objects).length >= limit) {
-          clearTimeout(timer)
-          sub.close()
-          resolve(objects)
-        }
+      })
+      sub.on('complete', () => {
+        sub.close()
+        clearTimeout(timer)
+        resolve(Object.values(objects))
       })
       sub.on('close', () => {
         clearTimeout(timer)
-        resolve(objects)
+        resolve(Object.values(objects))
       })
     })
   }
