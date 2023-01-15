@@ -2,7 +2,7 @@
   <PageHeader back-button />
   <div class="notifications">
     <template v-for="(note, i) in notifications">
-      <ListPost v-if="defer(i)" :key="note.id" :note="note" class="list-post" clickable />
+      <ListPost v-if="defer(i)" :key="note.id" :note="note" class="list-post" clickable actions />
     </template>
     <ListPlaceholder :count="notifications?.length" :loading="loading" />
   </div>
