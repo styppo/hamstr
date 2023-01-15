@@ -18,7 +18,7 @@
         <p class="author-line">
           <UserName :pubkey="note.author" clickable show-verified @click.stop />
           <span>&#183;</span>
-          <span class="created-at">{{ formatPostDate(note.createdAt) }}</span>
+          <span class="created-at">{{ createdAt }}</span>
         </p>
         <p v-if="note.hasAncestor()" class="in-reply-to">
           Replying to
@@ -97,6 +97,12 @@ export default {
       stat: useStatStore(),
     }
   },
+  data() {
+    return {
+      refreshCounter: 0,
+      refreshTimer: null,
+    }
+  },
   computed: {
     ancestor() {
       return this.note.hasAncestor()
@@ -109,6 +115,11 @@ export default {
     showActions() {
       return this.actions && this.note.canReply()
     },
+    createdAt() {
+      // Mention refreshCounter to make this property react to changes to it
+      this.refreshCounter
+      return this.formatPostDate(this.note.createdAt)
+    }
   },
   methods: {
     formatPostDate(timestamp) {
@@ -116,6 +127,15 @@ export default {
       return DateUtils.formatFromNow(timestamp, format)
     },
   },
+  mounted() {
+    const updateInterval = Date.now() / 1000 - this.note.createdAt >= 3600 // 1h
+      ? 3600 // 1h
+      : 60 // 1m
+    this.refreshTimer = setInterval(() => this.refreshCounter++, updateInterval * 1000)
+  },
+  unmounted() {
+    clearInterval(this.refreshTimer)
+  }
 }
 </script>
 
