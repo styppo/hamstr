@@ -35,7 +35,8 @@ const md = MarkdownIt({
   breaks: true,
   linkify: true
 })
-md.use(subscript)
+md.disable(['link', 'image'])
+  .use(subscript)
   .use(superscript)
   .use(deflist)
   .use(emoji)
