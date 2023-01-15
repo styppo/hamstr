@@ -29,7 +29,9 @@ export default class DateUtils {
 
   static formatTime(timestamp) {
     const date = new Date(timestamp * 1000)
-    return `${date.getHours()}:${date.getMinutes()}`
+    const hours = `0${date.getHours()}`.slice(-2)
+    const minutes = `0${date.getMinutes()}`.slice(-2)
+    return `${hours}:${minutes}`
   }
 
   static formatDateTime(timestamp) {
