@@ -30,9 +30,8 @@
     </div>
 
     <div class="feed">
-      <div class="load-more-container" :class="{'more-available': numUnreads}">
+      <div class="load-more-container" :class="{'more-available': numUnreads}" v-if="numUnreads">
         <ButtonLoadMore
-          v-if="numUnreads"
           :label="`Load ${numUnreads} unread`"
           :loading="loading"
           @click="loadUnreads"
@@ -176,11 +175,13 @@ export default defineComponent({
 .feed {
   .load-more-container {
     border-top: $border-dark;
-    border-bottom: $border-dark;
     min-height: 6px;
   }
   > .load-more:last-child {
     border-bottom: 0;
+  }
+  > .thread:first-child, .load-more-container + .thread {
+    border-top: $border-dark;
   }
 }
 
