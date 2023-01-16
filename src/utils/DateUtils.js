@@ -17,6 +17,10 @@ const MONTHS = [
 ]
 
 export default class DateUtils {
+  static now() {
+    return Math.floor(Date.now() / 1000)
+  }
+
   static formatDate(timestamp) {
     const date = new Date(timestamp * 1000)
     const month = MONTHS[date.getMonth()] // TODO i18n
@@ -49,8 +53,7 @@ export default class DateUtils {
   }
 
   static formatFromNowShort(timestamp) {
-    const now = Date.now()
-    const diff = Math.round(Math.max(now - (timestamp * 1000), 0) / 1000)
+    const diff = Math.max(DateUtils.now() - timestamp, 0)
     const formatDiff = (unit, factor, offset) => Math.max(Math.floor((diff + (unit * offset)) / (unit * factor)), 1)
 
     if (diff < 45) return `${formatDiff(1, 1, 0)}s`

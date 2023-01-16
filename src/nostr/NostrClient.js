@@ -25,8 +25,8 @@ export default class NostrClient {
     return this.connectedRelays().some(relay => relay.url === url)
   }
 
-  subscribe(filters, subId = null) {
-    return this.pool.subscribe(filters, subId)
+  subscribe(filters, subId = null, closeAfter = CloseAfter.NEVER) {
+    return this.pool.subscribe(filters, subId, closeAfter)
   }
 
   unsubscribe(subId) {
@@ -37,45 +37,43 @@ export default class NostrClient {
     return this.pool.publish(event)
   }
 
-  // fetchSingle(filters) {
-  //   const filtersWithLimit = Object.assign({}, filters, {limit: 1})
-  //   return new Promise(resolve => {
-  //     const sub = this.pool.subscribe(filters)
-  //     sub.on('event')
-  //     this.client.subscribe(
-  //       filtersWithLimit,
-  //       (event, relay) => {
-  //         resolve(this.addEvent(event, relay))
-  //       },
-  //       {
-  //         closeAfter: 'single'
-  //       }
-  //     )
-  //   })
-  // }
-
-  fetchMultiple(filters, limit = 100, timeout = 5000) {
+  fetch(filters, opts = {}) {
     return new Promise(resolve => {
-      const objects = {}
-      const filtersWithLimit = Object.assign({}, filters, {limit})
-      const sub = this.pool.subscribe(filtersWithLimit, null, CloseAfter.EOSE)
+      const events = {}
+      const sub = this.pool.subscribe(filters, opts.subId, CloseAfter.EOSE)
       const timer = setTimeout(() => {
         sub.close()
-        resolve(Object.values(objects))
-      }, timeout)
+        resolve(Object.values(events))
+      }, opts.timeout || 4000)
       sub.on('event', event => {
-        objects[event.id] = event
+        events[event.id] = event
       })
-      sub.on('complete', () => {
+      sub.on('end', () => {
         sub.close()
         clearTimeout(timer)
-        resolve(Object.values(objects))
+        resolve(Object.values(events))
       })
       sub.on('close', () => {
         clearTimeout(timer)
-        resolve(Object.values(objects))
+        resolve(Object.values(events))
       })
     })
+  }
+
+  stream(filters, eventCallback, endCallback = () => {}, opts = {}) {
+    const events = {}
+    const sub = this.pool.subscribe(filters, opts.subId)
+    const timer = setTimeout(() => {
+      endCallback(Object.values(events))
+    }, opts.timeout || 5000)
+    sub.on('event', event => {
+      events[event.id] = event
+    })
+    sub.on('end', () => {
+      clearTimeout(timer)
+      endCallback(Object.values(events))
+    })
+    return sub
   }
 
   onNotice(relay, message) {

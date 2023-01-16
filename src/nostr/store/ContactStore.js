@@ -20,7 +20,7 @@ export const useContactStore = defineStore('contact', {
 
       const existingContacts = this.contacts[event.pubkey]
       if (existingContacts && existingContacts.lastUpdatedAt >= event.createdAt) {
-        return
+        return existingContacts
       }
 
       const newContacts = []

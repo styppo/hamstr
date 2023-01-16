@@ -32,30 +32,24 @@ export default {
   data() {
     return {
       notifications: [],
+      stream: null,
       loading: true,
     }
   },
   methods: {
   },
   mounted() {
-    const read = []
-    const unread = []
-    this.nostr.streamNotifications(
-      this.app.myPubkey,
-      event => {
-        if (event.createdAt >= this.settings.notificationsLastRead) {
-          unread.push(event)
-        } else {
-          read.push(event)
-        }
-      },
-  () => {
-        unread.sort(NoteOrder.CREATION_DATE_DESC)
-        this.notifications = unread
-        this.loading = false
-      }
-    )
-  }
+    this.stream = this.nostr.streamNotifications(this.app.myPubkey)
+    this.stream.on('init', events => {
+      events.sort(NoteOrder.CREATION_DATE_DESC)
+      this.notifications = events
+      this.loading = false
+    })
+    this.stream.on('update', event => this.notifications.unshift(event))
+  },
+  unmounted() {
+    if (this.stream) this.stream.close()
+  },
 }
 </script>
 

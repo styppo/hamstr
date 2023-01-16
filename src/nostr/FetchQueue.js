@@ -5,21 +5,19 @@ export default class FetchQueue extends Observable {
     super()
     this.client = client
     this.subId = subId
+    this.sub = null
     this.fnGetId = fnGetId
     this.fnCreateFilter = fnCreateFilter
     this.throttle = opts.throttle || 250
-    this.batchSize = opts.batchSize || 50
-    this.retryDelay = opts.retryDelay || 5000
-    this.maxRetries = opts.maxRetries || 3
+    this.batchSize = opts.batchSize || 250
+    this.timeout = opts.timeout || 3000
+    this.maxAttempts = opts.maxAttempts || 2
 
     this.queue = {}
     this.failed = {}
     this.fetching = false
     this.fetchQueued = false
-    this.retryInterval = null
-
-    // XXX
-    setInterval(() => this.failed = {}, 10000)
+    this.fetchTimeout = null
   }
 
   add(id) {
@@ -37,16 +35,19 @@ export default class FetchQueue extends Observable {
 
   fetch() {
     this.fetchQueued = false
-    if (this.retryInterval) clearInterval(this.retryInterval)
+    if (this.fetchTimeout) clearTimeout(this.fetchTimeout)
 
     const ids = Object.keys(this.queue).slice(0, this.batchSize)
-    if (!ids.length) return
+    if (!ids.length) {
+      this.fetching = false
+      return
+    }
 
     // Remove ids that we have tried too many times.
     const filteredIds = []
     for (const id of ids) {
       this.queue[id]++
-      if (this.queue[id] > this.maxRetries) {
+      if (this.queue[id] > this.maxAttempts) {
         console.warn(`Failed to fetch ${this.subId} ${id}`)
         this.failed[id] = true
         delete this.queue[id]
@@ -55,12 +56,15 @@ export default class FetchQueue extends Observable {
       }
     }
 
-    if (!filteredIds.length) return
+    if (!filteredIds.length) {
+      this.fetching = false
+      return
+    }
 
-    // console.log(`Fetching ${filteredIds.length}/${Object.keys(this.queue).length} ${this.subId}s`, ids)
+    console.log(`Fetching ${this.subId}s ${filteredIds.length}/${Object.keys(this.queue).length} `)
 
     this.fetching = true
-    this.retryInterval = setInterval(this.fetch.bind(this), this.retryDelay)
+    this.fetchTimeout = setTimeout(this.fetch.bind(this), this.timeout)
 
     // XXX Needed for some relays?
     //this.client.unsubscribe(this.subId)
@@ -78,19 +82,19 @@ export default class FetchQueue extends Observable {
       this.emit('event', event, relay)
 
       if (Object.keys(this.queue).length === 0) {
-        if (this.retryInterval) clearInterval(this.retryInterval)
+        if (this.fetchTimeout) clearTimeout(this.fetchTimeout)
         this.fetching = false
         sub.close()
       } else if (filteredIds.length === 0) {
         this.fetch()
       }
     })
-    sub.on('complete', () => {
+    sub.on('end', () => {
       if (this.fetching && Object.keys(this.queue).length > 0) {
         this.fetch()
       } else {
         console.log('[COMPLETE]', this)
-        if (this.retryInterval) clearInterval(this.retryInterval)
+        if (this.fetchTimeout) clearTimeout(this.fetchTimeout)
         this.fetching = false
         sub.close()
       }

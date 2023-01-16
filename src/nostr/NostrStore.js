@@ -8,15 +8,20 @@ import {useProfileStore} from 'src/nostr/store/ProfileStore'
 import {useContactStore} from 'src/nostr/store/ContactStore'
 import {useSettingsStore} from 'stores/Settings'
 import {useStatStore} from 'src/nostr/store/StatStore'
+import {Observable} from 'src/nostr/utils'
+import {CloseAfter} from 'src/nostr/Relay'
+import DateUtils from 'src/utils/DateUtils'
 
-export const Feeds = {
-  GLOBAL: {
-    name: 'global',
-    filters: {
-      kinds: [EventKind.NOTE], // TODO Deletions
-    },
-    initialFetchSize: 100,
-  },
+class Stream extends Observable {
+  constructor(sub) {
+    super()
+    this.sub = sub
+    sub.on('close', this.emit.bind(this, 'close'))
+  }
+
+  close(relay = null) {
+    this.sub.close(relay)
+  }
 }
 
 const eventQueue = (client, subId) => new FetchQueue(
@@ -76,10 +81,10 @@ export const useNostrStore = defineStore('nostr', {
 
       if (relay?.url) {
         if (this.seenBy[event.id]) {
-          this.seenBy[event.id][relay.url] = Date.now()
+          this.seenBy[event.id][relay.url] = DateUtils.now()
         } else {
           this.seenBy[event.id] = {
-            [relay.url]: Date.now()
+            [relay.url]: DateUtils.now()
           }
 
           const stats = useStatStore()
@@ -107,7 +112,8 @@ export const useNostrStore = defineStore('nostr', {
         case EventKind.DELETE:
           break
         case EventKind.SHARE:
-          break
+          // TODO
+          return event
         case EventKind.REACTION: {
           const notes = useNoteStore()
           return notes.addEvent(event)
@@ -162,7 +168,7 @@ export const useNostrStore = defineStore('nostr', {
     },
 
     fetchNotesByAuthor(pubkey, limit = 100) {
-      return this.fetchMultiple(
+      return this.fetch(
         {
           kinds: [EventKind.NOTE],
           authors: [pubkey],
@@ -187,7 +193,7 @@ export const useNostrStore = defineStore('nostr', {
 
     fetchFollowers(pubkey, opts = {}) {
       const limit = opts.limit || 500
-      return this.fetchMultiple(
+      return this.fetch(
         {
           kinds: [EventKind.CONTACT],
           '#p': [pubkey],
@@ -204,7 +210,7 @@ export const useNostrStore = defineStore('nostr', {
     },
 
     fetchReactionsTo(id, limit = 500) {
-      return this.fetchMultiple(
+      return this.fetch(
         {
           kinds: [EventKind.REACTION],
           '#e': [id],
@@ -221,7 +227,7 @@ export const useNostrStore = defineStore('nostr', {
     },
 
     fetchReactionsByAuthor(pubkey, limit = 500) {
-      return this.fetchMultiple(
+      return this.fetch(
         {
           kinds: [EventKind.REACTION],
           authors: [pubkey],
@@ -230,47 +236,98 @@ export const useNostrStore = defineStore('nostr', {
       )
     },
 
-    async fetchMultiple(filters, limit = 100, timeout = 5000) {
-      const events = await this.client.fetchMultiple(filters, limit, timeout)
-      return events.map(event => this.addEvent(event))
+    async fetch(filters, opts = {}) {
+      return new Promise(resolve => {
+        const events = {}
+        const sub = this.client.subscribe(filters, opts.subId, CloseAfter.EOSE)
+
+        const timer = setTimeout(() => {
+          const values = Object.values(events)
+          console.log(`[TIMEOUT] fetch ${sub.subId} (${values.length})`, filters)
+          sub.close()
+          resolve(values)
+        }, opts.timeout || 4000)
+
+        sub.on('end', () => {
+          const values = Object.values(events)
+          console.log(`[COMPLETE] fetch ${sub.subId} (${values.length})`, filters)
+          sub.close()
+          clearTimeout(timer)
+          resolve(values)
+        })
+        sub.on('close', () => {
+          clearTimeout(timer)
+          resolve(Object.values(events))
+        })
+        sub.on('event', (event, relay) => {
+          const object = this.addEvent(event, relay)
+          if (!object) {
+            console.warn('Discarding event', event)
+            return
+          }
+          events[event.id] = object
+        })
+      })
     },
 
-    streamThread(rootId, eventCallback, initialFetchCompleteCallback) {
-      return this.streamEvents(
+    stream(filters, opts = {}) {
+      let objects = {}
+      const sub = this.client.subscribe(filters, opts.subId)
+      const stream = new Stream(sub)
+
+      const timer = setTimeout(() => {
+        const values = Object.values(objects)
+        console.log(`[TIMEOUT] stream ${sub.subId} (${values.length})`, filters)
+        stream.emit('init', values)
+        objects = null
+      }, opts.timeout || 5000)
+
+      sub.on('end', () => {
+        clearTimeout(timer)
+        const values = Object.values(objects)
+        console.log(`[COMPLETE] stream ${sub.subId} (${values.length})`, filters)
+        stream.emit('init', values)
+        objects = null
+      })
+      sub.on('event', (event, relay) => {
+        const known = this.hasEvent(event.id)
+        const object = this.addEvent(event, relay)
+        if (!object) {
+          console.warn('Discarding event', event)
+          return
+        }
+        if (known) return
+
+        if (!objects) {
+          stream.emit('update', object, relay, stream)
+        } else {
+          objects[event.id] = object
+        }
+      })
+
+      return stream
+    },
+
+    streamThread(rootId) {
+      return this.stream(
         {
-          kinds: [EventKind.NOTE],
+          kinds: [EventKind.NOTE, EventKind.REACTION, EventKind.SHARE],
           '#e': [rootId],
+          limit: 500,
         },
-        500,
-        eventCallback,
-        initialFetchCompleteCallback,
         {
           subId: `thread:${rootId}`,
         }
       )
     },
 
-    streamFeed(feed, eventCallback, initialFetchCompleteCallback) {
-      return this.streamEvents(
-        feed.filters,
-        feed.initialFetchSize,
-        eventCallback,
-        initialFetchCompleteCallback,
-        {
-          subId: feed.name,
-        }
-      )
-    },
-
-    streamNotifications(pubkey, eventCallback, initialFetchCompleteCallback) {
-      return this.streamEvents(
+    streamNotifications(pubkey) {
+      return this.stream(
         {
           kinds: [EventKind.NOTE, EventKind.REACTION], // TODO SHARE, CONTACT
           '#p': [pubkey],
+          limit: 50,
         },
-        50,
-        eventCallback,
-        initialFetchCompleteCallback,
         {
           subId: `notifications:${pubkey}`,
         }
@@ -315,39 +372,5 @@ export const useNostrStore = defineStore('nostr', {
         this.client.unsubscribe(subId)
       }
     },
-
-    streamEvents(filters, initialFetchSize, eventCallback, initialFetchCompleteCallback, opts) {
-      const filtersWithLimit = Object.assign({}, filters, {limit: initialFetchSize})
-
-      let initialFetchComplete = false
-
-      const sub = this.client.subscribe(filtersWithLimit, opts.subId || null)
-      const timer = setTimeout(() => {
-        console.log(`[TIMEOUT] ${sub.subId}, intialFetchComplete=${initialFetchComplete}`)
-        if (!initialFetchComplete) {
-          initialFetchComplete = true
-          if (initialFetchCompleteCallback) initialFetchCompleteCallback()
-        }
-      }, opts.timeout || 3000)
-      sub.on('event', (event, relay) => {
-        const known = this.hasEvent(event.id)
-        const obj = this.addEvent(event, relay)
-        if (!obj || known) return
-        if (eventCallback) eventCallback(obj, relay)
-      })
-      sub.on('eose', (relay, subId) => {
-        console.log(`[EOSE] ${subId} ${relay} ${this.client.connectedRelays().length}`)
-      })
-      sub.on('complete', () => {
-        console.log(`[COMPLETE] ${sub.subId}, intialFetchComplete=${initialFetchComplete}`)
-        if (!initialFetchComplete) {
-          initialFetchComplete = true
-          clearTimeout(timer)
-          if (initialFetchCompleteCallback) initialFetchCompleteCallback()
-        }
-      })
-
-      return sub
-    }
   },
 })

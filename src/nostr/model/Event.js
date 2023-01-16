@@ -1,4 +1,5 @@
 import {getEventHash} from 'nostr-tools'
+import DateUtils from 'src/utils/DateUtils'
 
 export const EventKind = {
   METADATA: 0,
@@ -71,7 +72,7 @@ export default class Event {
   }
 
   static fresh(opts) {
-    opts.createdAt = opts.createdAt || Math.floor(Date.now() / 1000)
+    opts.createdAt = opts.createdAt || DateUtils.now()
     return new Event(opts)
   }
 

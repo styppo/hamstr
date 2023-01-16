@@ -9,9 +9,10 @@ export default class Nip05 {
     try {
       const res = await fetch(url)
       const json = await res.json()
+      if (!json || !json.names) return
       return json.names[user]
     } catch (e) {
-      console.warn(`Failed to fetch NIP05 data for ${nip05Id}`, e)
+      //console.warn(`Failed to fetch NIP05 data for ${nip05Id}`, e)
     }
   }
 

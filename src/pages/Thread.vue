@@ -4,6 +4,7 @@
 
     <div ref="ancestors">
       <Thread
+        v-if="ancestors?.length"
         :thread="ancestors"
         force-bottom-connector
         class="ancestors"
@@ -96,17 +97,14 @@ export default defineComponent({
   methods: {
     startStream() {
       if (!this.rootId) return
-      this.subId = this.nostr.streamThread(
-        this.rootId,
-        () => {}, // TODO
-        this.buildThread.bind(this)
-      )
+      this.stream = this.nostr.streamThread(this.rootId)
+      this.stream.on('init', this.buildThread.bind(this))
     },
 
-    cancelStream() {
-      if (!this.subId) return
-      this.nostr.cancelStream(this.subId)
-      this.subId = null
+    closeStream() {
+      if (!this.stream) return
+      this.stream.close()
+      this.stream = null
     },
 
     buildThread() {
@@ -235,7 +233,7 @@ export default defineComponent({
   },
   unmounted() {
     console.log('unmounted', this.subId)
-    this.cancelStream()
+    this.closeStream()
     this.resizeObserver.disconnect()
   }
 })

@@ -45,7 +45,7 @@ class MultiSubscription extends Observable {
     if (!sub.eoseSeen) {
       sub.eoseSeen = true
       if (Object.values(this.subs).every(sub => sub.eoseSeen)) {
-        this.emit('complete', this.subId)
+        this.emit('end', this.subId)
       }
     }
   }
@@ -103,6 +103,7 @@ export default class ReplayPool extends Observable {
 
   subscribe(filters, subId = null, closeAfter = CloseAfter.NEVER) {
     if (!subId) subId = `sub${this.nextSubId++}`
+    console.log(`[SUBSCRIBE] ${subId}`, filters)
 
     const sub = new MultiSubscription(subId, [])
     sub.on('close', this.unsubscribe.bind(this, subId))
@@ -123,6 +124,7 @@ export default class ReplayPool extends Observable {
   unsubscribe(subId) {
     const sub = this.subs[subId]
     if (!sub) return
+    console.log(`[UNSUBSCRIBE] ${subId}`)
     sub.sub.close()
     delete this.subs[subId]
   }

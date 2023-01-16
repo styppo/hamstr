@@ -128,7 +128,7 @@ export default {
     },
   },
   mounted() {
-    const updateInterval = Date.now() / 1000 - this.note.createdAt >= 3600 // 1h
+    const updateInterval = DateUtils.now() - this.note.createdAt >= 3600 // 1h
       ? 3600 // 1h
       : 60 // 1m
     this.refreshTimer = setInterval(() => this.refreshCounter++, updateInterval * 1000)

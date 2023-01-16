@@ -31,11 +31,10 @@
 
     <div class="feed">
       <div class="load-more-container" :class="{'more-available': numUnreads}">
-        <ButtonLoadMore
+        <AsyncLoadButton
           v-if="numUnreads"
-          :label="`Load ${numUnreads} unread`"
-          :loading="loading"
-          @click="loadUnreads"
+          :load-fn="loadUnreads"
+          :label="`Load ${numUnreads} unreads`"
         />
       </div>
 
@@ -45,11 +44,11 @@
 
       <ListPlaceholder :count="feedItems?.length" :loading="loading" />
 
-<!--      <ButtonLoadMore-->
-<!--        :loading="loadingMore"-->
-<!--        :label="items.length === feed[tab].length ? 'load another day' : 'load 100 more'"-->
-<!--        @click="loadMore"-->
-<!--      />-->
+      <AsyncLoadButton
+        v-if="feedItems?.length"
+        :load-fn="loadOlder"
+        autoload
+      />
     </div>
   </q-page>
 </template>
@@ -60,11 +59,23 @@ import PageHeader from 'components/PageHeader.vue'
 import PostEditor from 'components/CreatePost/PostEditor.vue'
 import Thread from 'components/Post/Thread.vue'
 import BaseIcon from 'components/BaseIcon/index.vue'
-import ButtonLoadMore from 'components/ButtonLoadMore.vue'
+import AsyncLoadButton from 'components/AsyncLoadButton.vue'
 import ListPlaceholder from 'components/ListPlaceholder.vue'
 import {useAppStore} from 'stores/App'
-import {useNostrStore, Feeds} from 'src/nostr/NostrStore'
+import {useNostrStore} from 'src/nostr/NostrStore'
 import Defer from 'src/utils/Defer'
+import {EventKind} from 'src/nostr/model/Event'
+import DateUtils from 'src/utils/DateUtils'
+
+const Feeds = {
+  global: {
+    name: 'global',
+    filters: {
+      kinds: [EventKind.NOTE], // TODO Deletions
+      limit: 20,
+    },
+  },
+}
 
 const feedOrder = (a, b) => b[0].createdAt - a[0].createdAt
 
@@ -75,10 +86,10 @@ export default defineComponent({
     PostEditor,
     Thread,
     BaseIcon,
-    ButtonLoadMore,
+    AsyncLoadButton,
     ListPlaceholder,
   },
-  mixins: [Defer()],
+  mixins: [Defer(2000)],
   setup() {
     return {
       app: useAppStore(),
@@ -92,7 +103,6 @@ export default defineComponent({
       selectedFeed: 'global',
       loading: true,
       recentlyLoaded: true,
-      sub: null,
     }
   },
   computed: {
@@ -114,57 +124,73 @@ export default defineComponent({
     initFeed(feedId) {
       if (this.feeds[feedId]) return
 
+      const filters = Feeds[feedId].filters
+      const stream = this.nostr.stream(
+        filters,
+        {subId: `feed:${feedId}`}
+      )
+      stream.on('init', events => {
+        const items = events.map(event => [event]) // TODO Single element thread
+        items.sort(feedOrder)
+        this.feeds[feedId].items = items.slice(0, filters.limit)
+        this.loading = false
+
+        // Wait a bit before showing the first unreads
+        setTimeout(() => this.recentlyLoaded = false, 5000)
+      })
+      stream.on('update', event => {
+        this.feeds[feedId].unreads.push([event]) // TODO Single element thread
+      })
+
       this.feeds[feedId] = {
         items: [],
         unreads: [],
+        stream,
       }
-
-      let initialFetchComplete = false
-      let initialItems = []
-
-      console.log(`subscribing to feed ${feedId}`, this.feeds[feedId])
-
-      this.sub = this.nostr.streamFeed(
-        Feeds[feedId.toUpperCase()],
-        event => {
-          const target = initialFetchComplete
-            ? this.feeds[feedId].unreads
-            : initialItems
-          target.push([event]) // FIXME Single element thread
-        },
-        () => {
-          initialItems.sort(feedOrder)
-          this.feeds[feedId].items = initialItems.slice(0, 50)
-          initialFetchComplete = true
-          this.loading = false
-
-          // Wait a bit before showing the first unreads
-          setTimeout(() => this.recentlyLoaded = false, 5000)
-        }
-      )
     },
     switchFeed(feedId) {
       this.initFeed(feedId)
       this.selectedFeed = feedId
     },
     loadUnreads() {
-      this.loading = true
+      // TODO Deduplicate feed items
       const items = this.feedUnreads.concat(this.feedItems)
-      items.sort(feedOrder)
+      //items.sort(feedOrder)
       this.activeFeed.items = items
       this.activeFeed.unreads = []
-      this.loading = false
 
       // Wait a bit before showing unreads again
       this.recentlyLoaded = true
       setTimeout(() => this.recentlyLoaded = false, 5000)
+
+      return true
+    },
+    async loadOlder() {
+      const until = this.feedItems[this.feedItems.length - 1]?.[0]?.createdAt || DateUtils.now()
+      console.log('until', new Date(until * 1000))
+      const filters = Object.assign({}, Feeds[this.selectedFeed].filters, {until})
+
+      const older = await this.nostr.fetch(filters, {subId: `feed:${this.selectedFeed}-older`})
+      const items = older.map(event => [event]).sort(feedOrder)
+
+      console.log('got items', older)
+
+      console.log('length before', this.activeFeed.items.length)
+      // TODO Deduplicate feed items
+      this.activeFeed.items = this.feedItems.concat(items)
+
+      console.log('length after', this.activeFeed.items.length)
+
+      return older
     },
   },
   mounted() {
     this.initFeed(this.selectedFeed)
   },
   unmounted() {
-    if (this.sub) this.nostr.cancelStream(this.sub)
+    for (const feed of Object.values(this.feeds)) {
+      feed.stream.close()
+    }
   }
 })
 </script>
@@ -179,7 +205,7 @@ export default defineComponent({
     border-bottom: $border-dark;
     min-height: 6px;
   }
-  > .load-more:last-child {
+  > .async-load-button:last-child {
     border-bottom: 0;
   }
 }
