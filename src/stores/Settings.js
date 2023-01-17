@@ -1,14 +1,14 @@
 import {defineStore} from 'pinia'
 import {Account} from 'src/nostr/Account'
 
-const RELAYS = [
+export const RELAYS = [
   'wss://nostr-pub.wellorder.net',
-  'wss://nostr.onsats.org',
-  'wss://nostr-relay.wlvs.space',
-  'wss://nostr.bitcoiner.social',
-  'wss://nostr.zebedee.cloud',
-  'wss://relay.nostr.info',
-  'wss://nostr-pub.semisol.dev',
+  // 'wss://nostr-relay.wlvs.space',
+  // 'wss://nostr.bitcoiner.social',
+  // 'wss://nostr.zebedee.cloud',
+  // 'wss://relay.nostr.info',
+  // 'wss://nostr-pub.semisol.dev',
+  'wss://relay.snort.social',
 ]
 
 export const useSettingsStore = defineStore('settings', {
