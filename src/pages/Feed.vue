@@ -2,26 +2,18 @@
   <q-page>
     <PageHeader logo class="page-header">
       <template #addon>
-        <div class="addon-menu">
-          <div class="addon-menu-icon">
-            <q-icon name="more_vert" size="sm" />
-          </div>
-          <q-menu target=".addon-menu-icon" anchor="top left" self="top right" class="addon-menu-popup">
-            <div>
-              <div
-                v-for="feed in availableFeeds"
-                :key="feed"
-                @click="switchFeed(feed)"
-                class="popup-header"
-                v-close-popup>
-                <p>{{ feed }}</p>
-                <div v-if="feed === selectedFeed" class="more">
-                  <BaseIcon icon="tick" />
-                </div>
-              </div>
-            </div>
-          </q-menu>
-        </div>
+        <q-btn-toggle
+          v-if="availableFeeds.length > 1"
+          v-model="activeFeed"
+          rounded
+          toggle-color="primary"
+          size="sm"
+          class="feed-selector"
+          :options="[
+            {value: 'global', icon: 'public'},
+            {value: 'following', icon: 'group'},
+          ]"
+        />
       </template>
     </PageHeader>
 
@@ -29,27 +21,11 @@
       <PostEditor />
     </div>
 
-    <div class="feed">
-      <div class="load-more-container" :class="{'more-available': numUnreads}">
-        <AsyncLoadButton
-          v-if="numUnreads"
-          :load-fn="loadNewer"
-          :label="`Load ${numUnreads} unreads`"
-        />
-      </div>
-
-      <template v-for="(thread, i) in feedItems">
-        <Thread v-if="true || defer(i)" :key="thread[0].id" :thread="thread" class="full-width" />
-      </template>
-
-      <ListPlaceholder :count="feedItems?.length" :loading="loading" />
-
-      <AsyncLoadButton
-        v-if="feedItems?.length"
-        :load-fn="loadOlder"
-        autoload
-      />
-    </div>
+    <q-tab-panels v-model="activeFeed" keep-alive animated>
+      <q-tab-panel v-for="feed in availableFeeds" :key="feed" :name="feed">
+        <Feed :feed="feedDef(feed)" :ref="feed" />
+      </q-tab-panel>
+    </q-tab-panels>
   </q-page>
 </template>
 
@@ -57,16 +33,12 @@
 import {defineComponent} from 'vue'
 import PageHeader from 'components/PageHeader.vue'
 import PostEditor from 'components/CreatePost/PostEditor.vue'
-import Thread from 'components/Post/Thread.vue'
-import BaseIcon from 'components/BaseIcon/index.vue'
-import AsyncLoadButton from 'components/AsyncLoadButton.vue'
-import ListPlaceholder from 'components/ListPlaceholder.vue'
+import Feed from 'components/Feed/Feed.vue'
 import {useAppStore} from 'stores/App'
 import {useNostrStore} from 'src/nostr/NostrStore'
-import Defer from 'src/utils/Defer'
 import {EventKind} from 'src/nostr/model/Event'
-import DateUtils from 'src/utils/DateUtils'
-import Bots from 'src/utils/bots'
+
+const ZERO_PUBKEY = '0000000000000000000000000000000000000000000000000000000000000000'
 
 const Feeds = {
   global: {
@@ -75,24 +47,33 @@ const Feeds = {
       kinds: [EventKind.NOTE], // TODO Deletions
       limit: 20,
     },
+    hideBots: true,
+  },
+  following: {
+    name: 'following',
+    filters: () => {
+      const app = useAppStore()
+      const nostr = useNostrStore()
+      const contacts = nostr.getContacts(app.myPubkey)
+      let authors = contacts?.map(contact => contact.pubkey)
+      if (!authors || !authors.length) authors = [ZERO_PUBKEY]
+      return {
+        authors,
+        kinds: [EventKind.NOTE],
+        limit: 50,
+      }
+    },
+    hideBots: false,
   },
 }
 
-const feedOrder = (a, b) => b[0].createdAt - a[0].createdAt
-
-const MAX_ITEMS_VISIBLE = 50
-
 export default defineComponent({
-  name: 'Feed',
+  name: 'FeedPage',
   components: {
     PageHeader,
     PostEditor,
-    Thread,
-    BaseIcon,
-    AsyncLoadButton,
-    ListPlaceholder,
+    Feed,
   },
-  mixins: [Defer(2000)],
   setup() {
     return {
       app: useAppStore(),
@@ -102,120 +83,31 @@ export default defineComponent({
   data() {
     return {
       feeds: {},
-      availableFeeds: ['global'],
-      selectedFeed: 'global',
-      loading: true,
-      recentlyLoaded: true,
+      activeFeed: 'global',
     }
   },
   computed: {
-    activeFeed() {
-      return this.feeds[this.selectedFeed]
+    availableFeeds() {
+      const feeds = ['global']
+      if (this.app.isSignedIn) feeds.push('following')
+      return feeds
     },
-    feedItems() {
-      return this.activeFeed?.visible
-    },
-    numUnreads() {
-      if (this.recentlyLoaded) return 0
-      return this.activeFeed?.newer.length
+    contacts() {
+      if (!this.app.isSignedIn) return
+      return this.nostr.getContacts(this.app.myPubkey)
     },
   },
   methods: {
-    initFeed(feedId) {
-      if (this.feeds[feedId]) return
-
-      const filters = Feeds[feedId].filters
-      const stream = this.nostr.stream(
-        filters,
-        {subId: `feed:${feedId}`}
-      )
-      stream.on('init', notes => {
-        const items = notes
-          .filter(this.filterNote.bind(this))
-          .map(note => [note]) // TODO Single element thread
-        items.sort(feedOrder)
-        this.feeds[feedId].visible = items.slice(0, filters.limit)
-        this.loading = false
-
-        // Wait a bit before showing the first unreads
-        setTimeout(() => this.recentlyLoaded = false, 5000)
-      })
-      stream.on('update', note => {
-        if (this.filterNote(note)) {
-          this.feeds[feedId].newer.push([note]) // TODO Single element thread
-        }
-      })
-
-      this.feeds[feedId] = {
-        visible: [],
-        newer: [],
-        older: [],
-        stream,
-      }
+    feedDef(feed) {
+      return Feeds[feed]
     },
-    switchFeed(feedId) {
-      this.initFeed(feedId)
-      this.selectedFeed = feedId
-    },
-    loadNewer() {
-      // TODO Deduplicate feed items
-      this.activeFeed.newer.sort(feedOrder)
-      const items = this.activeFeed.newer.concat(this.feedItems)
-      if (items.length > MAX_ITEMS_VISIBLE) {
-        const older = items.splice(MAX_ITEMS_VISIBLE)
-        this.activeFeed.older = older.concat(this.activeFeed.older)
-      }
-      //items.sort(feedOrder)
-
-      this.activeFeed.visible = items
-      this.activeFeed.newer = []
-
-      // Wait a bit before showing unreads again
-      this.recentlyLoaded = true
-      setTimeout(() => this.recentlyLoaded = false, 5000)
-
-      return true
-    },
-    async loadOlder() {
-      const until = this.feedItems[this.feedItems.length - 1]?.[0]?.createdAt || DateUtils.now()
-      const filters = Object.assign({}, Feeds[this.selectedFeed].filters, {until})
-
-      if (this.activeFeed.older.length >= filters.limit) {
-        const chunk = this.activeFeed.older.splice(0, filters.limit)
-        this.activeFeed.visible = this.feedItems.concat(chunk)
-        return chunk
-      }
-
-      // Remove any residual older items
-      this.activeFeed.older = []
-
-      const older = await this.nostr.fetch(filters, {subId: `feed:${this.selectedFeed}-older`})
-      const items = older
-        .filter(note => note.createdAt <= until)
-        .filter(this.filterNote.bind(this))
-        .map(note => [note]) // TODO Single element thread
-        .sort(feedOrder)
-
-      // TODO Deduplicate feed items
-      this.activeFeed.visible = this.feedItems.concat(items)
-
-      return older
-    },
-    filterNote(note) {
-      if (note.isReaction()) return false
-      if (note.isRepostOrTag()) return false
-      if (note.relatedPubkeys().some(Bots.isBot)) return false
-      return true
-    }
   },
-  mounted() {
-    this.initFeed(this.selectedFeed)
+  watch: {
+    contacts() {
+      console.log('following', this.$refs.following)
+      this.$refs.following?.[0]?.reload()
+    },
   },
-  unmounted() {
-    for (const feed of Object.values(this.feeds)) {
-      feed.stream.close()
-    }
-  }
 })
 </script>
 
@@ -223,23 +115,9 @@ export default defineComponent({
 @import "assets/theme/colors.scss";
 @import "assets/variables.scss";
 
-.feed {
-  .load-more-container {
-    border-top: $border-dark;
-    border-bottom: $border-dark;
-    min-height: 6px;
-  }
-  > .async-load-button:last-child {
-    border-bottom: 0;
-  }
-}
-
-.addon-menu {
-  display: flex;
-  flex-direction: row-reverse;
-  &-icon {
-    cursor: pointer;
-  }
+.feed-selector {
+  background-color: rgba($color: $color-dark-gray, $alpha: 0.2);
+  //box-shadow: none;
 }
 
 @media screen and (max-width: $phone) {
@@ -249,50 +127,27 @@ export default defineComponent({
   .post-editor {
     display: none;
   }
-  .feed {
-    .load-more-container {
-      border: 0;
-      min-height: 0;
-      &.more-available {
-        border-bottom: $border-dark;
-      }
-    }
-  }
 }
 </style>
 <style lang="scss">
 @import "assets/theme/colors.scss";
 
-.addon-menu-popup {
-  min-width: 150px;
-  border-radius: 1rem;
-  padding: 10px;
-  background-color: $color-bg;
-  box-shadow: $shadow-white;
-  .popup-header {
-    display: flex;
-    width: 100%;
-    padding: 8px;
-    cursor: pointer;
-    border-radius: .5rem;
-    p {
-      margin: 0;
-      flex-grow: 1;
-      font-size: 1.1em;
-      font-weight: bold;
-      text-transform: capitalize;
-    }
-    &:hover {
-      background-color: rgba($color: $color-dark-gray, $alpha: 0.3);
-    }
-    .more {
-      width: 1.5rem;
-      height: 1.5rem;
-      svg {
-        fill: $color-primary;
-        width: 100%;
-      }
-    }
+.q-tab-panels {
+  background: unset;
+}
+.q-tab-panel {
+  padding: 0;
+}
+.q-panel.scroll {
+  overflow: inherit;
+}
+
+.feed-selector {
+  button:first-child {
+    padding: 4px 10px 4px 12px;
+  }
+  button:last-child {
+    padding: 4px 12px 4px 10px;
   }
 }
 </style>

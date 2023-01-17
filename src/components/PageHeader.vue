@@ -108,6 +108,7 @@ export default defineComponent({
   }
   .addon {
     flex-grow: 1;
+    text-align: right;
   }
 }
 

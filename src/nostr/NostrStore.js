@@ -6,7 +6,7 @@ import FetchQueue from 'src/nostr/FetchQueue'
 import {NoteOrder, useNoteStore} from 'src/nostr/store/NoteStore'
 import {useProfileStore} from 'src/nostr/store/ProfileStore'
 import {useContactStore} from 'src/nostr/store/ContactStore'
-import {useSettingsStore} from 'stores/Settings'
+import {useSettingsStore, RELAYS} from 'stores/Settings'
 import {useStatStore} from 'src/nostr/store/StatStore'
 import {Observable} from 'src/nostr/utils'
 import {CloseAfter} from 'src/nostr/Relay'
@@ -61,7 +61,8 @@ export const useNostrStore = defineStore('nostr', {
   actions: {
     init() {
       const settings = useSettingsStore()
-      this.client = markRaw(new NostrClient(settings.relays))
+      // FIXME Use relays from settings
+      this.client = markRaw(new NostrClient(RELAYS))
       this.client.connect()
 
       this.profileQueue = profileQueue(this.client)
@@ -172,8 +173,8 @@ export const useNostrStore = defineStore('nostr', {
         {
           kinds: [EventKind.NOTE],
           authors: [pubkey],
-        },
-        limit
+          limit,
+        }
       )
     },
 
@@ -191,14 +192,13 @@ export const useNostrStore = defineStore('nostr', {
       return followers
     },
 
-    fetchFollowers(pubkey, opts = {}) {
-      const limit = opts.limit || 500
+    fetchFollowers(pubkey, limit = 500) {
       return this.fetch(
         {
           kinds: [EventKind.CONTACT],
           '#p': [pubkey],
+          limit,
         },
-        limit
       )
     },
 
@@ -231,8 +231,8 @@ export const useNostrStore = defineStore('nostr', {
         {
           kinds: [EventKind.REACTION],
           authors: [pubkey],
-        },
-        limit
+          limit,
+        }
       )
     },
 

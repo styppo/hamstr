@@ -66,7 +66,7 @@ export default defineComponent({
   },
   data() {
     return {
-      cachedPages: ['Feed', 'Notifications', 'Messages', 'Inbox', 'Settings'],
+      cachedPages: ['FeedPage', 'Notifications', 'Messages', 'Inbox', 'Settings'],
       mobileMenuOpen: false,
     }
   },
