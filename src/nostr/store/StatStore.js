@@ -22,6 +22,9 @@ export const useStatStore = defineStore('stat', {
           if (Note.isReaction(event)) {
             const stats = this.getOrInit(event.eventRefs().ancestor())
             stats.reactions++
+          } else if (Note.isRepostOrTag(event)) {
+            const stats = this.getOrInit(event.eventRefs().ancestor())
+            stats.shares++
           } else {
             for (const eventId of event.eventRefs()) {
               const stats = this.getOrInit(eventId)

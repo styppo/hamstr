@@ -33,13 +33,13 @@
       <div class="load-more-container" :class="{'more-available': numUnreads}">
         <AsyncLoadButton
           v-if="numUnreads"
-          :load-fn="loadUnreads"
+          :load-fn="loadNewer"
           :label="`Load ${numUnreads} unreads`"
         />
       </div>
 
       <template v-for="(thread, i) in feedItems">
-        <Thread v-if="defer(i)" :key="thread[0].id" :thread="thread" class="full-width" />
+        <Thread v-if="true || defer(i)" :key="thread[0].id" :thread="thread" class="full-width" />
       </template>
 
       <ListPlaceholder :count="feedItems?.length" :loading="loading" />
@@ -66,6 +66,7 @@ import {useNostrStore} from 'src/nostr/NostrStore'
 import Defer from 'src/utils/Defer'
 import {EventKind} from 'src/nostr/model/Event'
 import DateUtils from 'src/utils/DateUtils'
+import Bots from 'src/utils/bots'
 
 const Feeds = {
   global: {
@@ -78,6 +79,8 @@ const Feeds = {
 }
 
 const feedOrder = (a, b) => b[0].createdAt - a[0].createdAt
+
+const MAX_ITEMS_VISIBLE = 50
 
 export default defineComponent({
   name: 'Feed',
@@ -110,14 +113,11 @@ export default defineComponent({
       return this.feeds[this.selectedFeed]
     },
     feedItems() {
-      return this.activeFeed?.items
-    },
-    feedUnreads() {
-      return this.activeFeed?.unreads
+      return this.activeFeed?.visible
     },
     numUnreads() {
       if (this.recentlyLoaded) return 0
-      return this.activeFeed?.unreads.length
+      return this.activeFeed?.newer.length
     },
   },
   methods: {
@@ -129,22 +129,27 @@ export default defineComponent({
         filters,
         {subId: `feed:${feedId}`}
       )
-      stream.on('init', events => {
-        const items = events.map(event => [event]) // TODO Single element thread
+      stream.on('init', notes => {
+        const items = notes
+          .filter(this.filterNote.bind(this))
+          .map(note => [note]) // TODO Single element thread
         items.sort(feedOrder)
-        this.feeds[feedId].items = items.slice(0, filters.limit)
+        this.feeds[feedId].visible = items.slice(0, filters.limit)
         this.loading = false
 
         // Wait a bit before showing the first unreads
         setTimeout(() => this.recentlyLoaded = false, 5000)
       })
-      stream.on('update', event => {
-        this.feeds[feedId].unreads.push([event]) // TODO Single element thread
+      stream.on('update', note => {
+        if (this.filterNote(note)) {
+          this.feeds[feedId].newer.push([note]) // TODO Single element thread
+        }
       })
 
       this.feeds[feedId] = {
-        items: [],
-        unreads: [],
+        visible: [],
+        newer: [],
+        older: [],
         stream,
       }
     },
@@ -152,12 +157,18 @@ export default defineComponent({
       this.initFeed(feedId)
       this.selectedFeed = feedId
     },
-    loadUnreads() {
+    loadNewer() {
       // TODO Deduplicate feed items
-      const items = this.feedUnreads.concat(this.feedItems)
+      this.activeFeed.newer.sort(feedOrder)
+      const items = this.activeFeed.newer.concat(this.feedItems)
+      if (items.length > MAX_ITEMS_VISIBLE) {
+        const older = items.splice(MAX_ITEMS_VISIBLE)
+        this.activeFeed.older = older.concat(this.activeFeed.older)
+      }
       //items.sort(feedOrder)
-      this.activeFeed.items = items
-      this.activeFeed.unreads = []
+
+      this.activeFeed.visible = items
+      this.activeFeed.newer = []
 
       // Wait a bit before showing unreads again
       this.recentlyLoaded = true
@@ -167,22 +178,35 @@ export default defineComponent({
     },
     async loadOlder() {
       const until = this.feedItems[this.feedItems.length - 1]?.[0]?.createdAt || DateUtils.now()
-      console.log('until', new Date(until * 1000))
       const filters = Object.assign({}, Feeds[this.selectedFeed].filters, {until})
 
+      if (this.activeFeed.older.length >= filters.limit) {
+        const chunk = this.activeFeed.older.splice(0, filters.limit)
+        this.activeFeed.visible = this.feedItems.concat(chunk)
+        return chunk
+      }
+
+      // Remove any residual older items
+      this.activeFeed.older = []
+
       const older = await this.nostr.fetch(filters, {subId: `feed:${this.selectedFeed}-older`})
-      const items = older.map(event => [event]).sort(feedOrder)
+      const items = older
+        .filter(note => note.createdAt <= until)
+        .filter(this.filterNote.bind(this))
+        .map(note => [note]) // TODO Single element thread
+        .sort(feedOrder)
 
-      console.log('got items', older)
-
-      console.log('length before', this.activeFeed.items.length)
       // TODO Deduplicate feed items
-      this.activeFeed.items = this.feedItems.concat(items)
-
-      console.log('length after', this.activeFeed.items.length)
+      this.activeFeed.visible = this.feedItems.concat(items)
 
       return older
     },
+    filterNote(note) {
+      if (note.isReaction()) return false
+      if (note.isRepostOrTag()) return false
+      if (note.relatedPubkeys().some(Bots.isBot)) return false
+      return true
+    }
   },
   mounted() {
     this.initFeed(this.selectedFeed)

@@ -44,7 +44,6 @@ export default defineComponent({
   methods: {
     async load() {
       if (this.loading) return
-      console.log('loading')
 
       this.loading = true
       this.$emit('loading')

@@ -41,21 +41,28 @@ export default class Note {
     return this.eventRefs().ancestor()
   }
 
+  pubkeyTags() {
+    return this.tags.filter(tag => tag.type === TagType.PUBKEY)
+  }
+
+  eventTags() {
+    return this.tags.filter(tag => tag.type === TagType.EVENT)
+  }
+
   pubkeyRefs() {
-    return this.tags
-      .filter(tag => tag.type === TagType.PUBKEY)
-      .map(tag => tag.ref)
+    return this.pubkeyTags().map(tag => tag.ref)
   }
 
   eventRefs() {
-    const refs = this.tags
-      .filter(tag => tag.type === TagType.EVENT)
-      .map(tag => tag.ref)
-    return new EventRefs(refs)
+    return new EventRefs(this.eventTags().map(tag => tag.ref))
+  }
+
+  relatedPubkeys() {
+    return [this.author].concat(this.pubkeyRefs())
   }
 
   contentTagRefs() {
-    const regex = /#\[([0-9]+)]/ig
+    const regex = /#\[([0-9]+)]/g
     let refs = []
     let match
     while ((match = regex.exec(this.content))) {
@@ -64,9 +71,16 @@ export default class Note {
     return refs
   }
 
+  isRepostOrTag() {
+    return Note.isRepostOrTag(this)
+  }
+
+  static isRepostOrTag(event) {
+    return /#\[([0-9]+)]/.test(event.content)
+  }
+
   isReaction() {
-    return this.kind === EventKind.REACTION
-      || (this.hasAncestor() && Note.isReactionContent(this.content))
+    return Note.isReaction(this)
   }
 
   static isReaction(event) {
