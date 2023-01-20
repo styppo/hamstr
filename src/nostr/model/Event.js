@@ -1,5 +1,4 @@
-import {getEventHash} from 'nostr-tools'
-import DateUtils from 'src/utils/DateUtils'
+import {getEventHash, validateEvent, verifySignature} from 'nostr-tools'
 
 export const EventKind = {
   METADATA: 0,
@@ -71,11 +70,6 @@ export default class Event {
     return new Event(obj)
   }
 
-  static fresh(opts) {
-    opts.createdAt = opts.createdAt || DateUtils.now()
-    return new Event(opts)
-  }
-
   static parseTags(tags) {
     const res = []
     for (const tag of tags) {
@@ -86,13 +80,16 @@ export default class Event {
     return res
   }
 
+  get author() {
+    return this.pubkey
+  }
+
   get createdAt() {
     return this.created_at
   }
 
   validate() {
-    // TODO
-    return true
+    return validateEvent(this) && verifySignature(this)
   }
 
   hash() {
