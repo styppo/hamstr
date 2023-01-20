@@ -11,6 +11,7 @@ import {useStatStore} from 'src/nostr/store/StatStore'
 import {Observable} from 'src/nostr/utils'
 import {CloseAfter} from 'src/nostr/Relay'
 import DateUtils from 'src/utils/DateUtils'
+import {useAppStore} from 'stores/App'
 
 class Stream extends Observable {
   constructor(sub) {
@@ -58,6 +59,11 @@ export const useNostrStore = defineStore('nostr', {
     // TODO Limit size. Remove oldest.
     seenBy: {}, // EventId -> {RelayURL -> Timestamp, ...}
   }),
+  getters: {
+    activeUser() {
+      return useAppStore().myPubkey
+    }
+  },
   actions: {
     init() {
       const settings = useSettingsStore()
@@ -74,7 +80,15 @@ export const useNostrStore = defineStore('nostr', {
       this.contactQueue = contactQueue(this.client, 'queue')
       this.contactQueue.on('event', this.addEvent.bind(this))
 
+      this.userSubs = []
+
+      // Fetch profile info for stored accounts.
       this.getProfiles(Object.keys(settings.accounts))
+
+      // Start subscription for signed-in user
+      if (this.activeUser) {
+        this.subscribeForUser(this.activeUser)
+      }
     },
 
     addEvent(event, relay = null) {
@@ -94,31 +108,27 @@ export const useNostrStore = defineStore('nostr', {
       }
 
       switch (event.kind) {
-        case EventKind.METADATA: {
-          const profiles = useProfileStore()
-          return profiles.addEvent(event)
-        }
-        case EventKind.NOTE: {
-          const notes = useNoteStore()
-          return notes.addEvent(event)
-        }
+        case EventKind.METADATA:
+          return useProfileStore().addEvent(event)
+        case EventKind.NOTE:
+          return useNoteStore().addEvent(event)
         case EventKind.RELAY:
+          // TODO
           break
-        case EventKind.CONTACT: {
-          const contacts = useContactStore()
-          return contacts.addEvent(event)
-        }
+        case EventKind.CONTACT:
+          return useContactStore().addEvent(event)
         case EventKind.DM:
+          // TODO
           break
         case EventKind.DELETE:
-          break
+          // TODO metadata, contacts?
+          useNoteStore().deleteEvent(event)
+          return event
         case EventKind.SHARE:
           // TODO
           return event
-        case EventKind.REACTION: {
-          const notes = useNoteStore()
-          return notes.addEvent(event)
-        }
+        case EventKind.REACTION:
+          return useNoteStore().addEvent(event)
         case EventKind.CHATROOM:
           break
       }
@@ -129,8 +139,63 @@ export const useNostrStore = defineStore('nostr', {
     },
 
     publish(event) {
-      this.addEvent(event)
+      // FIXME
+      console.log('publishing', event)
+      this.addEvent(event, {url: '<local>'})
       return this.client.publish(event)
+    },
+
+    subscribeForUser(pubkey) {
+      this.unsubscribeForUser()
+
+      // Fetch our metadata once.
+      this.getProfile(pubkey)
+      this.getContacts(pubkey)
+
+      // Fetch our recent reactions once.
+      this.fetch({
+        kinds: [EventKind.REACTION],
+        authors: [pubkey],
+        limit: 50,
+      })
+
+      const subs = []
+
+      // Subscribe to events created by us.
+      const subMeta = this.client.subscribe({
+        kinds: [EventKind.METADATA, EventKind.CONTACT, EventKind.REACTION, EventKind.SHARE],
+        authors: [pubkey],
+        limit: 0,
+      }, `user:${pubkey}`)
+      subMeta.on('event', this.addEvent.bind(this))
+      subs.push(subMeta)
+
+      // Subscribe to events tagging us
+      const subTags = this.client.subscribe({
+        kinds: [EventKind.NOTE, EventKind.REACTION, EventKind.SHARE],
+        '#p': [pubkey],
+        limit: 100,
+      }, `notifications:${pubkey}`)
+      subTags.on('event', event => {
+        console.log('got notificaiton', event)
+        // this.addEvent.bind(this)
+        this.addEvent(event)
+      })
+      subs.push(subTags)
+
+      this.userSubs = subs
+    },
+
+    unsubscribeForUser() {
+      for (const sub of this.userSubs) {
+        sub.close()
+      }
+      this.userSubs = []
+    },
+
+    getNotifications(pubkey) {
+      const notes = useNoteStore()
+      return notes.notesByTag(pubkey, NoteOrder.CREATION_DATE_DESC)
     },
 
     getProfile(pubkey) {
@@ -162,13 +227,12 @@ export const useNostrStore = defineStore('nostr', {
       return replies
     },
 
-    getNotesByAuthor(pubkey, opts = {}) {
-      const order = opts.order || NoteOrder.CREATION_DATE_DESC
+    getPostsByAuthor(pubkey, order = NoteOrder.CREATION_DATE_DESC) {
       const notes = useNoteStore()
-      return notes.getNotesByAuthor(pubkey, order)
+      return notes.postsByAuthor(pubkey, order)
     },
 
-    fetchNotesByAuthor(pubkey, limit = 100) {
+    fetchPostsByAuthor(pubkey, limit = 100) {
       return this.fetch(
         {
           kinds: [EventKind.NOTE],
@@ -209,6 +273,14 @@ export const useNostrStore = defineStore('nostr', {
       return reactions
     },
 
+    getOurReactionsTo(id, order = NoteOrder.CREATION_DATE_DESC) {
+      if (!this.activeUser) return []
+      const store = useNoteStore()
+      return store
+        .reactionsTo(id, order)
+        .filter(reaction => reaction.author === this.activeUser)
+    },
+
     fetchReactionsTo(id, limit = 500) {
       return this.fetch(
         {
@@ -221,7 +293,7 @@ export const useNostrStore = defineStore('nostr', {
 
     getReactionsByAuthor(pubkey, order = NoteOrder.CREATION_DATE_DESC) {
       const store = useNoteStore()
-      const reactions = store.getReactionsByAuthor(pubkey, order)
+      const reactions = store.reactionsByAuthor(pubkey, order)
       // TODO fetch?
       return reactions
     },
@@ -284,6 +356,7 @@ export const useNostrStore = defineStore('nostr', {
 
       sub.on('end', () => {
         clearTimeout(timer)
+        if (!objects) return
         const values = Object.values(objects)
         console.log(`[COMPLETE] stream ${sub.subId} (${values.length})`, filters)
         stream.emit('init', values)

@@ -1,6 +1,7 @@
 import {defineStore} from 'pinia'
 import {EventKind} from 'src/nostr/model/Event'
 import Note from 'src/nostr/model/Note'
+import {useNoteStore} from 'src/nostr/store/NoteStore'
 
 export const useStatStore = defineStore('stat', {
   state: () => ({
@@ -46,6 +47,34 @@ export const useStatStore = defineStore('stat', {
           const stats = this.getOrInit(refs.ancestor())
           stats.shares++
           break
+        }
+        case EventKind.DELETE:
+          this.deleteEvent(event)
+          break
+      }
+    },
+    deleteEvent(event) {
+      // FIXME Shares are not correctly decremented yet as they are not yet stored in the note store
+      for (const id of event.eventRefs()) {
+        this.deleteNote(id, event.pubkey)
+      }
+    },
+    deleteNote(id, owner) {
+      const notes = useNoteStore()
+      const note = notes.get(id)
+      if (!note) return
+      if (note.author !== owner) return
+
+      if (note.isReaction()) {
+        const stats = this.getOrInit(note.ancestor())
+        stats.reactions--
+      } else if (note.isRepostOrTag()) {
+        const stats = this.getOrInit(note.ancestor())
+        stats.shares--
+      } else {
+        for (const eventId of note.eventRefs()) {
+          const stats = this.getOrInit(eventId)
+          stats.comments--
         }
       }
     },

@@ -17,7 +17,7 @@
     </div>
     <q-menu :offset="[0, 20]" target=".menu-profile" class="menu-profile-popup" >
       <div>
-        <div v-for="(_, pk) in settings.accounts" :key="pk" class="popup-header" @click="settings.switchAccount(pk)" v-close-popup>
+        <div v-for="(_, pk) in settings.accounts" :key="pk" class="popup-header" @click="app.switchAccount(pk)" v-close-popup>
           <div class="sidebar-profile-pic">
             <UserAvatar :pubkey="pk" :clickable="false"/>
           </div>

@@ -32,24 +32,14 @@
           <span>{{ formatDate(note.createdAt) }}</span>
         </p>
         <div class="post-content-actions">
-          <div class="action-item comment">
-            <BaseIcon icon="comment" />
-            <span>{{ stats.comments || '' }}</span>
-          </div>
-          <div class="action-item repost">
-            <BaseIcon icon="repost" />
-            <span>{{ stats.shares || '' }}</span>
-          </div>
-          <div class="action-item like">
-            <BaseIcon icon="like" />
-            <span>{{ stats.reactions || '' }}</span>
-          </div>
+          <PostActions :note="note" flavor="hero" @comment="$refs.editor.focus()" />
         </div>
       </div>
     </div>
     <div v-if="app.isSignedIn" class="post-reply">
       <PostEditor
         :ancestor="note"
+        ref="editor"
         compact
         placeholder="Post your reply"
       />
@@ -58,22 +48,21 @@
 </template>
 
 <script>
-import BaseIcon from 'components/BaseIcon'
 import UserName from 'components/User/UserName.vue'
 import UserAvatar from 'components/User/UserAvatar.vue'
 import PostRenderer from 'components/Post/Renderer/PostRenderer.vue'
 import PostEditor from 'components/CreatePost/PostEditor.vue'
 import {useNostrStore} from 'src/nostr/NostrStore'
 import {useAppStore} from 'stores/App'
-import {useStatStore} from 'src/nostr/store/StatStore'
 import routerMixin from 'src/router/mixin'
 import DateUtils from 'src/utils/DateUtils'
+import PostActions from 'components/Post/PostActions.vue'
 
 export default {
   name: 'HeroPost',
   mixins: [routerMixin],
   components: {
-    BaseIcon,
+    PostActions,
     UserName,
     UserAvatar,
     PostEditor,
@@ -93,7 +82,6 @@ export default {
     return {
       app: useAppStore(),
       nostr: useNostrStore(),
-      stat: useStatStore(),
     }
   },
   computed: {
@@ -101,9 +89,6 @@ export default {
       return this.note.hasAncestor()
         ? this.nostr.getNote(this.note.ancestor())
         : null
-    },
-    stats() {
-      return this.stat.get(this.note.id)
     },
   },
   methods: {
@@ -179,60 +164,6 @@ export default {
       }
     }
     &-actions {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      max-width: 450px;
-      width: 100%;
-      padding: .5rem 0;
-      margin: auto;
-      .action-item {
-        display: flex;
-        align-items: center;
-        cursor: pointer;
-        svg {
-          padding: 8px;
-          border-radius: 999px;
-          display: block;
-          width: 40px;
-          height: 40px;
-          fill: $color-light-gray;
-        }
-        span {
-          color: $color-light-gray;
-          line-height: 40px;
-          font-weight: bold;
-        }
-        &:hover {
-          &.comment {
-            svg {
-              fill: $post-action-blue;
-              background-color: rgba($color: $post-action-blue, $alpha: 0.2);
-            }
-            span {
-              color: $post-action-blue;
-            }
-          }
-          &.repost {
-            svg {
-              fill: $post-action-green;
-              background-color: rgba($color: $post-action-green, $alpha: 0.2);
-            }
-            span {
-              color: $post-action-green;
-            }
-          }
-          &.like {
-            svg {
-              fill: $post-action-red;
-              background-color: rgba($color: $post-action-red, $alpha: 0.2);
-            }
-            span {
-              color: $post-action-red;
-            }
-          }
-        }
-      }
     }
   }
 }

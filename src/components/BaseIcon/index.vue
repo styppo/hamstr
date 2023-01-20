@@ -13,9 +13,20 @@ export default defineComponent({
       default: 'home'
     },
   },
+  data() {
+    return {
+      name: this.icon,
+    }
+  },
   computed: {
     iconComponent() {
-      return defineAsyncComponent(() => import(`./icons/${this.icon}.vue`))
+      this.name
+      return defineAsyncComponent(() => import(`./icons/${this.name}.vue`))
+    }
+  },
+  watch: {
+    icon(icon) {
+      this.name = icon
     }
   }
 })

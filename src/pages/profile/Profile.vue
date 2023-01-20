@@ -124,7 +124,7 @@ export default defineComponent({
       return this.nostr.getProfile(this.pubkey)
     },
     notes() {
-      return this.nostr.getNotesByAuthor(this.pubkey)
+      return this.nostr.getPostsByAuthor(this.pubkey)
     },
     posts() {
       return this.notes?.filter(note => !note.hasAncestor()).slice(0, 50)
@@ -171,7 +171,7 @@ export default defineComponent({
     },
   },
   mounted() {
-    this.nostr.fetchNotesByAuthor(this.pubkey, 50)
+    this.nostr.fetchPostsByAuthor(this.pubkey, 50)
       .then(() => this.loadingNotes = false)
     this.nostr.fetchReactionsByAuthor(this.pubkey, 50)
       .then(() => this.loadingReactions = false)

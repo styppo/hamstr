@@ -31,31 +31,19 @@
         <PostRenderer :note="note" />
       </div>
       <div v-if="showActions" class="post-content-actions">
-        <div class="action-item comment" @click.stop="app.createPost({ancestor: note.id})">
-          <BaseIcon icon="comment" />
-          <span>{{ stats.comments || '' }}</span>
-        </div>
-        <div class="action-item repost" @click.stop>
-          <BaseIcon icon="repost" />
-          <span>{{ stats.shares || '' }}</span>
-        </div>
-        <div class="action-item like" @click.stop>
-          <BaseIcon icon="like" />
-          <span>{{ stats.reactions || '' }}</span>
-        </div>
+        <PostActions :note="note" />
       </div>
     </div>
   </div>
 </template>
 
 <script>
-import BaseIcon from 'components/BaseIcon'
 import UserAvatar from 'components/User/UserAvatar.vue'
 import UserName from 'components/User/UserName.vue'
 import PostRenderer from 'components/Post/Renderer/PostRenderer.vue'
+import PostActions from 'components/Post/PostActions.vue'
 import {useAppStore} from 'stores/App'
 import {useNostrStore} from 'src/nostr/NostrStore'
-import {useStatStore} from 'src/nostr/store/StatStore'
 import routerMixin from 'src/router/mixin'
 import DateUtils from 'src/utils/DateUtils'
 
@@ -63,10 +51,10 @@ export default {
   name: 'ListPost',
   mixins: [routerMixin],
   components: {
+    PostActions,
     UserAvatar,
     UserName,
     PostRenderer,
-    BaseIcon,
   },
   props: {
     note: {
@@ -94,7 +82,6 @@ export default {
     return {
       app: useAppStore(),
       nostr: useNostrStore(),
-      stat: useStatStore(),
     }
   },
   data() {
@@ -109,9 +96,6 @@ export default {
         ? this.nostr.getNote(this.note.ancestor())
         : null
     },
-    stats() {
-      return this.stat.get(this.note.id)
-    },
     showActions() {
       return this.actions && this.note.canReply()
     },
@@ -119,7 +103,7 @@ export default {
       // Mention refreshCounter to make this property react to changes to it
       this.refreshCounter
       return this.formatPostDate(this.note.createdAt)
-    }
+    },
   },
   methods: {
     formatPostDate(timestamp) {
@@ -229,57 +213,6 @@ export default {
       margin-bottom: .5rem;
     }
     &-actions {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      max-width: 450px;
-      width: calc(100% + 9px);
-      margin-left: -9px;
-      .action-item {
-        display: flex;
-        align-items: center;
-        cursor: pointer;
-        svg {
-          padding: 8px;
-          border-radius: 999px;
-          display: block;
-          width: 36px;
-          height: 36px;
-          fill: $color-light-gray;
-        }
-        span {
-          color: $color-light-gray;
-        }
-        &:hover {
-          &.comment {
-            svg {
-              fill: $post-action-blue;
-              background-color: rgba($color: $post-action-blue, $alpha: 0.2);
-            }
-            span {
-              color: $post-action-blue;
-            }
-          }
-          &.repost {
-            svg {
-              fill: $post-action-green;
-              background-color: rgba($color: $post-action-green, $alpha: 0.2);
-            }
-            span {
-              color: $post-action-green;
-            }
-          }
-          &.like {
-            svg {
-              fill: $post-action-red;
-              background-color: rgba($color: $post-action-red, $alpha: 0.2);
-            }
-            span {
-              color: $post-action-red;
-            }
-          }
-        }
-      }
     }
   }
 }

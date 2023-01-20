@@ -1,5 +1,6 @@
 import {defineStore} from 'pinia'
 import {useSettingsStore} from 'stores/Settings'
+import {useNostrStore} from 'src/nostr/NostrStore'
 
 export const useAppStore = defineStore('app', {
   state: () => ({
@@ -36,6 +37,12 @@ export const useAppStore = defineStore('app', {
     signInIfNeeded(fragment = 'welcome') {
       if (this.isSignedIn) return Promise.resolve(true)
       return this.signIn(fragment)
+    },
+    switchAccount(pubkey) {
+      const settings = useSettingsStore()
+      settings.switchAccount(pubkey)
+      const nostr = useNostrStore()
+      nostr.subscribeForUser(pubkey)
     },
     async createPost(options = {}) {
       if (!await this.signInIfNeeded()) return
