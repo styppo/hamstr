@@ -1,20 +1,19 @@
 <template>
   <div class="sign-in">
-    <h3>Log in</h3>
+    <h3>{{ header }}</h3>
     <q-form @submit.stop="signIn">
-      <label for="private-key">Paste your public or private key</label>
+      <label for="private-key">{{ prompt }}</label>
       <input
         ref="input"
         v-model="key"
-        id="private-key"
-        placeholder="npub… / nsec…"
+        :placeholder="placeholder"
         maxlength="63"
         :class="{
           valid: validKey,
           invalid: invalidKey,
         }"
       />
-      <button type="submit" class="btn btn-primary" :disabled="!validKey">Log in</button>
+      <button type="submit" class="btn btn-primary" :disabled="!validKey">{{ buttonLabel }}</button>
     </q-form>
   </div>
 </template>
@@ -27,12 +26,42 @@ import {useSettingsStore} from 'stores/Settings'
 export default {
   name: 'SignInForm',
   emits: ['complete'],
+  props: {
+    privateKeyOnly: {
+      type: Boolean,
+      default: false,
+    }
+  },
   data() {
     return {
       key: null,
     }
   },
   computed: {
+    header() {
+      // TODO i18n
+      return this.privateKeyOnly
+        ? 'Private key needed'
+        : 'Log in'
+    },
+    prompt() {
+      // TODO i18n
+      return this.privateKeyOnly
+        ? 'Paste your private key to continue'
+        : 'Paste your public or private key'
+    },
+    placeholder() {
+      // TODO i18n
+      return this.privateKeyOnly
+        ? 'nsec…'
+        : 'npub… / nsec…'
+    },
+    buttonLabel() {
+      // TODO i18n
+      return this.privateKeyOnly
+        ? 'Continue'
+        : 'Log in'
+    },
     validKey() {
       return this.isValidKey(this.key)
     },
@@ -47,7 +76,7 @@ export default {
       if (!str) return false
       try {
         const {data, prefix} = bech32decode(str.toLowerCase())
-        return data.byteLength === 32 && prefix === 'npub' || prefix === 'nsec'
+        return data.byteLength === 32 && ((prefix === 'npub' && !this.privateKeyOnly) || prefix === 'nsec')
       } catch (e) {
         return false
       }

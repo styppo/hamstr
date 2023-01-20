@@ -1,5 +1,5 @@
 <template>
-  <q-dialog v-model="app.signInDialog.open" @before-show="updateFragment" @hide="onClose">
+  <q-dialog v-model="app.signInDialog.open" @before-show="updateFragment" @hide="onClose" ref="signInDialog">
     <div class="sign-in-dialog">
       <q-btn
         v-if="showClose"
@@ -39,14 +39,7 @@
 
       <SignUpForm v-if="fragment === 'sign-up'" @complete="onComplete" />
       <SignInForm v-if="fragment === 'sign-in'" @complete="onComplete"/>
-
-      <div v-if="fragment === 'complete'" class="complete">
-        <h3>Signed in as</h3>
-        <p>
-          <UserName v-if="pubkey" :pubkey="pubkey" two-line />
-        </p>
-        <button class="btn btn-primary" v-close-popup>Let's go</button>
-      </div>
+      <SignInForm v-if="fragment === 'private-key'" @complete="onComplete" private-key-only />
     </div>
   </q-dialog>
 </template>
@@ -54,7 +47,6 @@
 <script>
 import Logo from 'components/Logo.vue'
 import UserAvatar from 'components/User/UserAvatar.vue'
-import UserName from 'components/User/UserName.vue'
 import SignUpForm from 'components/SignIn/SignUpForm.vue'
 import SignInForm from 'components/SignIn/SignInForm.vue'
 import {useAppStore} from 'stores/App'
@@ -64,7 +56,6 @@ import Nip07 from 'src/utils/Nip07'
 export default {
   name: 'SignInDialog',
   components: {
-    UserName,
     Logo,
     UserAvatar,
     SignInForm,
@@ -91,11 +82,10 @@ export default {
   },
   computed: {
     showClose() {
-      return this.fragment === 'welcome'
-        || (this.fragment !== 'complete' && !this.backAllowed)
+      return this.fragment === 'welcome' || !this.backAllowed
     },
     showBack() {
-      return this.fragment !== 'complete' && !this.showClose
+      return !this.showClose
     },
     nip07available() {
       return Nip07.isAvailable()
@@ -111,7 +101,7 @@ export default {
     },
     onComplete({pubkey}) {
       this.pubkey = pubkey
-      this.fragment = 'complete'
+      this.$refs.signInDialog.hide()
     },
     updateFragment() {
       this.fragment = this.app.signInDialog.fragment || 'welcome'

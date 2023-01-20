@@ -42,8 +42,9 @@ export const useAppStore = defineStore('app', {
       this.createPostDialog.params = options
       this.createPostDialog.open = true
     },
-    signEvent(event) {
-      // TODO Check if signing is possible, prompt for privkey
+    async signEvent(event) {
+      if (!await this.signInIfNeeded()) return
+      if (!this.activeAccount.canSign() && !await this.signIn('private-key')) return
       return this.activeAccount.sign(event)
     }
   },

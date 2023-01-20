@@ -26,7 +26,6 @@ export class Account {
       let {sig} = await Nip07.signEvent(event)
       event.sig = sig
     } else {
-      // TODO
       throw new Error('cannot sign')
     }
     return event
