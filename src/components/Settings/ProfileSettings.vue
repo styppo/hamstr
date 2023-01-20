@@ -25,8 +25,8 @@
 <script>
 import {useNostrStore} from 'src/nostr/NostrStore'
 import {useAppStore} from 'stores/App'
-import Event, {EventKind} from 'src/nostr/model/Event'
 import Nip05 from 'src/utils/Nip05'
+import EventBuilder from 'src/nostr/EventBuilder'
 
 export default {
   name: 'ProfileSettings',
@@ -70,17 +70,14 @@ export default {
       this.verified = this.profile?.nip05.verified
     },
     async updateProfile() {
-      const event = Event.fresh({
-        pubkey: this.pubkey,
-        kind: EventKind.METADATA,
-        content: JSON.stringify({
-          name: this.name || undefined,
-          about: this.about || undefined,
-          picture: this.picture || undefined,
-          nip05: this.nip05 || undefined,
-        })
-      })
-      await this.app.signEvent(event)
+      const metadata = {
+        name: this.name || undefined,
+        about: this.about || undefined,
+        picture: this.picture || undefined,
+        nip05: this.nip05 || undefined,
+      }
+      const event = EventBuilder.metadata(this.pubkey, metadata).build()
+      if (!await this.app.signEvent(event)) return
       this.nostr.publish(event)
     },
   },

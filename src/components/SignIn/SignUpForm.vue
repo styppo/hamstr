@@ -14,7 +14,7 @@ import {useAppStore} from 'stores/App'
 import {useNostrStore} from 'src/nostr/NostrStore'
 import {useSettingsStore} from 'stores/Settings'
 import {generatePrivateKey} from 'nostr-tools'
-import Event, {EventKind} from 'src/nostr/model/Event'
+import EventBuilder from 'src/nostr/EventBuilder'
 
 export default {
   name: 'SignUpForm',
@@ -39,13 +39,7 @@ export default {
       const account = settings.addAccount({privkey})
       settings.switchAccount(account.pubkey)
 
-      const event = Event.fresh({
-        pubkey: account.pubkey,
-        kind: EventKind.METADATA,
-        content: JSON.stringify({
-          name: this.username
-        })
-      })
+      const event = EventBuilder.metadata(account.pubkey, {name: this.username}).build()
       await useAppStore().signEvent(event)
       useNostrStore().publish(event)
 

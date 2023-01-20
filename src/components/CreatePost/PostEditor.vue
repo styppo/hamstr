@@ -52,7 +52,7 @@ import BaseIcon from 'components/BaseIcon/index.vue'
 import EmojiPicker from 'components/CreatePost/EmojiPicker.vue'
 import {useAppStore} from 'stores/App'
 import {useNostrStore} from 'src/nostr/NostrStore'
-import Event, {EventKind} from 'src/nostr/model/Event'
+import EventBuilder from 'src/nostr/EventBuilder'
 
 export default {
   name: 'PostEditor',
@@ -112,35 +112,13 @@ export default {
     reset() {
       this.content = ''
     },
-    buildEvent() {
-      return Event.fresh({
-        pubkey: this.app.myPubkey,
-        kind: EventKind.NOTE,
-        tags: this.buildTags(),
-        content: this.content,
-      })
-    },
-    buildTags() {
-      // TODO Extract tags from content
-      const e = []
-      const p = []
-
-      if (this.ancestor) {
-        if (this.ancestor.hasAncestor()) {
-          e.push(this.ancestor.root())
-        }
-        e.push(this.ancestor.id)
-        p.push(this.ancestor.author)
-      }
-
-      return e.map(e => ['e', e])
-        .concat(p.map(p => ['p', p]))
-    },
     async publishPost() {
       this.publishing = true
       try {
-        const event = this.buildEvent()
-        await this.app.signEvent(event)
+        const event = this.ancestor
+          ? EventBuilder.reply(this.ancestor, this.app.myPubkey, this.content).build()
+          : EventBuilder.post(this.app.myPubkey, this.content).build()
+        if (!await this.app.signEvent(event)) return
         this.nostr.publish(event)
 
         this.reset()
@@ -153,6 +131,7 @@ export default {
           color: 'positive',
         })
       } catch (e) {
+        console.error('Failed to publish post', e)
         this.$q.notify({
           message: `Failed to publish post`,
           color: 'negative'
