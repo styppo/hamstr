@@ -16,6 +16,7 @@
           @click="goToProfile(contact.pubkey)"
         />
       </div>
+      <div class="following-gradient"></div>
     </div>
   </div>
 </template>
@@ -54,9 +55,11 @@ export default {
   background-color: rgba($color: $color-dark-gray, $alpha: 0.1);
   border-radius: 1rem;
   &-wrapper {
+    position: relative;
   }
   &-header {
     padding: 1rem;
+    border-bottom: $border-dark;
     h3 {
       margin: 0;
       font-size: 1.4rem;
@@ -64,12 +67,28 @@ export default {
     }
   }
   &-body {
+    max-height: calc(100vh - 150px);
+    overflow-y: scroll;
+    scrollbar-color: transparent transparent;
+    &::-webkit-scrollbar {
+      width: 0;
+      height: 0;
+    }
+    &::-webkit-scrollbar-thumb { /* Foreground */
+      background: $color-dark-gray;
+    }
+    &::-webkit-scrollbar-track { /* Background */
+      background: transparent;
+    }
     &-item {
       margin: 0;
       padding: 12px 1rem;
       border-top: $border-dark;
       transition: 200ms ease;
       cursor: pointer;
+      &:first-child {
+        border-top: 0;
+      }
       &:last-child {
         border-radius: 0 0 1rem 1rem;
       }
@@ -77,6 +96,15 @@ export default {
         background-color: rgba($color: $color-dark-gray, $alpha: 0.3);
       }
     }
+  }
+  &-gradient {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 1.2rem;
+    border-radius: 0 0 1rem 1rem;
+    background: linear-gradient(180deg, rgba(29, 41, 53, 0), rgba(29, 41, 53, 1));
   }
 }
 </style>
