@@ -82,7 +82,7 @@ export default {
           .filter(note => this.filterNote(note, this.feed.hideBots))
           .map(note => [note]) // TODO Single element thread
         items.sort(feedOrder)
-        this.visible = items.slice(0, filters.limit)
+        this.visible = items.slice(0, MAX_ITEMS_VISIBLE)
         this.loading = false
 
         // Wait a bit before showing the first unreads

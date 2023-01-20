@@ -58,8 +58,8 @@ const Feeds = {
       let authors = contacts?.map(contact => contact.pubkey)
       if (!authors || !authors.length) authors = [ZERO_PUBKEY]
       return {
-        authors,
         kinds: [EventKind.NOTE],
+        authors,
         limit: 50,
       }
     },
@@ -104,7 +104,6 @@ export default defineComponent({
   },
   watch: {
     contacts() {
-      console.log('following', this.$refs.following)
       this.$refs.following?.[0]?.reload()
     },
   },

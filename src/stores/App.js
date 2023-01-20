@@ -14,14 +14,14 @@ export const useAppStore = defineStore('app', {
     },
   }),
   getters: {
-    activeAccount(state) {
+    activeAccount() {
       const settings = useSettingsStore()
       return settings.activeAccount
     },
-    isSignedIn(state) {
+    isSignedIn() {
       return !!this.activeAccount
     },
-    myPubkey(state) {
+    myPubkey() {
       return this.activeAccount?.pubkey
     },
   },

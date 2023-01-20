@@ -5,7 +5,6 @@
 <script>
 import {defineComponent} from 'vue'
 import {useNostrStore} from 'src/nostr/NostrStore'
-// import TestLayout from 'layouts/TestLayout.vue'
 import MainLayout from 'layouts/MainLayout.vue'
 
 export default defineComponent({

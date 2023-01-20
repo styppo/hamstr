@@ -223,7 +223,6 @@ export default defineComponent({
     }
   },
   mounted() {
-    console.log('mounted', this.noteId)
     this.startStream()
     this.buildThread()
 
@@ -232,7 +231,6 @@ export default defineComponent({
     setTimeout(() => this.resizeObserver.disconnect(), 2000)
   },
   unmounted() {
-    console.log('unmounted', this.subId)
     this.closeStream()
     this.resizeObserver.disconnect()
   }
