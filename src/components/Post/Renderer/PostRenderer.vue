@@ -6,7 +6,7 @@
 import BaseMarkdown from 'components/Post/Renderer/BaseMarkdown.vue'
 import {useNostrStore} from 'src/nostr/NostrStore'
 import {TagType} from 'src/nostr/model/Event'
-import {hexToBech32, shortenBech32} from 'src/utils/utils'
+import {bech32ToHex, hexToBech32, shortenBech32} from 'src/utils/utils'
 import routerMixin from 'src/router/mixin'
 
 export default {
@@ -30,14 +30,6 @@ export default {
       content = this.replaceBech32Refs(content)
       content = this.replaceTagRefs(content)
       return content
-    },
-    profiles() {
-      const profiles = {}
-      for (const pubkey of this.note.pubkeyRefs()) {
-        // TODO batch request
-        profiles[hexToBech32(pubkey, 'npub')] = this.nostr.getProfile(pubkey)
-      }
-      return profiles
     },
   },
   methods: {
@@ -77,7 +69,7 @@ export default {
       })
     },
     renderProfileRef(bech32) {
-      const profile = this.profiles[bech32]
+      const profile = this.nostr.getProfile(bech32ToHex(bech32))
       const text = profile
         ? profile.name
         : shortenBech32(bech32)
