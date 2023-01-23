@@ -12,6 +12,7 @@ import {Observable} from 'src/nostr/utils'
 import {CloseAfter} from 'src/nostr/Relay'
 import DateUtils from 'src/utils/DateUtils'
 import {useAppStore} from 'stores/App'
+import {useMessageStore} from 'src/nostr/store/MessageStore'
 
 class Stream extends Observable {
   constructor(sub) {
@@ -118,8 +119,7 @@ export const useNostrStore = defineStore('nostr', {
         case EventKind.CONTACT:
           return useContactStore().addEvent(event)
         case EventKind.DM:
-          // TODO
-          break
+          return useMessageStore().addEvent(event)
         case EventKind.DELETE:
           // TODO metadata, contacts?
           useNoteStore().deleteEvent(event)
@@ -139,8 +139,7 @@ export const useNostrStore = defineStore('nostr', {
     },
 
     publish(event) {
-      // FIXME
-      console.log('publishing', event)
+      // FIXME represent 'local' somehow
       this.addEvent(event, {url: '<local>'})
       return this.client.publish(event)
     },
@@ -163,7 +162,7 @@ export const useNostrStore = defineStore('nostr', {
 
       // Subscribe to events created by us.
       const subMeta = this.client.subscribe({
-        kinds: [EventKind.METADATA, EventKind.CONTACT, EventKind.REACTION, EventKind.SHARE],
+        kinds: [EventKind.METADATA, EventKind.CONTACT, EventKind.REACTION, EventKind.SHARE, EventKind.DM],
         authors: [pubkey],
         limit: 0,
       }, `user:${pubkey}`)
@@ -172,15 +171,11 @@ export const useNostrStore = defineStore('nostr', {
 
       // Subscribe to events tagging us
       const subTags = this.client.subscribe({
-        kinds: [EventKind.NOTE, EventKind.REACTION, EventKind.SHARE],
+        kinds: [EventKind.NOTE, EventKind.REACTION, EventKind.SHARE, EventKind.DM],
         '#p': [pubkey],
-        limit: 100,
+        limit: 500,
       }, `notifications:${pubkey}`)
-      subTags.on('event', event => {
-        console.log('got notificaiton', event)
-        // this.addEvent.bind(this)
-        this.addEvent(event)
-      })
+      subTags.on('event', this.addEvent.bind(this))
       subs.push(subTags)
 
       this.userSubs = subs

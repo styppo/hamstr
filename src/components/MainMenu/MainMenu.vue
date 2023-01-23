@@ -12,6 +12,7 @@
           :icon="route.name.toLowerCase()"
           :to="route.path"
           :enabled="route.enabled !== false"
+          :indicator="route.indicator && route.indicator()"
           @click="$emit('mobile-menu-close')"
         >
           {{ route.name }}

@@ -10,6 +10,7 @@
           :icon="icon"
           :icon-color="iconColor"
         />
+        <q-badge v-if="indicator" floating rounded color="primary" class="indicator" />
       </div>
       <div class="menu-item-content">
         <slot />
@@ -42,6 +43,10 @@ export default {
     enabled: {
       type: Boolean,
       default: true
+    },
+    indicator: {
+      type: Boolean,
+      default: false,
     }
   },
   emits: ['click'],
@@ -69,9 +74,16 @@ a {
   &-logo {
     width: 2rem;
     height: 2rem;
+    position: relative;
     svg {
       transition: 20ms ease-in-out fill;
       fill: #fff;
+    }
+    .indicator {
+      padding: 5px;
+      min-height: 10px;
+      top: -1px;
+      right: -1px;
     }
   }
   &-content {

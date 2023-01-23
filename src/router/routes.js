@@ -30,8 +30,13 @@ const routes = [
   },
   {
     path: '/messages',
-    component: () => import('pages/Messages.vue'),
+    component: () => import('pages/messages/Messages.vue'),
     name: 'messages',
+  },
+  {
+    path: '/messages/:pubkey(npub[a-z0-9A-Z]{59})',
+    component: () => import('pages/messages/Conversation.vue'),
+    name: 'conversation',
   },
   {
     path: '/settings',

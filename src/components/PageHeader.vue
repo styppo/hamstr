@@ -1,5 +1,5 @@
 <template>
-  <div class="page-header">
+  <div class="page-header" :class="{dense}">
     <div
       v-if="backButton"
       class="back-button"
@@ -50,6 +50,10 @@ export default defineComponent({
       type: Boolean,
       default: false,
     },
+    dense: {
+      type: Boolean,
+      default: false,
+    }
   },
   methods: {
     titleFromRoute() {
@@ -80,7 +84,7 @@ export default defineComponent({
   .back-button {
     width: 2.5rem;
     height: 2.5rem;
-    margin-right: 20px;
+    margin-right: 1rem;
     padding: 6px;
     border-radius: 999px;
     cursor: pointer;
@@ -109,6 +113,11 @@ export default defineComponent({
   .addon {
     flex-grow: 1;
     text-align: right;
+  }
+  &.dense {
+    .back-button {
+      margin-right: .5rem;
+    }
   }
 }
 

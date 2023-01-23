@@ -1,4 +1,4 @@
-import {getEventHash, getPublicKey, signEvent} from 'nostr-tools'
+import {getEventHash, getPublicKey, signEvent, nip04} from 'nostr-tools'
 import Nip07 from 'src/utils/Nip07'
 
 export class Account {
@@ -29,5 +29,33 @@ export class Account {
       throw new Error('cannot sign')
     }
     return event
+  }
+
+  canDecrypt() {
+    return this.canSign()
+  }
+
+  decrypt(pubkey, content) {
+    if (this.privkey) {
+      return nip04.decrypt(this.privkey, pubkey, content)
+    } else if (this.useExtension && Nip07.isAvailable()) {
+      return Nip07.decrypt(pubkey, content)
+    } else {
+      throw new Error('cannot decrypt')
+    }
+  }
+
+  canEncrypt() {
+    return this.canSign()
+  }
+
+  encrypt(pubkey, content) {
+    if (this.privkey) {
+      return nip04.encrypt(this.privkey, pubkey, content)
+    } else if (this.useExtension && Nip07.isAvailable()) {
+      return Nip07.encrypt(pubkey, content)
+    } else {
+      throw new Error('cannot encrypt')
+    }
   }
 }

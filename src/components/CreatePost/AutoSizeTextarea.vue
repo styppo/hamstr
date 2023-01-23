@@ -3,8 +3,11 @@
     v-model="text"
     :placeholder="placeholder"
     :disabled="disabled"
+    :rows="rows"
     @input="resize"
     @focus="resize"
+    @keydown.exact.enter="onEnterPressed"
+    @keydown.ctrl.enter="onCtrlEnterPressed"
     ref="textarea"
   ></textarea>
 </template>
@@ -32,9 +35,17 @@ export default {
     disabled: {
       type: Boolean,
       default: false,
+    },
+    rows: {
+      type: Number,
+      default: 2,
+    },
+    submitOnEnter: {
+      type: Boolean,
+      default: false,
     }
   },
-  emits: ['update:modelValue'],
+  emits: ['update:modelValue', 'submit'],
   data() {
     return {
       text: this.modelValue,
@@ -78,6 +89,18 @@ export default {
     },
     focus() {
       this.$refs.textarea.focus()
+    },
+    onEnterPressed(e) {
+      if (this.submitOnEnter) {
+        e.preventDefault()
+        this.$emit('submit')
+      }
+    },
+    onCtrlEnterPressed(e) {
+      if (this.submitOnEnter) {
+        e.preventDefault()
+        this.insertText('\n')
+      }
     },
   },
   mounted() {

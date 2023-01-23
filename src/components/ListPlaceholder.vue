@@ -1,7 +1,7 @@
 <template>
   <div v-if="!count" class="list-placeholder">
     <q-spinner v-if="loading" size="sm" />
-    <p v-else>Nothing here</p>
+    <p v-else>{{ label }}</p>
   </div>
 </template>
 
@@ -16,6 +16,10 @@ export default {
     loading: {
       type: Boolean,
       default: false,
+    },
+    label: {
+      type: String,
+      default: 'Nothing here',
     }
   }
 }

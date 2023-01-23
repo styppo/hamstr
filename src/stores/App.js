@@ -53,6 +53,16 @@ export const useAppStore = defineStore('app', {
       if (!await this.signInIfNeeded()) return
       if (!this.activeAccount.canSign() && !await this.signIn('private-key')) return
       return this.activeAccount.sign(event)
-    }
+    },
+    async decryptMessage(pubkey, content) {
+      if (!await this.signInIfNeeded()) return
+      if (!this.activeAccount.canDecrypt() && !await this.signIn('private-key')) return
+      return this.activeAccount.decrypt(pubkey, content)
+    },
+    async encryptMessage(pubkey, content) {
+      if (!await this.signInIfNeeded()) return
+      if (!this.activeAccount.canEncrypt() && !await this.signIn('private-key')) return
+      return this.activeAccount.encrypt(pubkey, content)
+    },
   },
 })

@@ -1,3 +1,6 @@
+import {useMessageStore} from 'src/nostr/store/MessageStore'
+import {useAppStore} from 'stores/App'
+
 export const MENU_ITEMS = [
   {
     name: 'Home',
@@ -16,6 +19,7 @@ export const MENU_ITEMS = [
     name: 'Messages',
     path: '/messages',
     signInRequired: true,
+    indicator: () => useMessageStore().getNumUnread(useAppStore().myPubkey) > 0
   },
   // {
   //   name: 'Settings',

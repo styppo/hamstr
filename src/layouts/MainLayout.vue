@@ -22,7 +22,6 @@
           <SearchBox />
           <WelcomeBox />
           <FollowingBox />
-<!--          <Trends />-->
         </div>
       </div>
 
@@ -46,7 +45,6 @@ import {useQuasar} from 'quasar'
 import MainMenu from 'components/MainMenu/MainMenu.vue'
 import SearchBox from 'components/SearchBox/SearchBox.vue'
 import WelcomeBox from 'components/Sidebar/WelcomeBox.vue'
-// import Trends from 'components/Trends/index.vue'
 import BaseIcon from 'components/BaseIcon/index.vue'
 import SignInDialog from 'components/SignIn/SignInDialog.vue'
 import CreatePostDialog from 'components/CreatePost/CreatePostDialog.vue'
@@ -59,7 +57,6 @@ export default defineComponent({
     MainMenu,
     SearchBox,
     WelcomeBox,
-    // Trends,
     BaseIcon,
     SignInDialog,
     CreatePostDialog,
@@ -142,6 +139,7 @@ export default defineComponent({
   }
   .layout-flow {
     min-width: unset;
+    max-width: calc(100% - 80px)
   }
 }
 
@@ -164,6 +162,7 @@ export default defineComponent({
     }
     &-flow {
       border: 0;
+      max-width: 100%;
     }
     &-sidebar {
       display: none;

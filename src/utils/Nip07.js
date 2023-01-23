@@ -16,4 +16,14 @@ export default class Nip07 {
     Nip07.enforceAvailable()
     return window.nostr.signEvent(event)
   }
+
+  static encrypt(pubkey, plaintext) {
+    Nip07.enforceAvailable()
+    return window.nostr.nip04.encrypt(pubkey, plaintext)
+  }
+
+  static decrypt(pubkey, ciphertext) {
+    Nip07.enforceAvailable()
+    return window.nostr.nip04.decrypt(pubkey, ciphertext)
+  }
 }

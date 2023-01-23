@@ -84,6 +84,16 @@ export default class EventBuilder {
     })
   }
 
+  static message(author, recipient, ciphertext) {
+    const tags = [[TagType.PUBKEY, recipient]]
+    return new EventBuilder({
+      kind: EventKind.DM,
+      pubkey: author,
+      content: ciphertext,
+      tags,
+    })
+  }
+
   createdAt(timestamp) {
     this.event.created_at = timestamp
     return this
