@@ -18,6 +18,16 @@
             <strong>{{ followers?.length ? `${followers?.length}+` : 0 }}</strong> Followers
           </a>
         </p>
+        <p class="actions">
+          <a @click="goToConversation">
+            <BaseIcon icon="messages" />
+            <q-tooltip>Send private message</q-tooltip>
+          </a>
+          <a>
+            <q-icon name="bolt" size="sm" />
+            <q-tooltip>Tip with Bitcoin Lightning</q-tooltip>
+          </a>
+        </p>
       </div>
     </div>
 
@@ -47,7 +57,7 @@
             actions
           />
         </template>
-        <ListPlaceholder :count="posts?.length" :loading="loadingNotes" />
+        <AsyncLoadLink :load-fn="loadMorePosts" :has-items="!!posts?.length" />
       </q-tab-panel>
       <q-tab-panel name="replies" class="no-padding">
         <template v-for="(thread, i) in replies">
@@ -57,7 +67,7 @@
             :thread="thread"
           />
         </template>
-        <ListPlaceholder :count="replies?.length" :loading="loadingNotes" />
+        <AsyncLoadLink :load-fn="loadMorePosts" :has-items="!!replies?.length" />
       </q-tab-panel>
       <q-tab-panel name="reactions" class="no-padding">
         <template v-for="(thread, i) in reactions">
@@ -67,7 +77,7 @@
             :thread="thread"
           />
         </template>
-        <ListPlaceholder :count="reactions?.length" :loading="loadingReactions" />
+        <AsyncLoadLink :load-fn="loadMoreReactions" :has-items="!!reactions?.length" />
       </q-tab-panel>
       <q-tab-panel name="relays" class="no-padding">
         <ListPlaceholder :count="0" />
@@ -85,21 +95,27 @@ import ListPost from 'components/Post/ListPost.vue'
 import Thread from 'components/Post/Thread.vue'
 import ListPlaceholder from 'components/ListPlaceholder.vue'
 import FollowButton from 'components/User/FollowButton.vue'
+import BaseIcon from 'components/BaseIcon/index.vue'
+import AsyncLoadLink from 'components/AsyncLoadLink.vue'
 import {useAppStore} from 'stores/App'
 import {useNostrStore} from 'src/nostr/NostrStore'
 import {bech32ToHex, hexToBech32} from 'src/utils/utils'
 import Defer from 'src/utils/Defer'
+import {EventKind} from 'src/nostr/model/Event'
+import DateUtils from 'src/utils/DateUtils'
 
 export default defineComponent({
   name: 'Profile',
   components: {
-    FollowButton,
-    ListPlaceholder,
-    Thread,
     PageHeader,
     UserAvatar,
     UserName,
+    BaseIcon,
+    FollowButton,
+    Thread,
+    ListPlaceholder,
     ListPost,
+    AsyncLoadLink,
   },
   mixins: [Defer()],
   setup() {
@@ -127,7 +143,7 @@ export default defineComponent({
       return this.nostr.getPostsByAuthor(this.pubkey)
     },
     posts() {
-      return this.notes?.filter(note => !note.hasAncestor()).slice(0, 50)
+      return this.notes?.filter(note => !note.hasAncestor())
     },
     replies() {
       return this.notes?.filter(note => note.hasAncestor())
@@ -151,6 +167,24 @@ export default defineComponent({
     },
   },
   methods: {
+    loadMorePosts() {
+      const oldest = this.notes?.[this.notes.length - 1]?.createdAt || DateUtils.now()
+      return this.nostr.fetch({
+        kinds: [EventKind.NOTE],
+        authors: [this.pubkey],
+        until: oldest,
+        limit: 100,
+      })
+    },
+    loadMoreReactions() {
+      const oldest = this.reactions?.[this.reactions.length - 1]?.createdAt || DateUtils.now()
+      return this.nostr.fetch({
+        kinds: [EventKind.REACTION],
+        authors: [this.pubkey],
+        until: oldest,
+        limit: 100,
+      })
+    },
     goToFollowers(tab = 'following') {
       this.$router.push({
         name: 'followers',
@@ -159,7 +193,15 @@ export default defineComponent({
           tab,
         }
       })
-    }
+    },
+    goToConversation() {
+      this.$router.push({
+        name: 'conversation',
+        params: {
+          pubkey: hexToBech32(this.pubkey, 'npub'),
+        }
+      })
+    },
   },
   watch: {
     activeTab() {
@@ -207,6 +249,9 @@ export default defineComponent({
           flex-grow: 1;
         }
       }
+      p:last-child {
+        margin-bottom: 0;
+      }
       .followers {
         a {
           cursor: pointer;
@@ -220,6 +265,27 @@ export default defineComponent({
         }
         a + a {
           margin-left: 1rem;
+        }
+      }
+      .actions {
+        display: flex;
+        a {
+          svg, i {
+            width: 24px;
+            height: 24px;
+            color: $color-light-gray;
+            fill: $color-light-gray;
+            //fill: $color-fg;
+            transition: 120ms ease;
+          }
+          &:hover svg, &:hover i {
+            fill: $color-fg;
+            color: $color-fg;
+            //fill: $color-primary;
+          }
+        }
+        a + a {
+          margin-left: .5rem;
         }
       }
     }
