@@ -23,7 +23,7 @@
             <BaseIcon icon="messages" />
             <q-tooltip>Send private message</q-tooltip>
           </a>
-          <a>
+          <a :href="lightningLink" :class="{disabled: !lightningLink}">
             <q-icon name="bolt" size="sm" />
             <q-tooltip>Tip with Bitcoin Lightning</q-tooltip>
           </a>
@@ -165,6 +165,12 @@ export default defineComponent({
     followers() {
       return this.nostr.getFollowers(this.pubkey)
     },
+    lightningLink() {
+      // TODO encode lud16 as lud06?
+      // TODO more protocols
+      const ln = this.profile?.lud06 || this.profile?.lud16
+      return ln ? `lightning:${ln}` : null
+    },
   },
   methods: {
     loadMorePosts() {
@@ -270,18 +276,25 @@ export default defineComponent({
       .actions {
         display: flex;
         a {
+          text-decoration: none;
           svg, i {
             width: 24px;
             height: 24px;
             color: $color-light-gray;
             fill: $color-light-gray;
-            //fill: $color-fg;
             transition: 120ms ease;
           }
-          &:hover svg, &:hover i {
-            fill: $color-fg;
-            color: $color-fg;
-            //fill: $color-primary;
+          &.disabled {
+            svg, i {
+              color: $color-dark-gray !important;
+              fill: $color-dark-gray !important;
+            }
+          }
+          &:hover {
+            svg, i {
+              fill: $color-fg;
+              color: $color-fg;
+            }
           }
         }
         a + a {

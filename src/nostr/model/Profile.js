@@ -13,6 +13,8 @@ export default class Profile {
       url: metadata.nip05,
       verified: null,
     }
+    this.lud06 = metadata.lud06
+    this.lud16 = metadata.lud16
   }
 
   static from(event) {
