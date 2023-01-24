@@ -13,10 +13,7 @@ export const useMessageStore = defineStore('message', {
     getConversations(state) {
       return pubkey => {
         const conversations = []
-        const counterparties = new Set()
-        Object.keys(state.byRecipient[pubkey] || {}).forEach(pubkey => counterparties.add(pubkey))
-        Object.keys(state.bySender[pubkey] || {}).forEach(pubkey => counterparties.add(pubkey))
-        for (const counterparty of counterparties) {
+        for (const counterparty of this.getCounterparties(pubkey)) {
           const messages = this.getMessages(pubkey, counterparty)
           const latestMessage = messages.reduce((a, b) => a.createdAt > b.createdAt ? a : b, {createdAt: 0})
           const lastRead = useMessageStatusStore().getLastRead(pubkey, counterparty)
@@ -44,6 +41,14 @@ export const useMessageStore = defineStore('message', {
           : []
         )
     },
+    getCounterparties(state) {
+      return pubkey => {
+        const counterparties = new Set()
+        Object.keys(state.byRecipient[pubkey] || {}).forEach(pubkey => counterparties.add(pubkey))
+        Object.keys(state.bySender[pubkey] || {}).forEach(pubkey => counterparties.add(pubkey))
+        return Array.from(counterparties)
+      }
+    },
     getNumUnread() {
       // TODO improve performance
       return pubkey => this.getConversations(pubkey).reduce((sum, conv) => sum + conv.numUnread, 0)
@@ -54,7 +59,7 @@ export const useMessageStore = defineStore('message', {
       const message = Message.from(event)
       if (!message) return false
 
-      if (this.messages[message.id]) return
+      if (this.messages[message.id]) return this.messages[message.id]
       this.messages[message.id] = message
 
       if (!this.bySender[message.author]) {
@@ -82,6 +87,12 @@ export const useMessageStore = defineStore('message', {
     },
     markAsRead(pubkey, counterparty) {
       return useMessageStatusStore().markAsRead(pubkey, counterparty)
+    },
+    markAllAsRead(pubkey) {
+      const store = useMessageStatusStore()
+      for (const counterparty of this.getCounterparties(pubkey)) {
+        store.markAsRead(pubkey, counterparty)
+      }
     },
   }
 })

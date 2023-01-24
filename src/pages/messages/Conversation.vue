@@ -9,12 +9,18 @@
       v-for="message in conversation"
       :key="message.id"
       :sent="message.author === app.myPubkey"
+      :bg-color="message.author === app.myPubkey ? 'grey-2' : 'pink-2'"
       :stamp="formatMessageDate(message.createdAt)"
     >
       <EncryptedMessage :message="message" />
     </q-chat-message>
     <p v-if="!conversation?.length" class="placeholder">
-      This is the beginning of your message history with <UserName :pubkey="counterparty" clickable />.
+      <template v-if="counterparty !== app.myPubkey">
+        This is the beginning of your message history with <UserName :pubkey="counterparty" clickable />.
+      </template>
+      <template v-else>
+        Keep private notes by sending messages to yourself.
+      </template>
     </p>
   </div>
 

@@ -1,5 +1,14 @@
 <template>
-  <PageHeader back-button />
+  <PageHeader back-button>
+    <template #addon>
+      <q-btn icon="more_vert" size="md" round>
+        <q-menu anchor="bottom right" self="top right" :offset="[0, 6]" class="options-popup">
+          <a @click="markAllAsRead" v-close-popup>Mark all as read</a>
+        </q-menu>
+      </q-btn>
+    </template>
+  </PageHeader>
+
   <div class="messages">
     <ConversationItem v-for="conversation in conversations" :key="conversation.pubkey" :conversation="conversation" />
     <p v-if="!conversations?.length">To send a message, click on the <BaseIcon icon="messages" /> icon in the recipient's profile.</p>
@@ -34,6 +43,11 @@ export default {
       return this.messages.getConversations(this.app.myPubkey)
     },
   },
+  methods: {
+    markAllAsRead() {
+      this.messages.markAllAsRead(this.app.myPubkey)
+    },
+  }
 }
 </script>
 
@@ -53,6 +67,23 @@ p {
     height: 20px;
     fill: $color-fg;
     vertical-align: bottom;
+  }
+}
+</style>
+<style lang="scss">
+@import "assets/theme/colors.scss";
+
+.options-popup {
+  background-color: $color-bg;
+  box-shadow: $shadow-white;
+  border-radius: .5rem;
+  a {
+    display: block;
+    padding: .5rem 1rem;
+    transition: 120ms ease;
+    &:hover {
+      background-color: rgba($color: $color-dark-gray, $alpha: 0.1);
+    }
   }
 }
 </style>
