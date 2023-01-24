@@ -15,14 +15,14 @@
       <HeroPost
         v-if="note?.id"
         :note="note"
-        :connector="ancestors.length > 0"
+        :connector="ancestors?.length > 0"
       />
       <div v-else style="padding-left: 1.5rem">
         <q-spinner size="sm" style="margin-right: .5rem"/> Loading...
       </div>
     </q-item>
 
-    <div v-if="children.length">
+    <div v-if="children?.length">
       <div v-for="thread in children" :key="thread[0].id">
         <Thread :thread="thread" />
       </div>
@@ -55,8 +55,6 @@ export default defineComponent({
   },
   data() {
     return {
-      predecessors: [],
-      children: [],
       subId: null,
       resizeObserver: null,
     }
@@ -87,46 +85,33 @@ export default defineComponent({
       return this.root?.id === this.rootId
     },
     ancestors() {
-      if (!this.rootLoaded) return []
-      const root = this.rootId !== this.noteId
-        ? [this.root]
-        : []
-      return root.concat(this.predecessors)
-    }
+      if (!this.noteLoaded) return
+      const ancestors = this.allAncestors(this.note)
+      // Sanity check
+      if (ancestors.length > 0 && ancestors[0].id !== this.rootId) {
+        console.error(`Invalid thread structure: expected root ${this.rootId} but found ${ancestors[0].id}`)
+        // return
+      }
+      return this.collectPredecessors(ancestors, this.note)
+    },
+    children() {
+      if (!this.noteLoaded) return
+      const ancestor = this.note.hasAncestor()
+        ? this.nostr.getNote(this.note.ancestor())
+        : null
+      return this.collectChildren(this.note, ancestor)
+    },
   },
   methods: {
     startStream() {
       if (!this.rootId) return
       this.stream = this.nostr.streamThread(this.rootId)
-      this.stream.on('init', this.buildThread.bind(this))
     },
 
     closeStream() {
       if (!this.stream) return
       this.stream.close()
       this.stream = null
-    },
-
-    buildThread() {
-      if (!this.noteLoaded) return
-      const ancestors = this.allAncestors(this.note)
-      const ancestor = ancestors.length
-        ? ancestors[ancestors.length - 1]
-        : null
-
-      // Sanity check
-      if (ancestors.length > 0 && ancestors[0].id !== this.rootId) {
-        console.error(`Invalid thread structure: expected root ${this.rootId} but found ${ancestors[0].id}`)
-        return
-      }
-
-      this.predecessors = this
-        .collectPredecessors(ancestors, this.note)
-        .slice(1)
-
-      this.scrollToMain()
-
-      this.children = this.collectChildren(this.note, ancestor)
     },
 
     collectPredecessors(ancestors, target) {
@@ -224,7 +209,6 @@ export default defineComponent({
   },
   mounted() {
     this.startStream()
-    this.buildThread()
 
     this.resizeObserver = new ResizeObserver(this.scrollToMain.bind(this))
     this.resizeObserver.observe(this.$refs.ancestors)
