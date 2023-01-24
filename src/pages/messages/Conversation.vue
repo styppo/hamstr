@@ -11,7 +11,7 @@
       :sent="message.author === app.myPubkey"
       :stamp="formatMessageDate(message.createdAt)"
     >
-      <EncryptedMessage :message="message" :sent="message.author === app.myPubkey" />
+      <EncryptedMessage :message="message" />
     </q-chat-message>
     <p v-if="!conversation?.length" class="placeholder">
       This is the beginning of your message history with <UserName :pubkey="counterparty" clickable />.

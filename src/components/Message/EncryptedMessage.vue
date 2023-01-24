@@ -17,10 +17,6 @@ export default {
       type: Object,
       required: true,
     },
-    sent: {
-      type: Boolean,
-      default: false,
-    },
   },
   setup() {
     return {
@@ -44,7 +40,9 @@ export default {
   methods: {
     async decrypt() {
       try {
-        const counterparty = this.sent ? this.message.recipient : this.message.author
+        const counterparty = this.message.author === this.app.myPubkey
+          ? this.message.recipient
+          : this.message.author
         this.plaintext = await this.app.decryptMessage(counterparty, this.message.content)
         this.message.cachePlaintext(this.plaintext)
       } catch (e) {

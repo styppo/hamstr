@@ -158,6 +158,13 @@ export const useNostrStore = defineStore('nostr', {
         limit: 50,
       })
 
+      // Fetch our messages once.
+      this.fetch({
+        kinds: [EventKind.DM],
+        authors: [pubkey],
+        limit: 500,
+      })
+
       const subs = []
 
       // Subscribe to events created by us.
