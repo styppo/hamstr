@@ -6,13 +6,13 @@ import FetchQueue from 'src/nostr/FetchQueue'
 import {NoteOrder, useNoteStore} from 'src/nostr/store/NoteStore'
 import {useProfileStore} from 'src/nostr/store/ProfileStore'
 import {useContactStore} from 'src/nostr/store/ContactStore'
-import {useSettingsStore, RELAYS} from 'stores/Settings'
+import {useSettingsStore} from 'stores/Settings'
 import {useStatStore} from 'src/nostr/store/StatStore'
+import {useAppStore} from 'stores/App'
+import {useMessageStore} from 'src/nostr/store/MessageStore'
 import {Observable} from 'src/nostr/utils'
 import {CloseAfter} from 'src/nostr/Relay'
 import DateUtils from 'src/utils/DateUtils'
-import {useAppStore} from 'stores/App'
-import {useMessageStore} from 'src/nostr/store/MessageStore'
 
 class Stream extends Observable {
   constructor(sub) {
@@ -68,8 +68,7 @@ export const useNostrStore = defineStore('nostr', {
   actions: {
     init() {
       const settings = useSettingsStore()
-      // FIXME Use relays from settings
-      this.client = markRaw(new NostrClient(RELAYS))
+      this.client = markRaw(new NostrClient(settings.relays))
       this.client.connect()
 
       this.profileQueue = profileQueue(this.client)

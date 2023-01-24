@@ -5,6 +5,7 @@
 <script>
 import {defineComponent} from 'vue'
 import {useNostrStore} from 'src/nostr/NostrStore'
+import {useSettingsStore} from 'stores/Settings'
 import MainLayout from 'layouts/MainLayout.vue'
 
 export default defineComponent({
@@ -13,6 +14,7 @@ export default defineComponent({
     MainLayout
   },
   setup() {
+    useSettingsStore().init()
     useNostrStore().init()
   }
 })

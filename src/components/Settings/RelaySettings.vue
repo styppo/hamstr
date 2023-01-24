@@ -10,6 +10,15 @@
       <q-input v-model="newRelayUrl" label="Add a relay" dense />
       <q-btn type="submit" icon="add_circle_outline" size="sm" flat round class="btn-icon" />
     </q-form>
+    <div class="buttons">
+      <button
+        class="btn btn-sm"
+        :disabled="!changed"
+        @click="settings.restoreDefaultRelays()"
+      >
+        Restore defaults
+      </button>
+    </div>
   </div>
 </template>
 
@@ -29,6 +38,11 @@ export default {
   data() {
     return {
       newRelayUrl: '',
+    }
+  },
+  computed: {
+    changed() {
+      return !this.settings.hasDefaultRelays()
     }
   },
   methods: {
@@ -113,6 +127,17 @@ export default {
   }
   .btn-icon {
     color: $color-primary;
+  }
+  .buttons {
+    display: flex;
+    padding: 1rem 0;
+    button {
+      letter-spacing: 1px;
+      font-weight: 600;
+    }
+    button + button {
+      margin-left: .5rem;
+    }
   }
 }
 </style>

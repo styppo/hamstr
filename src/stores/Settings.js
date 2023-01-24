@@ -1,7 +1,7 @@
 import {defineStore} from 'pinia'
 import {Account} from 'src/nostr/Account'
 
-export const RELAYS = [
+const RELAYS = [
   'wss://nostr-pub.wellorder.net',
   // 'wss://nostr-relay.wlvs.space',
   // 'wss://nostr.bitcoiner.social',
@@ -10,15 +10,14 @@ export const RELAYS = [
   // 'wss://nostr-pub.semisol.dev',
   'wss://relay.snort.social',
 ]
+const RELAYS_VERSION = 1
 
 export const useSettingsStore = defineStore('settings', {
   state: () => ({
     accounts: {},
     pubkey: null,
-    relays: RELAYS,
-    // TODO move somewhere else?
-    notificationsLastRead: 0,
-    messagesLastRead: 0,
+    relays: [].concat(RELAYS),
+    relaysVersion: 0,
   }),
   getters: {
     activeAccount(state) {
@@ -29,8 +28,17 @@ export const useSettingsStore = defineStore('settings', {
     hasAccount(state) {
       return pubkey => !!state.accounts[pubkey]
     },
+    hasRelay(state) {
+      return url => state.relays.indexOf(url) >= 0
+    },
   },
   actions: {
+    init() {
+      if (this.relaysVersion < RELAYS_VERSION) {
+        this.relays = [].concat(RELAYS)
+        this.relaysVersion = RELAYS_VERSION
+      }
+    },
     addAccount(opts) {
       const account = new Account(opts)
       this.accounts[account.pubkey] = account
@@ -63,8 +71,12 @@ export const useSettingsStore = defineStore('settings', {
       if (idx < 0) return
       this.relays.splice(idx, 1)
     },
-    hasRelay(url) {
-      return this.relays.indexOf(url) >= 0
+    restoreDefaultRelays() {
+      this.relays = [].concat(RELAYS)
+    },
+    hasDefaultRelays() {
+      return this.relays.length === RELAYS.length
+        && this.relays.every((url, idx) => url === RELAYS[idx])
     },
   },
   persist: true,
