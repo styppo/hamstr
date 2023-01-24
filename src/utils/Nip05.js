@@ -16,6 +16,17 @@ export default class Nip05 {
     }
   }
 
+  static async fetchNames(domain) {
+    const url = `https://${domain}/.well-known/nostr.json`
+    try {
+      const res = await fetch(url)
+      const json = await res.json()
+      return json?.names
+    } catch (e) {
+      //console.warn(`Failed to fetch NIP05 data for ${nip05Id}`, e)
+    }
+  }
+
   static async verify(pubkey, nip05Id) {
     const pk = await Nip05.fetchPubkey(nip05Id)
     return pk && pk === pubkey

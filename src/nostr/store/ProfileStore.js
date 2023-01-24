@@ -8,7 +8,17 @@ export const useProfileStore = defineStore('profile', {
   getters: {
     get(state) {
       return pubkey => state.profiles[pubkey]
-    }
+    },
+    findByName(state) {
+      return query => Object.values(state.profiles)
+        .filter(profile => profile.name?.toLowerCase().startsWith(query?.toLowerCase()))
+        .map(profile => profile.pubkey)
+    },
+    findByNip05(state) {
+      return query => Object.values(state.profiles)
+        .filter(profile => profile.nip05.url?.toLowerCase().endsWith(query?.toLowerCase()))
+        .map(profile => profile.pubkey)
+    },
   },
   actions: {
     addEvent(event) {

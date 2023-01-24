@@ -1,52 +1,68 @@
 <template>
-  <div class="searchbox" :class="{focused}">
-    <div class="searchbox-wrapper">
-      <div class="searchbox-icon">
-        <BaseIcon icon="search" />
-      </div>
-      <div class="searchbox-input">
-        <form @submit="search">
-          <input
-            type="text"
-            placeholder="Search"
-            v-model="query"
-            @focus="toggleFocus"
-            @blur="toggleFocus"
-          >
-        </form>
+  <div class="relative-position">
+    <div class="searchbox" :class="{focused}">
+      <div class="searchbox-wrapper">
+        <div class="searchbox-icon">
+          <BaseIcon icon="search" />
+        </div>
+        <div class="searchbox-input">
+          <q-form @submit.stop="search">
+            <input
+              type="text"
+              placeholder="Search profiles"
+              v-model="query"
+              @focus="toggleFocus"
+              @blur="toggleFocus"
+              @keyup="search"
+            >
+          </q-form>
+        </div>
       </div>
     </div>
+    <Transition name="fade">
+      <div v-if="focused" class="searchbox-results">
+        <div v-if="!results.length" class="query-example">
+          <b>npub…</b> or <b>[user]@domain</b> or <b>name</b>
+        </div>
+        <UserCard v-for="pubkey in results" :key="pubkey" :pubkey="pubkey" class="searchbox-results-item" clickable />
+      </div>
+    </Transition>
   </div>
 </template>
 
 <script>
 import BaseIcon from 'components/BaseIcon'
-import {Notify} from 'quasar'
+import SearchProvider from 'src/nostr/SearchProvider'
+import UserCard from 'components/User/UserCard.vue'
 
 export default {
   name: 'SearchBox',
   components: {
+    UserCard,
     BaseIcon,
+  },
+  setup() {
+    return {
+      provider: new SearchProvider(),
+    }
   },
   data() {
     return {
       focused: false,
       query: '',
+      results: [],
     }
-  },
-  computed: {
   },
   methods: {
     toggleFocus() {
       this.focused = !this.focused
     },
-    async search(e) {
-      e.preventDefault()
-
-      Notify.create({
-        message: 'Coming soon',
-        color: 'info',
-      })
+    async search() {
+      if (this.query) {
+        this.results = (await this.provider.queryProfiles(this.query)).slice(0, 200)
+      } else {
+        this.results = []
+      }
     },
   },
 }
@@ -90,6 +106,43 @@ export default {
         border: none;
         outline: none;
       }
+    }
+  }
+  &-results {
+    position: absolute;
+    width: calc(100% + 1rem);
+    min-height: 48px;
+    max-height: 70vh;
+    overflow: hidden;
+    background-color: $color-bg;
+    border-radius: .5rem;
+    z-index: 600;
+    margin-top: -.75rem;
+    box-shadow: $shadow-white;
+    overflow-y: scroll;
+    scrollbar-color: transparent transparent;
+    &::-webkit-scrollbar {
+      width: 0;
+      height: 0;
+    }
+    &::-webkit-scrollbar-thumb { /* Foreground */
+      background: $color-dark-gray;
+    }
+    &::-webkit-scrollbar-track { /* Background */
+      background: transparent;
+    }
+    &-item {
+      transition: 120ms ease;
+      margin: 0 !important;
+      padding: 1rem;
+      &:hover {
+        background-color: rgba($color: $color-dark-gray, $alpha: 0.1);
+      }
+    }
+    .query-example {
+      color: $color-light-gray;
+      font-size: .95rem;
+      padding: 1rem;
     }
   }
   &.focused {
