@@ -37,8 +37,16 @@ import Feed from 'components/Feed/Feed.vue'
 import {useAppStore} from 'stores/App'
 import {useNostrStore} from 'src/nostr/NostrStore'
 import {EventKind} from 'src/nostr/model/Event'
+import {NoteOrder, useNoteStore} from 'src/nostr/store/NoteStore'
 
 const ZERO_PUBKEY = '0000000000000000000000000000000000000000000000000000000000000000'
+
+const myContacts = () => {
+  const app = useAppStore()
+  const nostr = useNostrStore()
+  const contacts = nostr.getContacts(app.myPubkey)
+  return contacts?.map(contact => contact.pubkey)
+}
 
 const Feeds = {
   global: {
@@ -52,16 +60,23 @@ const Feeds = {
   following: {
     name: 'following',
     filters: () => {
-      const app = useAppStore()
-      const nostr = useNostrStore()
-      const contacts = nostr.getContacts(app.myPubkey)
-      let authors = contacts?.map(contact => contact.pubkey)
+      let authors = myContacts()
       if (!authors || !authors.length) authors = [ZERO_PUBKEY]
       return {
         kinds: [EventKind.NOTE],
         authors,
         limit: 50,
       }
+    },
+    data: () => {
+      let authors = myContacts()
+      if (!authors || !authors.length) return []
+      let notes = []
+      const store = useNoteStore()
+      for (const author of authors) {
+        notes = notes.concat(store.postsByAuthor(author, NoteOrder.CREATION_DATE_DESC))
+      }
+      return notes
     },
     hideBots: false,
   },

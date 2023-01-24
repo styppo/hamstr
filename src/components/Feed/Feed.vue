@@ -78,7 +78,11 @@ export default {
         {subId: `feed:${this.feed.name}`}
       )
       this.stream.on('init', notes => {
+        const data = typeof this.feed.data === 'function'
+          ? this.feed.data()
+          : this.feed.data || []
         const items = notes
+          .concat(data)
           .filter(note => this.filterNote(note, this.feed.hideBots))
           .map(note => [note]) // TODO Single element thread
         items.sort(feedOrder)
