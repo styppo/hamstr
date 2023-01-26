@@ -223,6 +223,6 @@ export default defineComponent({
 
 <style lang="scss" scoped>
 .ancestors {
-  border-bottom: 0;
+  border-bottom: 0 !important;
 }
 </style>

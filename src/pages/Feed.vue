@@ -135,9 +135,6 @@ export default defineComponent({
 }
 
 @media screen and (max-width: $phone) {
-  .page-header {
-    border-bottom: $border-dark;
-  }
   .post-editor {
     display: none;
   }

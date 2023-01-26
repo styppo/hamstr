@@ -1,6 +1,6 @@
 <template>
   <div class="feed">
-    <div class="load-more-container" :class="{'more-available': numUnreads}" v-if="numUnreads">
+    <div class="load-more-container" :class="{'more-available': numUnreads}">
       <AsyncLoadButton
         v-if="numUnreads"
         :load-fn="loadNewer"
@@ -175,15 +175,13 @@ export default {
 .feed {
   .load-more-container {
     border-top: $border-dark;
-    border-bottom: $border-dark;
     min-height: 6px;
+    &.more-available {
+      border-bottom: $border-dark;
+    }
   }
   > .async-load-button:last-child {
     border-bottom: 0;
-  }
-
-  > .thread:first-child, .load-more-container + .thread {
-    border-top: $border-dark;
   }
 }
 
@@ -193,6 +191,7 @@ export default {
       border: 0;
       min-height: 0;
       &.more-available {
+        border-top: $border-dark;
         border-bottom: $border-dark;
       }
     }
