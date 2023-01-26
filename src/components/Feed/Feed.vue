@@ -75,7 +75,10 @@ export default {
         : this.feed.filters
       this.stream = this.nostr.stream(
         filters,
-        {subId: `feed:${this.feed.name}`}
+        {
+          subId: `feed:${this.feed.name}`,
+          timeout: 3000,
+        }
       )
       this.stream.on('init', notes => {
         const data = typeof this.feed.data === 'function'

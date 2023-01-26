@@ -65,7 +65,7 @@ export default class NostrClient {
     const sub = this.pool.subscribe(filters, opts.subId)
     const timer = setTimeout(() => {
       endCallback(Object.values(events))
-    }, opts.timeout || 5000)
+    }, opts.timeout || 4000)
     sub.on('event', event => {
       events[event.id] = event
     })

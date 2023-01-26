@@ -353,7 +353,7 @@ export const useNostrStore = defineStore('nostr', {
         console.log(`[TIMEOUT] stream ${sub.subId} (${values.length})`, filters)
         stream.emit('init', values)
         objects = null
-      }, opts.timeout || 5000)
+      }, opts.timeout || 4000)
 
       sub.on('end', () => {
         clearTimeout(timer)
