@@ -1,6 +1,8 @@
 import {defineStore} from 'pinia'
 import {useSettingsStore} from 'stores/Settings'
 import {useNostrStore} from 'src/nostr/NostrStore'
+import {markRaw} from 'vue'
+import JobQueue from 'src/utils/JobQueue'
 
 export const useAppStore = defineStore('app', {
   state: () => ({
@@ -13,6 +15,7 @@ export const useAppStore = defineStore('app', {
       open: false,
       params: {},
     },
+    queue: markRaw(new JobQueue()),
   }),
   getters: {
     activeAccount() {
@@ -28,11 +31,13 @@ export const useAppStore = defineStore('app', {
   },
   actions: {
     signIn(fragment = 'welcome') {
-      return new Promise(resolve => {
-        this.signInDialog.callback = resolve
-        this.signInDialog.fragment = fragment
-        this.signInDialog.open = true
-      })
+      return this.queue.push(
+        () => new Promise(resolve => {
+          this.signInDialog.callback = resolve
+          this.signInDialog.fragment = fragment
+          this.signInDialog.open = true
+        })
+      )
     },
     signInIfNeeded(fragment = 'welcome') {
       if (this.isSignedIn) return Promise.resolve(true)
@@ -52,17 +57,17 @@ export const useAppStore = defineStore('app', {
     async signEvent(event) {
       if (!await this.signInIfNeeded()) return
       if (!this.activeAccount.canSign() && !await this.signIn('private-key')) return
-      return this.activeAccount.sign(event)
+      return await this.activeAccount.sign(event)
     },
     async decryptMessage(pubkey, content) {
       if (!await this.signInIfNeeded()) return
       if (!this.activeAccount.canDecrypt() && !await this.signIn('private-key')) return
-      return this.activeAccount.decrypt(pubkey, content)
+      return await this.activeAccount.decrypt(pubkey, content)
     },
     async encryptMessage(pubkey, content) {
       if (!await this.signInIfNeeded()) return
       if (!this.activeAccount.canEncrypt() && !await this.signIn('private-key')) return
-      return this.activeAccount.encrypt(pubkey, content)
+      return await this.activeAccount.encrypt(pubkey, content)
     },
   },
 })
