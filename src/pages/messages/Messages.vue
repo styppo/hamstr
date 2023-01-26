@@ -1,7 +1,7 @@
 <template>
   <PageHeader back-button>
     <template #addon>
-      <q-btn icon="more_vert" size="md" round>
+      <q-btn icon="more_vert" size="md" round flat>
         <q-menu anchor="bottom right" self="top right" :offset="[0, 6]" class="options-popup">
           <a @click="markAllAsRead" v-close-popup>Mark all as read</a>
         </q-menu>

@@ -1,6 +1,6 @@
 <template>
-  <PostRenderer v-if="note?.content" :note="note" />
-  <span v-else-if="!decryptFailed" class="click-to-decrypt" @click="decrypt">Click to decrypt</span>
+  <PostRenderer v-if="note" :note="note" />
+  <span v-else-if="!decryptFailed" class="click-to-decrypt" @click="clickToDecrypt && decrypt()">Click to decrypt</span>
   <span v-else class="decrypt-failed" @click="decrypt">Decryption failed</span>
 </template>
 
@@ -17,6 +17,10 @@ export default {
       type: Object,
       required: true,
     },
+    clickToDecrypt: {
+      type: Boolean,
+      default: false,
+    }
   },
   setup() {
     return {
@@ -25,26 +29,30 @@ export default {
   },
   data() {
     return {
-      plaintext: null,
       decryptFailed: false,
     }
   },
   computed: {
     note() {
-      if (!this.message) return
+      if (!this.message?.plaintext) return
       const note = new Note(this.message.id, this.message)
-      note.content = this.message.plaintext || this.plaintext
+      note.content = this.message.plaintext
       return note
     }
   },
   methods: {
     async decrypt() {
+      if (this.message.plaintext) return
       try {
+        const messageId = this.message.id
         const counterparty = this.message.author === this.app.myPubkey
           ? this.message.recipient
           : this.message.author
-        this.plaintext = await this.app.decryptMessage(counterparty, this.message.content)
-        this.message.cachePlaintext(this.plaintext)
+        const plaintext = await this.app.decryptMessage(counterparty, this.message.content)
+        // The message can change while we are decrypting it, so we need to make sure not to cache the wrong message.
+        if (this.message.id === messageId) {
+          this.message.cachePlaintext(plaintext)
+        }
       } catch (e) {
         console.error('Failed to decrypt message', e)
         this.decryptFailed = true
@@ -52,8 +60,15 @@ export default {
     }
   },
   async mounted() {
-    if (!this.message.plaintext && this.app.activeAccount.canDecrypt()) {
+    if (this.app.activeAccount.canDecrypt()) {
       await this.decrypt()
+    }
+  },
+  watch: {
+    async message() {
+      if (this.app.activeAccount.canDecrypt()) {
+        await this.decrypt()
+      }
     }
   }
 }

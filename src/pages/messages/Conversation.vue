@@ -5,15 +5,11 @@
 
   <div class="conversation">
     <div class="pusher"></div>
-    <q-chat-message
+    <ChatMessage
       v-for="message in conversation"
       :key="message.id"
-      :sent="message.author === app.myPubkey"
-      :bg-color="message.author === app.myPubkey ? 'grey-2' : 'pink-2'"
-      :stamp="formatMessageDate(message.createdAt)"
-    >
-      <EncryptedMessage :message="message" />
-    </q-chat-message>
+      :message="message"
+    />
     <p v-if="!conversation?.length" class="placeholder">
       <template v-if="counterparty !== app.myPubkey">
         This is the beginning of your message history with <UserName :pubkey="counterparty" clickable />.
@@ -32,17 +28,16 @@
 <script>
 import PageHeader from 'components/PageHeader.vue'
 import UserCard from 'components/User/UserCard.vue'
-import EncryptedMessage from 'components/Message/EncryptedMessage.vue'
 import MessageEditor from 'components/Message/MessageEditor.vue'
+import UserName from 'components/User/UserName.vue'
+import ChatMessage from 'components/Message/ChatMessage.vue'
 import {useMessageStore} from 'src/nostr/store/MessageStore'
 import {useAppStore} from 'stores/App'
-import DateUtils from 'src/utils/DateUtils'
 import {bech32ToHex} from 'src/utils/utils'
-import UserName from 'components/User/UserName.vue'
 
 export default {
   name: 'Conversation',
-  components: {UserName, MessageEditor, EncryptedMessage, PageHeader, UserCard},
+  components: {ChatMessage, UserName, MessageEditor, PageHeader, UserCard},
   setup() {
     return {
       app: useAppStore(),
@@ -65,21 +60,22 @@ export default {
     },
   },
   methods: {
-    formatMessageDate(timestamp) {
-      return DateUtils.formatFromNowLong(timestamp)
-    },
     onPublish() {
       this.markAsRead()
-      this.$nextTick(() => window.scrollTo(0, document.body.scrollHeight))
+      this.scrollToBottom()
     },
     markAsRead() {
       if (this.app.isSignedIn && this.counterparty) {
         this.messages.markAsRead(this.app.myPubkey, this.counterparty)
       }
     },
+    scrollToBottom() {
+      this.$nextTick(() => window.scrollTo(0, document.body.scrollHeight))
+    },
   },
   mounted() {
     this.markAsRead()
+    setTimeout(() => this.scrollToBottom(), 100)
   }
 }
 </script>
@@ -116,6 +112,9 @@ export default {
 }
 
 @media screen and (max-width: $tablet) {
+  .conversation {
+    padding-bottom: 76px;
+  }
   .conversation-reply {
     padding-bottom: 22px;
   }
@@ -128,6 +127,9 @@ export default {
 }
 
 @media screen and (max-width: $phone) {
+  .conversation {
+    padding-bottom: 48px;
+  }
   .conversation-reply {
     width: 100%;
     padding-bottom: 1rem;
