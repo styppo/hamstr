@@ -30,20 +30,22 @@ import emoji from 'markdown-it-emoji'
 import * as Bolt11Decoder from 'light-bolt11-decoder'
 import BaseInvoice from 'components/Post/Renderer/BaseInvoice.vue'
 
+const REGEX_YOUTUBE = /\bhttps:\/\/(www.|m.)?youtu(be.com|.be)\/(watch\?v=|shorts\/)?(?<v>[a-zA-Z0-9_-]{11})(&t=(?<s>[0-9]+)s)?/
+
 const md = MarkdownIt({
   html: false,
   breaks: true,
   linkify: true
 })
-md.disable(['link', 'image'])
-  .use(subscript)
+
+md.use(subscript)
   .use(superscript)
   .use(deflist)
   .use(emoji)
   .use(md => {
     // pulled from https://github.com/markdown-it/markdown-it/blob/master/docs/architecture.md#renderer
     // Remember old renderer, if overridden, or proxy to default renderer
-    var defaultRender = md.renderer.rules.link_open || function(tokens, idx, options, env, self) {
+    const defaultRender = md.renderer.rules.link_open || function(tokens, idx, options, env, self) {
       return self.renderToken(tokens, idx, options)
     }
 
@@ -64,7 +66,6 @@ md.disable(['link', 'image'])
             return `![](${m})`
           }
         }
-
         return m
       })
     })
@@ -72,7 +73,6 @@ md.disable(['link', 'image'])
     md.renderer.rules.image = (tokens, idx) => {
       let src = tokens[idx].attrs[[tokens[idx].attrIndex('src')]][1]
       let trimmed = src.split('?')[0]
-      // let classIndex = token.attrIndex('class')
       if (
         trimmed.endsWith('.gif') ||
         trimmed.endsWith('.png') ||
@@ -90,28 +90,27 @@ md.disable(['link', 'image'])
       }
     }
 
-    md.renderer.rules.link_open = function (tokens, idx, options, env, self) {
-      // If you are sure other plugins can't add `target` - drop check below
-      var token = tokens[idx]
-      var aIndexTarget = token.attrIndex('target')
-      var aIndexHref = token.attrIndex('href')
+    md.renderer.rules.link_open = function(tokens, idx, options, env, self) {
+      const token = tokens[idx]
+      const aIndexHref = token.attrIndex('href')
 
-      var ytRegex = /\bhttps:\/\/(www.|m.)?youtu(be.com|.be)\/(watch\?v=|shorts\/)?(?<v>[a-zA-Z0-9_-]{11})(&t=(?<s>[0-9]+)s)?/
-      let ytMatch = token.attrs[aIndexHref][1].match(ytRegex)
-      // console.log('ytMatch', ytMatch, token.attrs[aIndexHref][1])
+      const ytMatch = token.attrs[aIndexHref][1].match(REGEX_YOUTUBE)
       if (ytMatch) {
+        // XXX Hack: remove link text from youtube links
+        const nextToken = tokens[idx + 1]
+        if (nextToken && nextToken.type === 'text') nextToken.content = ''
+
         let src = `https://www.youtube.com/embed/${ytMatch.groups.v}`
         if (ytMatch.groups.s) src = src + `?start=${ytMatch.groups.s}`
-        // src = src + `&origin=http://localhost:8080/`
-        // console.log('ytMatch', src)
         return `<iframe anonymous async style="height: 15rem; width: 90%; object-fit: cover;" src="${src}"
           title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen>
           </iframe>`
       }
 
-      var httpRegex = /^https?:\/\//
-
+      const httpRegex = /^https?:\/\//
       if (httpRegex.test(token.attrs[aIndexHref][1])) {
+        // If you are sure other plugins can't add `target` - drop check below
+        let aIndexTarget = token.attrIndex('target')
         if (aIndexTarget < 0) {
           tokens[idx].attrPush(['target', '_blank']) // add new attribute
         } else {
@@ -124,14 +123,12 @@ md.disable(['link', 'image'])
     }
 
     // md.renderer.rules.code_inline = function (tokens, idx, options, env, self) {
-    //   var token = tokens[idx]
-
+    //   let token = tokens[idx]
     //   return `<code ${self.renderAttrs(token)}>${token.content}</code>`
     // }
 
     // md.renderer.rules.code_block = function (tokens, idx, options, env, self) {
-    //   var token = tokens[idx]
-
+    //   let token = tokens[idx]
     //   return `<code ${self.renderAttrs(token)}>${token.content}</code>`
     // }
   })
@@ -143,7 +140,7 @@ md.linkify
   .add('http:', {
     validate(text, pos, self) {
       // copied from linkify defaultSchemas
-      var tail = text.slice(pos)
+      const tail = text.slice(pos)
       if (!self.re.http) {
         self.re.http = new RegExp(
           '^\\/\\/' +
@@ -235,7 +232,7 @@ export default {
   methods: {
     render() {
       this.html = md.render(this.parsedContent) + this.$refs.append.innerHTML
-      // md.render(this.$refs.src.innerHTML) + this.$refs.append.innerHTML
+
       this.$refs.html.querySelectorAll('img').forEach(img => {
         img.addEventListener('click', (e) => {
           e.stopPropagation()
@@ -259,35 +256,35 @@ export default {
     },
 
     handleClicks(event) {
-    // ensure we use the link, in case the click has been received by a subelement
-    let { target } = event
-    // while (target && target.tagName !== 'A') target = target.parentNode
-    // handle only links that occur inside the component and do not reference external resources
-    if (target && target.matches(".dynamic-content a:not([href*='://'])") && target.href) {
-      // some sanity checks taken from vue-router:
-      // https://github.com/vuejs/vue-router/blob/dev/src/components/link.js#L106
-      const { altKey, ctrlKey, metaKey, shiftKey, button, defaultPrevented } = event
-      // don't handle with control keys
-      if (metaKey || altKey || ctrlKey || shiftKey) return
-      // don't handle when preventDefault called
-      if (defaultPrevented) return
-      // don't handle right clicks
-      if (button !== undefined && button !== 0) return
-      // don't handle if `target="_blank"`
-      if (target && target.getAttribute) {
-        const linkTarget = target.getAttribute('target')
-        if (/\b_blank\b/i.test(linkTarget)) return
-      }
-      // don't handle same page links/anchors
-      const url = new URL(target.href)
-      const to = url.pathname
-      if (window.location.pathname !== to && event.preventDefault) {
-        event.preventDefault()
-        event.stopPropagation()
-        this.$router.push(to)
-      }
-      // stop propogation of external links
+      // ensure we use the link, in case the click has been received by a subelement
+      let { target } = event
+      // while (target && target.tagName !== 'A') target = target.parentNode
+      // handle only links that occur inside the component and do not reference external resources
+      if (target && target.matches(".dynamic-content a:not([href*='://'])") && target.href) {
+        // some sanity checks taken from vue-router:
+        // https://github.com/vuejs/vue-router/blob/dev/src/components/link.js#L106
+        const { altKey, ctrlKey, metaKey, shiftKey, button, defaultPrevented } = event
+        // don't handle with control keys
+        if (metaKey || altKey || ctrlKey || shiftKey) return
+        // don't handle when preventDefault called
+        if (defaultPrevented) return
+        // don't handle right clicks
+        if (button !== undefined && button !== 0) return
+        // don't handle if `target="_blank"`
+        if (target && target.getAttribute) {
+          const linkTarget = target.getAttribute('target')
+          if (/\b_blank\b/i.test(linkTarget)) return
+        }
+        // don't handle same page links/anchors
+        const url = new URL(target.href)
+        const to = url.pathname
+        if (window.location.pathname !== to && event.preventDefault) {
+          event.preventDefault()
+          event.stopPropagation()
+          this.$router.push(to)
+        }
       } else if (target && target.matches(".dynamic-content a[href*='://']") && target.href) {
+        // stop propagation of external links
         event.stopPropagation()
       }
     },
