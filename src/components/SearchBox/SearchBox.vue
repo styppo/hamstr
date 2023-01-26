@@ -8,12 +8,14 @@
         <div class="searchbox-input">
           <q-form @submit.stop="search">
             <input
+              v-model="query"
+              ref="input"
               type="text"
               placeholder="Search profiles"
-              v-model="query"
               @focus="toggleFocus"
               @blur="toggleFocus"
               @keyup="search"
+              @keyup.esc="$refs.input.blur()"
             >
           </q-form>
         </div>
@@ -24,7 +26,14 @@
         <div v-if="!results.length" class="query-example">
           <b>npub…</b> or <b>[user]@domain</b> or <b>name</b>
         </div>
-        <UserCard v-for="pubkey in results" :key="pubkey" :pubkey="pubkey" class="searchbox-results-item" clickable />
+        <UserCard
+          v-for="pubkey in results"
+          :key="pubkey"
+          :pubkey="pubkey"
+          class="searchbox-results-item"
+          clickable
+          @mousedown="goToProfile(pubkey)"
+        />
       </div>
     </Transition>
   </div>
@@ -34,9 +43,11 @@
 import BaseIcon from 'components/BaseIcon'
 import SearchProvider from 'src/nostr/SearchProvider'
 import UserCard from 'components/User/UserCard.vue'
+import routerMixin from 'src/router/mixin'
 
 export default {
   name: 'SearchBox',
+  mixins: [routerMixin],
   components: {
     UserCard,
     BaseIcon,
