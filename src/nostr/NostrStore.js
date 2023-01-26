@@ -161,7 +161,7 @@ export const useNostrStore = defineStore('nostr', {
       this.fetch({
         kinds: [EventKind.DM],
         authors: [pubkey],
-        limit: 500,
+        limit: 400,
       })
 
       const subs = []
@@ -171,7 +171,7 @@ export const useNostrStore = defineStore('nostr', {
         kinds: [EventKind.METADATA, EventKind.CONTACT, EventKind.REACTION, EventKind.SHARE, EventKind.DM],
         authors: [pubkey],
         limit: 0,
-      }, `user:${pubkey}`)
+      }, `user:${pubkey.substr(0, 40)}`)
       subMeta.on('event', this.addEvent.bind(this))
       subs.push(subMeta)
 
@@ -179,8 +179,8 @@ export const useNostrStore = defineStore('nostr', {
       const subTags = this.client.subscribe({
         kinds: [EventKind.NOTE, EventKind.REACTION, EventKind.SHARE, EventKind.DM],
         '#p': [pubkey],
-        limit: 500,
-      }, `notifications:${pubkey}`)
+        limit: 400,
+      }, `notifications:${pubkey.substr(0, 40)}`)
       subTags.on('event', this.addEvent.bind(this))
       subs.push(subTags)
 
@@ -390,7 +390,7 @@ export const useNostrStore = defineStore('nostr', {
           limit: 500,
         },
         {
-          subId: `thread:${rootId}`,
+          subId: `thread:${rootId.substr(0, 40)}`,
         }
       )
     },
@@ -403,7 +403,7 @@ export const useNostrStore = defineStore('nostr', {
           limit: 50,
         },
         {
-          subId: `notifications:${pubkey}`,
+          subId: `notifications:${pubkey.substr(0, 40)}`,
         }
       )
     },
