@@ -88,7 +88,9 @@ export default {
           .concat(data)
           .filter(note => this.filterNote(note, this.feed.hideBots))
           .map(note => [note]) // TODO Single element thread
-        items.sort(feedOrder)
+          .sort(feedOrder)
+          .filter((item, pos, array) => !pos || item[0].id !== array[pos - 1][0].id)
+
         this.visible = items.slice(0, MAX_ITEMS_VISIBLE)
         this.loading = false
 
@@ -111,6 +113,7 @@ export default {
       // TODO Deduplicate feed items
       this.newer.sort(feedOrder)
       const items = this.newer.concat(this.visible)
+
       if (items.length > MAX_ITEMS_VISIBLE) {
         const older = items.splice(MAX_ITEMS_VISIBLE)
         this.older = older.concat(this.older)
