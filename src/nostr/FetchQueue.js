@@ -1,4 +1,4 @@
-import {Observable} from 'src/nostr/utils'
+import {Observable} from 'src/nostr/Observable'
 
 export default class FetchQueue extends Observable {
   constructor(client, subId, fnGetId, fnCreateFilter, opts = {}) {

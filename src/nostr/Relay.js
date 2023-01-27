@@ -1,4 +1,4 @@
-import {Observable} from 'src/nostr/utils'
+import {Observable} from 'src/nostr/Observable'
 import Event from 'src/nostr/model/Event'
 
 export class Subscription extends Observable {
@@ -75,7 +75,26 @@ export class Relay extends Observable {
   }
 
   publish(event) {
-    this.socket.send(['EVENT', event])
+    return new Promise(resolve => {
+      if (!this.socket.send(['EVENT', event])) {
+        return resolve(false)
+      }
+
+      let timeout
+      const callback = (eventId, wasSaved) => {
+        if (eventId === event.id && wasSaved) {
+          clearTimeout(timeout)
+          this.off('ok', callback)
+          resolve(true)
+        }
+      }
+      timeout = setTimeout(() => {
+        this.off('ok', callback)
+        resolve(false)
+      }, 4000) // TODO make this a parameter
+
+      this.on('ok', callback)
+    })
   }
 
   subscribe(filters, subId = null, closeAfter = CloseAfter.NEVER) {
@@ -176,11 +195,15 @@ class ReconnectingWebSocket extends Observable {
     this.disconnected = false
     this.reconnectAfter = this.opts.reconnectAfter
     this.reconnectTimer = null
+
+    window.addEventListener('online', this.connect.bind(this))
+    window.addEventListener('focus', this.connect.bind(this))
   }
 
   connect() {
-    if (this.socket) return
+    if (this.isConnected()) return
     this.disconnected = false
+    this.reconnectTimer = null
 
     const ws = new WebSocket(this.url)
     ws.onopen = this.onOpen.bind(this)
@@ -192,36 +215,47 @@ class ReconnectingWebSocket extends Observable {
 
   disconnect() {
     this.disconnected = true
-    if (this.socket) this.socket.close()
-    this.socket = null
+    this.close()
   }
 
   reconnect() {
     if (this.disconnected || this.reconnectTimer) return
 
+    console.log(`[RELAY] Scheduling reconnect to ${this.url} in ${this.reconnectAfter}ms`)
     this.reconnectTimer = setTimeout(
       () => {
-        this.connect()
+        console.log(`[RELAY] Reconnecting to ${this.url} now`)
         this.reconnectTimer = null
+        this.connect()
       },
       this.reconnectAfter
     )
 
-    this.reconnectAfter *= 2
+    this.reconnectAfter = Math.min(this.reconnectAfter *= 2, 1000 * 60 * 5)
   }
 
   isConnected() {
     return this.socket && this.socket.readyState === WebSocket.OPEN
   }
 
+  close() {
+    if (this.socket) this.socket.close()
+    this.socket = null
+  }
+
   send(message) {
     // TODO Wait for connected?
     if (!this.isConnected()) {
       console.warn(`Not connected to ${this.url} (currently ${this.socket?.readyState})`)
-      return
+      return false
     }
 
-    this.socket.send(JSON.stringify(message))
+    try {
+      this.socket.send(JSON.stringify(message))
+      return true
+    } catch (e) {
+      return false
+    }
   }
 
   onOpen() {
@@ -230,15 +264,19 @@ class ReconnectingWebSocket extends Observable {
   }
 
   onClose() {
+    this.close()
     this.emit('close', this)
     if (this.opts.reconnect) this.reconnect()
   }
 
   onError(error) {
     console.log(`Socket error from relay ${this.url}`, error)
-
     this.emit('error', error, this)
-    if (this.opts.reconnect) this.reconnect()
+
+    if (!this.isConnected()) {
+      this.close()
+      if (this.opts.reconnect) this.reconnect()
+    }
   }
 
   onMessage(message) {

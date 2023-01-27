@@ -41,12 +41,17 @@ export default {
 
       const event = EventBuilder.metadata(account.pubkey, {name: this.username}).build()
       await useAppStore().signEvent(event)
-      useNostrStore().publish(event)
-
-      this.$emit('complete', {
-        pubkey: account.pubkey,
-        name: this.username
-      })
+      if (await useNostrStore().publish(event)) {
+        this.$emit('complete', {
+          pubkey: account.pubkey,
+          name: this.username
+        })
+      } else {
+        this.$q.notify({
+          message: 'Failed to create profile',
+          color: 'negative',
+        })
+      }
     }
   },
   mounted() {

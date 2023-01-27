@@ -41,7 +41,12 @@ export default {
     async updateContacts(contacts) {
       const event = EventBuilder.contacts(this.app.myPubkey, contacts.map(c => c.pubkey)).build()
       if (!await this.app.signEvent(event)) return
-      this.nostr.publish(event)
+      if (!await this.nostr.publish(event)) {
+        this.$q.notify({
+          message: 'Failed to update followers',
+          color: 'negative',
+        })
+      }
     },
     toggleFollow() {
       return this.isFollowing

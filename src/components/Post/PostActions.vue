@@ -76,13 +76,23 @@ export default {
     async publishLike() {
       const event = EventBuilder.reaction(this.note, this.app.myPubkey).build()
       if (!await this.app.signEvent(event)) return
-      this.nostr.publish(event)
+      if (!await this.nostr.publish(event)) {
+        this.$q.notify({
+          message: 'Failed to publish reaction',
+          color: 'negative',
+        })
+      }
     },
     async deleteLike() {
       const ids = this.ourReactions.map(r => r.id)
       const event = EventBuilder.delete(this.app.myPubkey, ids).build()
       if (!await this.app.signEvent(event)) return
-      this.nostr.publish(event)
+      if (!await this.nostr.publish(event)) {
+        this.$q.notify({
+          message: 'Failed to delete reaction',
+          color: 'negative',
+        })
+      }
     },
   },
 }

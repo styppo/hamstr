@@ -10,7 +10,7 @@ import {useSettingsStore} from 'stores/Settings'
 import {useStatStore} from 'src/nostr/store/StatStore'
 import {useAppStore} from 'stores/App'
 import {useMessageStore} from 'src/nostr/store/MessageStore'
-import {Observable} from 'src/nostr/utils'
+import {Observable} from 'src/nostr/Observable'
 import {CloseAfter} from 'src/nostr/Relay'
 import DateUtils from 'src/utils/DateUtils'
 
@@ -137,10 +137,13 @@ export const useNostrStore = defineStore('nostr', {
       return !!this.seenBy[id]
     },
 
-    publish(event) {
-      // FIXME represent 'local' somehow
-      this.addEvent(event, {url: '<local>'})
-      return this.client.publish(event)
+    async publish(event) {
+      const result = await this.client.publish(event)
+      if (result) {
+        // FIXME represent 'local' somehow
+        this.addEvent(event, {url: '<local>'})
+      }
+      return result
     },
 
     subscribeForUser(pubkey) {

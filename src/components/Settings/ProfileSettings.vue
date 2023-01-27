@@ -78,7 +78,12 @@ export default {
       }
       const event = EventBuilder.metadata(this.pubkey, metadata).build()
       if (!await this.app.signEvent(event)) return
-      this.nostr.publish(event)
+      if (!await this.nostr.publish(event)) {
+        this.$q.notify({
+          message: 'Failed to update profile',
+          color: 'negative'
+        })
+      }
     },
   },
   watch: {

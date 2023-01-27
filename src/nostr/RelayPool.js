@@ -1,5 +1,5 @@
 import {CloseAfter, Relay} from 'src/nostr/Relay'
-import {Observable} from 'src/nostr/utils'
+import {Observable} from 'src/nostr/Observable'
 
 class MultiSubscription extends Observable {
   constructor(subId, subs) {
@@ -95,10 +95,17 @@ export default class ReplayPool extends Observable {
     delete this.relays[url]
   }
 
-  publish(event) {
+  async publish(event) {
+    const promises = []
     for (const relay of this.connectedRelays()) {
-      relay.publish(event)
+      promises.push(relay.publish(event))
     }
+    return Promise.all(promises)
+      .then(results => results.filter(res => res).length)
+      .catch(e => {
+        console.error('Error while publishing', e)
+        return 0
+      })
   }
 
   subscribe(filters, subId = null, closeAfter = CloseAfter.NEVER) {

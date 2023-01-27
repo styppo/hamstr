@@ -94,24 +94,23 @@ export default {
     },
     async publishMessage() {
       this.publishing = true
-      try {
-        const ciphertext = await this.app.encryptMessage(this.recipient, this.content)
-        if (!ciphertext) return
-        const event = EventBuilder.message(this.app.myPubkey, this.recipient, ciphertext).build()
-        if (!await this.app.signEvent(event)) return
-        this.nostr.publish(event)
 
+      const ciphertext = await this.app.encryptMessage(this.recipient, this.content)
+      if (!ciphertext) return
+      const event = EventBuilder.message(this.app.myPubkey, this.recipient, ciphertext).build()
+      if (!await this.app.signEvent(event)) return
+
+      if (await this.nostr.publish(event)) {
         this.reset()
         this.$nextTick(this.focus.bind(this))
-
         this.$emit('publish', event)
-      } catch (e) {
-        console.error('Failed to send message', e)
+      } else {
         this.$q.notify({
           message: `Failed to send message`,
           color: 'negative'
         })
       }
+
       this.publishing = false
     },
   },

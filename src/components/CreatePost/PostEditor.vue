@@ -114,29 +114,30 @@ export default {
     },
     async publishPost() {
       this.publishing = true
-      try {
-        const event = this.ancestor
-          ? EventBuilder.reply(this.ancestor, this.app.myPubkey, this.content).build()
-          : EventBuilder.post(this.app.myPubkey, this.content).build()
-        if (!await this.app.signEvent(event)) return
-        this.nostr.publish(event)
 
+      const event = this.ancestor
+        ? EventBuilder.reply(this.ancestor, this.app.myPubkey, this.content).build()
+        : EventBuilder.post(this.app.myPubkey, this.content).build()
+      if (!await this.app.signEvent(event)) return
+
+      const numRelays = await this.nostr.publish(event)
+      if (numRelays) {
         this.reset()
         this.$emit('publish', event)
 
         // TODO i18n
         const postType = this.ancestor ? 'Reply' : 'Post'
         this.$q.notify({
-          message: `${postType} published`,
+          message: `${postType} published to ${numRelays} relays`,
           color: 'positive',
         })
-      } catch (e) {
-        console.error('Failed to publish post', e)
+      } else {
         this.$q.notify({
           message: `Failed to publish post`,
           color: 'negative'
         })
       }
+
       this.publishing = false
     },
   },
