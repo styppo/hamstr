@@ -45,7 +45,7 @@ const myContacts = () => {
   const app = useAppStore()
   const nostr = useNostrStore()
   const contacts = nostr.getContacts(app.myPubkey)
-  return contacts?.map(contact => contact.pubkey)
+  return contacts?.map(contact => contact.pubkey).concat(app.myPubkey)
 }
 
 const Feeds = {
