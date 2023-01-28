@@ -62,7 +62,7 @@ a {
   &-primary {
     background-color: $color-primary;
     &:hover {
-      background-color: rgba($color: $color-primary, $alpha: 0.7);
+      background-color: rgba($color: $color-primary, $alpha: 0.8);
       border-color: rgba($color: $color-primary, $alpha: 0.3);
     }
     &:disabled {

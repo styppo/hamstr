@@ -160,6 +160,11 @@ menu {
       font-size: 1.2rem;
       border-radius: 999px;
       margin-top: 20px;
+      transition: 200ms ease;
+      &:hover {
+        background-color: rgba($color: $color-primary, $alpha: 0.8);
+        //filter: brightness(110%);
+      }
       .icon {
         display: none;
       }
