@@ -10,8 +10,8 @@
           size="sm"
           class="feed-selector"
           :options="[
-            {value: 'global', icon: 'public'},
             {value: 'following', icon: 'group'},
+            {value: 'global', icon: 'public'},
           ]"
         />
       </template>
@@ -23,7 +23,7 @@
 
     <q-tab-panels v-model="activeFeed" keep-alive animated>
       <q-tab-panel v-for="feed in availableFeeds" :key="feed" :name="feed">
-        <Feed :feed="feedDef(feed)" :ref="feed" />
+        <Feed :feed="feedDef(feed)" :ref="feed" @load="onFeedLoaded" />
       </q-tab-panel>
     </q-tab-panels>
   </q-page>
@@ -98,13 +98,15 @@ export default defineComponent({
   data() {
     return {
       feeds: {},
-      activeFeed: 'global',
+      activeFeed: this.app.isSignedIn ? 'following' : 'global',
+      initialized: false,
     }
   },
   computed: {
     availableFeeds() {
-      const feeds = ['global']
+      const feeds = []
       if (this.app.isSignedIn) feeds.push('following')
+      feeds.push('global')
       return feeds
     },
     contacts() {
@@ -116,12 +118,34 @@ export default defineComponent({
     feedDef(feed) {
       return Feeds[feed]
     },
+    initFeed() {
+      if (this.initialized) return
+      if (!this.contacts) return
+      this.initialized = true
+      this.activeFeed = this.contacts?.length
+        ? 'following'
+        : 'global'
+    },
+    onFeedLoaded(feed) {
+      if (this.activeFeed === 'following'
+        && feed?.name === this.activeFeed
+        && !this.contacts?.length
+        && !this.initialized
+      ) {
+        this.activeFeed = 'global'
+        this.initialized = true
+      }
+    },
   },
   watch: {
     contacts() {
+      this.initFeed()
       this.$refs.following?.[0]?.reload()
     },
   },
+  mounted() {
+    this.initFeed()
+  }
 })
 </script>
 

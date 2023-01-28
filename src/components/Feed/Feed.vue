@@ -35,6 +35,7 @@ const MAX_ITEMS_VISIBLE = 25
 
 export default {
   name: 'Feed',
+  emits: ['load'],
   components: {
     ListPlaceholder,
     Thread,
@@ -93,6 +94,8 @@ export default {
 
         this.visible = items.slice(0, MAX_ITEMS_VISIBLE)
         this.loading = false
+
+        this.$emit('load', this.feed)
 
         // Wait a bit before showing the first unreads
         setTimeout(() => this.recentlyLoaded = false, 5000)
@@ -163,7 +166,7 @@ export default {
       if (note.isRepostOrTag()) return false
       if (hideBots && note.relatedPubkeys().some(Bots.isBot)) return false
       return true
-    }
+    },
   },
   mounted() {
     this.init()
