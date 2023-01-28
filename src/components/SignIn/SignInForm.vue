@@ -22,6 +22,7 @@
 import {decode as bech32decode} from 'bech32-buffer'
 import {bech32prefix, bech32ToHex} from 'src/utils/utils'
 import {useSettingsStore} from 'stores/Settings'
+import {useAppStore} from 'stores/App'
 
 export default {
   name: 'SignInForm',
@@ -91,9 +92,8 @@ export default {
         opts = {privkey: bech32ToHex(this.key)}
       }
 
-      const settings = useSettingsStore()
-      const account = settings.addAccount(opts)
-      settings.switchAccount(account.pubkey)
+      const account = useSettingsStore().addAccount(opts)
+      useAppStore().switchAccount(account.pubkey)
 
       this.$emit('complete', {pubkey: account.pubkey})
     },

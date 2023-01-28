@@ -115,7 +115,7 @@ export default {
         useExtension: true,
       }
       this.settings.addAccount(account)
-      this.settings.switchAccount(pubkey)
+      this.app.switchAccount(pubkey)
 
       this.onComplete({pubkey})
     },

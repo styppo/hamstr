@@ -37,10 +37,11 @@ export default {
 
       const settings = useSettingsStore()
       const account = settings.addAccount({privkey})
-      settings.switchAccount(account.pubkey)
+      const app = useAppStore()
+      app.switchAccount(account.pubkey)
 
       const event = EventBuilder.metadata(account.pubkey, {name: this.username}).build()
-      await useAppStore().signEvent(event)
+      await app.signEvent(event)
       if (await useNostrStore().publish(event)) {
         this.$emit('complete', {
           pubkey: account.pubkey,
