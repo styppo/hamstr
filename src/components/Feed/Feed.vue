@@ -68,6 +68,12 @@ export default {
       if (this.recentlyLoaded) return 0
       return this.newer.length
     },
+    timestampNewest() {
+      return this.visible[0]?.[0]?.createdAt
+    },
+    timestampOldest() {
+      return this.visible[this.visible.length - 1]?.[0]?.createdAt
+    }
   },
   methods: {
     init() {
@@ -101,8 +107,12 @@ export default {
         setTimeout(() => this.recentlyLoaded = false, 5000)
       })
       this.stream.on('update', note => {
-        if (this.filterNote(note, this.feed.hideBots)) {
+        if (!this.filterNote(note, this.feed.hideBots)) return
+        if (note.createdAt >= this.timestampNewest) {
           this.newer.push([note]) // TODO Single element thread
+        } else if (note.createdAt >= this.timestampOldest) {
+          const idx = this.visible.findIndex(thread => thread[0].createdAt >= note.createdAt)
+          this.visible.splice(idx, 0, [note]) // TODO Single element thread
         }
       })
     },
@@ -137,7 +147,7 @@ export default {
         ? this.feed.filters()
         : this.feed.filters
 
-      const until = this.visible[this.visible.length - 1]?.[0]?.createdAt || DateUtils.now()
+      const until = this.timestampOldest || DateUtils.now()
       const filters = Object.assign({}, feedFilters, {until})
 
       if (this.older.length >= filters.limit) {
