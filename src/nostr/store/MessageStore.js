@@ -17,7 +17,7 @@ export const useMessageStore = defineStore('message', {
           const messages = this.getMessages(pubkey, counterparty)
           const latestMessage = messages.reduce((a, b) => a.createdAt > b.createdAt ? a : b, {createdAt: 0})
           const lastRead = useMessageStatusStore().getLastRead(pubkey, counterparty)
-          const numUnread = messages.filter(msg => msg.createdAt > lastRead).length
+          const numUnread = messages.filter(msg => msg.createdAt > lastRead && msg.author === counterparty).length
           conversations.push({
             pubkey: counterparty,
             latestMessage,

@@ -3,7 +3,7 @@
     <UserCard :pubkey="counterparty" class="conversation-header" clickable />
   </PageHeader>
 
-  <div class="conversation">
+  <div ref="conversation" class="conversation">
     <div class="pusher"></div>
     <ChatMessage
       v-for="message in conversation"
@@ -75,7 +75,12 @@ export default {
   },
   mounted() {
     this.markAsRead()
-    setTimeout(() => this.scrollToBottom(), 100)
+
+    this.resizeObserver = new ResizeObserver(this.scrollToBottom.bind(this))
+    this.resizeObserver.observe(this.$refs.conversation)
+  },
+  unmounted() {
+    this.resizeObserver.disconnect()
   }
 }
 </script>
@@ -128,7 +133,7 @@ export default {
 
 @media screen and (max-width: $phone) {
   .conversation {
-    padding-bottom: 48px;
+    padding-bottom: 62px;
   }
   .conversation-reply {
     width: 100%;
