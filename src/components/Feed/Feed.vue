@@ -111,7 +111,7 @@ export default {
         if (note.createdAt >= this.timestampNewest) {
           this.newer.push([note]) // TODO Single element thread
         } else if (note.createdAt >= this.timestampOldest) {
-          const idx = this.visible.findIndex(thread => thread[0].createdAt >= note.createdAt)
+          const idx = this.visible.findIndex(thread => thread[0].createdAt <= note.createdAt)
           this.visible.splice(idx, 0, [note]) // TODO Single element thread
         }
       })
