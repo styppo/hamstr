@@ -1,14 +1,14 @@
 <template>
   <span v-if="verified" class="nip05-badge">
     <q-icon name="verified" :size="size" color="primary">
-      <q-tooltip>NIP05 verified</q-tooltip>
+      <q-tooltip>{{ $t("NIP05 verified") }}</q-tooltip>
     </q-icon>
     <span class="nip05-badge-text">{{ nip05 }}</span>
   </span>
 </template>
 
 <script>
-import {useNostrStore} from 'src/nostr/NostrStore'
+import { useNostrStore } from 'src/nostr/NostrStore'
 
 export default {
   name: 'Nip05Badge',
@@ -19,8 +19,8 @@ export default {
     },
     size: {
       type: String,
-      default: '14px'
-    }
+      default: '14px',
+    },
   },
   setup() {
     return {
@@ -40,18 +40,22 @@ export default {
       if (!this.profile?.nip05.url) return
       return this.profile.nip05.url
         .split('@')
-        .filter(part => part !== '_' && part?.toLowerCase() !== this.profile.name?.toLowerCase())
+        .filter(
+          (part) =>
+            part !== '_' &&
+            part?.toLowerCase() !== this.profile.name?.toLowerCase()
+        )
         .join('@')
-    }
+    },
   },
   watch: {
     async profile() {
       this.verified = await this.profile?.isNip05Verified()
-    }
+    },
   },
   async mounted() {
     this.verified = await this.profile?.isNip05Verified()
-  }
+  },
 }
 </script>
 

@@ -1,22 +1,23 @@
 <template>
   <div class="feed">
-    <div class="load-more-container" :class="{'more-available': numUnreads}">
+    <div class="load-more-container" :class="{ 'more-available': numUnreads }">
       <AsyncLoadButton
         v-if="numUnreads"
         :load-fn="loadNewer"
-        :label="`Load ${numUnreads} unread`"
+        :label="$t('Load {unread} unread', { unread: numUnreads })"
       />
     </div>
 
-    <Thread v-for="thread in visible" :key="thread[0].id" :thread="thread" class="full-width" />
+    <Thread
+      v-for="thread in visible"
+      :key="thread[0].id"
+      :thread="thread"
+      class="full-width"
+    />
 
     <ListPlaceholder :count="visible.length" :loading="loading" />
 
-    <AsyncLoadButton
-      v-if="visible.length"
-      :load-fn="loadOlder"
-      autoload
-    />
+    <AsyncLoadButton v-if="visible.length" :load-fn="loadOlder" autoload />
   </div>
 </template>
 
@@ -24,8 +25,8 @@
 import AsyncLoadButton from 'components/AsyncLoadButton.vue'
 import Thread from 'components/Post/Thread.vue'
 import ListPlaceholder from 'components/ListPlaceholder.vue'
-import {useAppStore} from 'stores/App'
-import {useNostrStore} from 'src/nostr/NostrStore'
+import { useAppStore } from 'stores/App'
+import { useNostrStore } from 'src/nostr/NostrStore'
 import DateUtils from 'src/utils/DateUtils'
 import Bots from 'src/utils/bots'
 
@@ -39,13 +40,13 @@ export default {
   components: {
     ListPlaceholder,
     Thread,
-    AsyncLoadButton
+    AsyncLoadButton,
   },
   props: {
     feed: {
       type: Object,
       required: true,
-    }
+    },
   },
   setup() {
     return {
@@ -73,30 +74,31 @@ export default {
     },
     timestampOldest() {
       return this.visible[this.visible.length - 1]?.[0]?.createdAt
-    }
+    },
   },
   methods: {
     init() {
-      const filters = typeof this.feed.filters === 'function'
-        ? this.feed.filters()
-        : this.feed.filters
-      this.stream = this.nostr.stream(
-        filters,
-        {
-          subId: `feed:${this.feed.name}`,
-          timeout: 3000,
-        }
-      )
-      this.stream.on('init', notes => {
-        const data = typeof this.feed.data === 'function'
-          ? this.feed.data()
-          : this.feed.data || []
+      const filters =
+        typeof this.feed.filters === 'function'
+          ? this.feed.filters()
+          : this.feed.filters
+      this.stream = this.nostr.stream(filters, {
+        subId: `feed:${this.feed.name}`,
+        timeout: 3000,
+      })
+      this.stream.on('init', (notes) => {
+        const data =
+          typeof this.feed.data === 'function'
+            ? this.feed.data()
+            : this.feed.data || []
         const items = notes
           .concat(data)
-          .filter(note => this.filterNote(note, this.feed.hideBots))
-          .map(note => [note]) // TODO Single element thread
+          .filter((note) => this.filterNote(note, this.feed.hideBots))
+          .map((note) => [note]) // TODO Single element thread
           .sort(feedOrder)
-          .filter((item, pos, array) => !pos || item[0].id !== array[pos - 1][0].id)
+          .filter(
+            (item, pos, array) => !pos || item[0].id !== array[pos - 1][0].id
+          )
 
         this.visible = items.slice(0, MAX_ITEMS_VISIBLE)
         this.loading = false
@@ -104,14 +106,16 @@ export default {
         this.$emit('load', this.feed)
 
         // Wait a bit before showing the first unreads
-        setTimeout(() => this.recentlyLoaded = false, 5000)
+        setTimeout(() => (this.recentlyLoaded = false), 5000)
       })
-      this.stream.on('update', note => {
+      this.stream.on('update', (note) => {
         if (!this.filterNote(note, this.feed.hideBots)) return
         if (note.createdAt >= this.timestampNewest) {
           this.newer.push([note]) // TODO Single element thread
         } else if (note.createdAt >= this.timestampOldest) {
-          const idx = this.visible.findIndex(thread => thread[0].createdAt >= note.createdAt)
+          const idx = this.visible.findIndex(
+            (thread) => thread[0].createdAt >= note.createdAt
+          )
           this.visible.splice(idx, 0, [note]) // TODO Single element thread
         }
       })
@@ -138,17 +142,18 @@ export default {
 
       // Wait a bit before showing unreads again
       this.recentlyLoaded = true
-      setTimeout(() => this.recentlyLoaded = false, 5000)
+      setTimeout(() => (this.recentlyLoaded = false), 5000)
 
       return true
     },
     async loadOlder() {
-      const feedFilters = typeof this.feed.filters === 'function'
-        ? this.feed.filters()
-        : this.feed.filters
+      const feedFilters =
+        typeof this.feed.filters === 'function'
+          ? this.feed.filters()
+          : this.feed.filters
 
       const until = this.timestampOldest || DateUtils.now()
-      const filters = Object.assign({}, feedFilters, {until})
+      const filters = Object.assign({}, feedFilters, { until })
 
       if (this.older.length >= filters.limit) {
         const chunk = this.older.splice(0, filters.limit)
@@ -159,11 +164,13 @@ export default {
       // Remove any residual older items
       this.older = []
 
-      const older = await this.nostr.fetch(filters, {subId: `feed:${this.feed.name}-older`})
+      const older = await this.nostr.fetch(filters, {
+        subId: `feed:${this.feed.name}-older`,
+      })
       const items = older
-        .filter(note => note.createdAt <= until)
-        .filter(note => this.filterNote(note, this.feed.hideBots))
-        .map(note => [note]) // TODO Single element thread
+        .filter((note) => note.createdAt <= until)
+        .filter((note) => this.filterNote(note, this.feed.hideBots))
+        .map((note) => [note]) // TODO Single element thread
         .sort(feedOrder)
 
       // TODO Deduplicate feed items
@@ -183,7 +190,7 @@ export default {
   },
   unmounted() {
     if (this.stream) this.stream.close()
-  }
+  },
 }
 </script>
 

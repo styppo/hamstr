@@ -1,8 +1,5 @@
 <template>
-  <div
-    class="post-editor"
-    :class="{compact, collapsed, connector}"
-  >
+  <div class="post-editor" :class="{ compact, collapsed, connector }">
     <div class="post-editor-author">
       <div v-if="connector" class="connector-top">
         <div class="connector-line"></div>
@@ -24,7 +21,7 @@
           <div class="controls-media-item">
             <BaseIcon icon="emoji" />
             <q-menu ref="menuEmojiPicker">
-              <EmojiPicker @select="onEmojiSelected"/>
+              <EmojiPicker @select="onEmojiSelected" />
             </q-menu>
           </div>
           <div class="controls-media-item disabled">
@@ -32,15 +29,19 @@
           </div>
         </div>
         <div class="controls-submit">
-          <button :disabled="!hasContent() || publishing" @click="publishPost" class="btn btn-primary btn-sm">
+          <button
+            :disabled="!hasContent() || publishing"
+            @click="publishPost"
+            class="btn btn-primary btn-sm"
+          >
             <q-spinner v-if="publishing" />
-            <span v-else>Post</span>
+            <span v-else>{{ $t("Post") }}</span>
           </button>
         </div>
       </div>
     </div>
     <div class="post-editor-fake-submit" v-if="collapsed">
-      <button class="btn btn-primary btn-sm" disabled>Post</button>
+      <button class="btn btn-primary btn-sm" disabled>{{ $t("Post") }}</button>
     </div>
   </div>
 </template>
@@ -50,9 +51,10 @@ import AutoSizeTextarea from 'components/CreatePost/AutoSizeTextarea.vue'
 import UserAvatar from 'components/User/UserAvatar.vue'
 import BaseIcon from 'components/BaseIcon/index.vue'
 import EmojiPicker from 'components/CreatePost/EmojiPicker.vue'
-import {useAppStore} from 'stores/App'
-import {useNostrStore} from 'src/nostr/NostrStore'
+import { useAppStore } from 'stores/App'
+import { useNostrStore } from 'src/nostr/NostrStore'
 import EventBuilder from 'src/nostr/EventBuilder'
+import { $t } from 'src/boot/i18n'
 
 export default {
   name: 'PostEditor',
@@ -69,7 +71,7 @@ export default {
     },
     placeholder: {
       type: String,
-      default: 'What\'s happening?',
+      default: "What's happening?",
     },
     compact: {
       type: Boolean,
@@ -82,7 +84,7 @@ export default {
     expanded: {
       type: Boolean,
       default: false,
-    }
+    },
   },
   emits: ['publish'],
   data() {
@@ -116,25 +118,30 @@ export default {
       this.publishing = true
 
       const event = this.ancestor
-        ? EventBuilder.reply(this.ancestor, this.app.myPubkey, this.content).build()
+        ? EventBuilder.reply(
+            this.ancestor,
+            this.app.myPubkey,
+            this.content
+          ).build()
         : EventBuilder.post(this.app.myPubkey, this.content).build()
-      if (!await this.app.signEvent(event)) return
+      if (!(await this.app.signEvent(event))) return
 
       const numRelays = await this.nostr.publish(event)
       if (numRelays) {
         this.reset()
         this.$emit('publish', event)
 
-        // TODO i18n
         const postType = this.ancestor ? 'Reply' : 'Post'
         this.$q.notify({
-          message: `${postType} published to ${numRelays} relays`,
+          message: $t(`${postType} published to {numRelays} relays`, {
+            numRelays,
+          }),
           color: 'positive',
         })
       } else {
         this.$q.notify({
-          message: `Failed to publish post`,
-          color: 'negative'
+          message: $t(`Failed to publish post`),
+          color: 'negative',
         })
       }
 
@@ -204,11 +211,11 @@ export default {
           width: 32px;
           height: 32px;
           border-radius: 999px;
-          cursor:pointer;
+          cursor: pointer;
           padding: 5px;
           svg {
             width: 100%;
-            fill: $color-primary
+            fill: $color-primary;
           }
           &:hover {
             background-color: rgba($color: $color-primary, $alpha: 0.3);

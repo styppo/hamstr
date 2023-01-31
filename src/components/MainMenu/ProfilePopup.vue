@@ -15,11 +15,17 @@
         </div>
       </div>
     </div>
-    <q-menu :offset="[0, 20]" target=".menu-profile" class="menu-profile-popup" >
+    <q-menu :offset="[0, 20]" target=".menu-profile" class="menu-profile-popup">
       <div>
-        <div v-for="(_, pk) in settings.accounts" :key="pk" class="popup-header" @click="app.switchAccount(pk)" v-close-popup>
+        <div
+          v-for="(_, pk) in settings.accounts"
+          :key="pk"
+          class="popup-header"
+          @click="app.switchAccount(pk)"
+          v-close-popup
+        >
           <div class="sidebar-profile-pic">
-            <UserAvatar :pubkey="pk" :clickable="false"/>
+            <UserAvatar :pubkey="pk" :clickable="false" />
           </div>
           <div class="menu-profile-items">
             <div class="profile-info">
@@ -32,18 +38,21 @@
             </div>
           </div>
         </div>
-        <hr class="popup-spacing">
+        <hr class="popup-spacing" />
         <div class="popup-body">
           <div class="popup-body-item" @click="app.signIn()" v-close-popup>
-            <p>Add an account</p>
+            <p>{{ $t("Add an account") }}</p>
           </div>
-          <hr class="popup-spacing">
+          <hr class="popup-spacing" />
           <div
             class="popup-body-item"
             @click="$refs.logout.show()"
             v-close-popup
           >
-            <p>Logout from <span><UserName :pubkey="pubkey" /></span></p>
+            <p>
+              {{ $t("Logout from") }}
+              <span><UserName :pubkey="pubkey" /></span>
+            </p>
           </div>
         </div>
       </div>
@@ -57,8 +66,8 @@ import BaseIcon from 'components/BaseIcon/index.vue'
 import UserAvatar from 'components/User/UserAvatar.vue'
 import UserName from 'components/User/UserName.vue'
 import LogoutDialog from 'components/User/LogoutDialog.vue'
-import {useAppStore} from 'stores/App'
-import {useSettingsStore} from 'stores/Settings'
+import { useAppStore } from 'stores/App'
+import { useSettingsStore } from 'stores/Settings'
 
 export default {
   name: 'ProfilePopup',
@@ -66,7 +75,7 @@ export default {
     LogoutDialog,
     UserName,
     UserAvatar,
-    BaseIcon
+    BaseIcon,
   },
   setup() {
     return {
@@ -80,7 +89,7 @@ export default {
     },
     accounts() {
       return this.settings.accounts
-    }
+    },
   },
 }
 </script>
@@ -94,7 +103,7 @@ export default {
   align-items: center;
   margin-bottom: 1rem;
   margin-right: 1rem;
-  padding: .5rem 1rem;
+  padding: 0.5rem 1rem;
   cursor: pointer;
   border-radius: 999px;
   transition: 120ms ease-in-out;
@@ -207,10 +216,9 @@ export default {
   }
 }
 
-
 @media screen and (max-width: $phone) {
   .menu-profile {
-    padding: .5rem;
+    padding: 0.5rem;
     margin: 0 auto 1rem auto;
     &-wrapper {
       padding: 0 1rem;

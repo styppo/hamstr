@@ -1,28 +1,30 @@
 <template>
   <div class="sign-in">
-    <h3>{{ header }}</h3>
+    <h3>{{ $t(header) }}</h3>
     <q-form @submit.stop="signIn">
-      <label for="private-key">{{ prompt }}</label>
+      <label for="private-key">{{ $t(prompt) }}</label>
       <input
         ref="input"
         v-model="key"
-        :placeholder="placeholder"
+        :placeholder="$t(placeholder)"
         maxlength="63"
         :class="{
           valid: validKey,
           invalid: invalidKey,
         }"
       />
-      <button type="submit" class="btn btn-primary" :disabled="!validKey">{{ buttonLabel }}</button>
+      <button type="submit" class="btn btn-primary" :disabled="!validKey">
+        {{ $t(buttonLabel) }}
+      </button>
     </q-form>
   </div>
 </template>
 
 <script>
-import {decode as bech32decode} from 'bech32-buffer'
-import {bech32prefix, bech32ToHex} from 'src/utils/utils'
-import {useSettingsStore} from 'stores/Settings'
-import {useAppStore} from 'stores/App'
+import { decode as bech32decode } from 'bech32-buffer'
+import { bech32prefix, bech32ToHex } from 'src/utils/utils'
+import { useSettingsStore } from 'stores/Settings'
+import { useAppStore } from 'stores/App'
 
 export default {
   name: 'SignInForm',
@@ -31,7 +33,7 @@ export default {
     privateKeyOnly: {
       type: Boolean,
       default: false,
-    }
+    },
   },
   data() {
     return {
@@ -40,44 +42,35 @@ export default {
   },
   computed: {
     header() {
-      // TODO i18n
-      return this.privateKeyOnly
-        ? 'Private key needed'
-        : 'Log in'
+      return this.privateKeyOnly ? 'Private key needed' : 'Log in'
     },
     prompt() {
-      // TODO i18n
       return this.privateKeyOnly
         ? 'Paste your private key to continue'
         : 'Paste your public or private key'
     },
     placeholder() {
-      // TODO i18n
-      return this.privateKeyOnly
-        ? 'nsec…'
-        : 'npub… / nsec…'
+      return this.privateKeyOnly ? 'nsec…' : 'npub… / nsec…'
     },
     buttonLabel() {
-      // TODO i18n
-      return this.privateKeyOnly
-        ? 'Continue'
-        : 'Log in'
+      return this.privateKeyOnly ? 'Continue' : 'Log in'
     },
     validKey() {
       return this.isValidKey(this.key)
     },
     invalidKey() {
-      return this.key
-        && this.key.length >= 63
-        && !this.isValidKey(this.key)
-    }
+      return this.key && this.key.length >= 63 && !this.isValidKey(this.key)
+    },
   },
   methods: {
     isValidKey(str) {
       if (!str) return false
       try {
-        const {data, prefix} = bech32decode(str.toLowerCase())
-        return data.byteLength === 32 && ((prefix === 'npub' && !this.privateKeyOnly) || prefix === 'nsec')
+        const { data, prefix } = bech32decode(str.toLowerCase())
+        return (
+          data.byteLength === 32 &&
+          ((prefix === 'npub' && !this.privateKeyOnly) || prefix === 'nsec')
+        )
       } catch (e) {
         return false
       }
@@ -87,15 +80,15 @@ export default {
 
       let opts
       if (bech32prefix(this.key) === 'npub') {
-        opts = {pubkey: bech32ToHex(this.key)}
+        opts = { pubkey: bech32ToHex(this.key) }
       } else {
-        opts = {privkey: bech32ToHex(this.key)}
+        opts = { privkey: bech32ToHex(this.key) }
       }
 
       const account = useSettingsStore().addAccount(opts)
       useAppStore().switchAccount(account.pubkey)
 
-      this.$emit('complete', {pubkey: account.pubkey})
+      this.$emit('complete', { pubkey: account.pubkey })
     },
   },
   mounted() {

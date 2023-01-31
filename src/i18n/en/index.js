@@ -2,5 +2,6 @@
 // so you can safely delete all default props below
 
 export default {
-  'thread': 'Thread'
+  thread: 'Thread',
+  'Load {unread} unread': 'Load {unread} unread',
 }

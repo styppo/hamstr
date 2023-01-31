@@ -12,8 +12,8 @@
         indicator-color="primary"
         :breakpoint="0"
       >
-        <q-tab name="following" label="Following" />
-        <q-tab name="followers" label="Followers" />
+        <q-tab name="following" :label="$t('Following')" />
+        <q-tab name="followers" :label="$t('Followers')" />
       </q-tabs>
     </div>
 
@@ -41,12 +41,12 @@
 </template>
 
 <script>
-import {defineComponent} from 'vue'
+import { defineComponent } from 'vue'
 import PageHeader from 'components/PageHeader.vue'
 import UserCard from 'components/User/UserCard.vue'
-import {useAppStore} from 'stores/App'
-import {useNostrStore} from 'src/nostr/NostrStore'
-import {bech32ToHex, hexToBech32} from 'src/utils/utils'
+import { useAppStore } from 'stores/App'
+import { useNostrStore } from 'src/nostr/NostrStore'
+import { bech32ToHex, hexToBech32 } from 'src/utils/utils'
 import UserName from 'components/User/UserName.vue'
 
 export default defineComponent({
@@ -91,11 +91,11 @@ export default defineComponent({
     activeTab() {
       this.$router.replace({
         params: {
-          tab: this.activeTab
-        }
+          tab: this.activeTab,
+        },
       })
-    }
-  }
+    },
+  },
 })
 </script>
 
@@ -133,7 +133,8 @@ export default defineComponent({
   }
 }
 .profile-header-content .username {
-  .name, .pubkey:first-child {
+  .name,
+  .pubkey:first-child {
     font-size: 1.4rem;
   }
 }

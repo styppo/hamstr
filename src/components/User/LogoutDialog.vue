@@ -1,22 +1,31 @@
 <template>
   <q-dialog v-model="dialogOpen">
     <div class="logout-dialog">
-      <q-btn icon="close" size="md" class="icon" flat round v-close-popup/>
-
-      <h3>Log out from <UserName :pubkey="pubkey" /></h3>
-      <p>
-        Do you really want to log out from <UserName :pubkey="pubkey" />?
-      </p>
+      <q-btn icon="close" size="md" class="icon" flat round v-close-popup />
+      <h3>
+        {{ $t("Do you really want to log out from") }}
+        <UserName :pubkey="pubkey" />?
+      </h3>
       <p v-if="privateKey" class="warning">
         <span class="warning-icon"><q-icon name="warning" size="lg" /></span>
         <span class="warning-content">
-          Make sure you have a backup of your private key! Otherwise it is impossible to log back in to your account.
+          {{
+            $t(
+              "Make sure you have a backup of your private key! Otherwise it is impossible to log back in to your account."
+            )
+          }}
         </span>
       </p>
-      <input v-if="privateKey" :value="hexToBech32(privateKey, 'nsec')" readonly />
+      <input
+        v-if="privateKey"
+        :value="hexToBech32(privateKey, 'nsec')"
+        readonly
+      />
       <div class="buttons">
-        <button class="btn btn-sm btn-primary" @click="logout" v-close-popup>Log out</button>
-        <button class="btn btn-sm" v-close-popup>Cancel</button>
+        <button class="btn btn-sm btn-primary" @click="logout" v-close-popup>
+          {{ $t("Log out") }}
+        </button>
+        <button class="btn btn-sm" v-close-popup>{{ $t("Cancel") }}</button>
       </div>
     </div>
   </q-dialog>
@@ -24,14 +33,14 @@
 
 <script>
 import UserName from 'components/User/UserName.vue'
-import {useAppStore} from 'stores/App'
-import {useSettingsStore} from 'stores/Settings'
-import {hexToBech32} from 'src/utils/utils'
+import { useAppStore } from 'stores/App'
+import { useSettingsStore } from 'stores/Settings'
+import { hexToBech32 } from 'src/utils/utils'
 
 export default {
   name: 'LogoutDialog',
   components: {
-    UserName
+    UserName,
   },
   props: {
     pubkey: {
@@ -51,7 +60,7 @@ export default {
   computed: {
     privateKey() {
       return useAppStore().activeAccount.privkey
-    }
+    },
   },
   methods: {
     hexToBech32,
@@ -63,7 +72,7 @@ export default {
     },
     dismiss() {
       this.dialogOpen = false
-    }
+    },
   },
 }
 </script>
@@ -83,17 +92,17 @@ export default {
     position: absolute;
     width: 16px;
     height: 16px;
-    top: .5rem;
-    left: .5rem;
+    top: 0.5rem;
+    left: 0.5rem;
     fill: #fff;
   }
 
   h3 {
     margin-top: 3rem;
-    padding: 0 .5rem;
+    padding: 0 0.5rem;
   }
   > p {
-    padding: 0 .5rem;
+    padding: 0 0.5rem;
   }
 
   .warning {

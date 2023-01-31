@@ -14,7 +14,7 @@
     <div class="post-content">
       <div class="post-content-header">
         <p v-if="note.hasAncestor()" class="in-reply-to">
-          Replying to
+          {{ $t("Replying to") }}
           <a @click.stop="goToProfile(ancestor?.author)">
             <UserName v-if="ancestor?.author" :pubkey="ancestor?.author" />
           </a>
@@ -32,7 +32,11 @@
           <span>{{ formatDate(note.createdAt) }}</span>
         </p>
         <div class="post-content-actions">
-          <PostActions :note="note" flavor="hero" @comment="$refs.editor.focus()" />
+          <PostActions
+            :note="note"
+            flavor="hero"
+            @comment="$refs.editor.focus()"
+          />
         </div>
       </div>
     </div>
@@ -41,7 +45,7 @@
         :ancestor="note"
         ref="editor"
         compact
-        placeholder="Post your reply"
+        :placeholder="$t('Post your reply')"
       />
     </div>
   </div>
@@ -52,8 +56,8 @@ import UserName from 'components/User/UserName.vue'
 import UserAvatar from 'components/User/UserAvatar.vue'
 import PostRenderer from 'components/Post/Renderer/PostRenderer.vue'
 import PostEditor from 'components/CreatePost/PostEditor.vue'
-import {useNostrStore} from 'src/nostr/NostrStore'
-import {useAppStore} from 'stores/App'
+import { useNostrStore } from 'src/nostr/NostrStore'
+import { useAppStore } from 'stores/App'
 import routerMixin from 'src/router/mixin'
 import DateUtils from 'src/utils/DateUtils'
 import PostActions from 'components/Post/PostActions.vue'
@@ -71,7 +75,7 @@ export default {
   props: {
     note: {
       type: Object,
-      required: true
+      required: true,
     },
     connector: {
       type: Boolean,
@@ -94,7 +98,7 @@ export default {
   methods: {
     formatDate: DateUtils.formatDate,
     formatTime: DateUtils.formatTime,
-  }
+  },
 }
 </script>
 
@@ -169,10 +173,10 @@ export default {
 }
 
 @media screen and (max-width: $phone) {
-  .post{
+  .post {
     &-content {
       &-header {
-        span{
+        span {
           display: none;
         }
         .created-at {

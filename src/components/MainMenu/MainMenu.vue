@@ -8,14 +8,16 @@
       </div>
       <div v-for="(route, i) in items" :key="i">
         <MenuItem
-          v-if="!hideItemsRequiringSignIn || !route.signInRequired || app.isSignedIn"
+          v-if="
+            !hideItemsRequiringSignIn || !route.signInRequired || app.isSignedIn
+          "
           :icon="route.name.toLowerCase()"
           :to="route.path"
           :enabled="route.enabled !== false"
           :indicator="route.indicator && route.indicator()"
           @click="$emit('mobile-menu-close')"
         >
-          {{ route.name }}
+          {{ $t(route.name) }}
         </MenuItem>
       </div>
       <MenuItem
@@ -25,14 +27,14 @@
         :enabled="app.isSignedIn"
         @click="$emit('mobile-menu-close')"
       >
-        Profile
+        {{ $t("Profile") }}
       </MenuItem>
       <MenuItem
         icon="settings"
         to="/settings"
         @click="$emit('mobile-menu-close')"
       >
-        Settings
+        {{ $t("Settings") }}
       </MenuItem>
 
       <div
@@ -40,7 +42,7 @@
         class="menu-post-button"
         @click="createPost"
       >
-        <span class="label">Post</span>
+        <span class="label">{{ $t("Post") }}</span>
         <BaseIcon class="icon" icon="pen" />
       </div>
     </div>
@@ -49,18 +51,15 @@
       <ProfilePopup v-if="app.isSignedIn" />
       <div v-else class="sign-in" @click="signIn">
         <q-icon class="icon" name="login" size="sm" />
-        <div class="label">Log in</div>
+        <div class="label">{{ $t("Log in") }}</div>
       </div>
     </div>
 
-    <div
-      class="mobile-close-menu-button"
-      @click="$emit('mobile-menu-close')"
-    >
+    <div class="mobile-close-menu-button" @click="$emit('mobile-menu-close')">
       <div class="icon">
         <BaseIcon icon="left" />
       </div>
-      <span>Close</span>
+      <span>{{ $t("Close") }}</span>
     </div>
   </menu>
 </template>
@@ -70,9 +69,9 @@ import MenuItem from 'components/MainMenu/MenuItem.vue'
 import BaseIcon from 'components/BaseIcon'
 import ProfilePopup from 'components/MainMenu/ProfilePopup'
 import Logo from 'components/Logo.vue'
-import {useAppStore} from 'stores/App'
-import {MENU_ITEMS} from 'components/MainMenu/constants.js'
-import {hexToBech32} from 'src/utils/utils'
+import { useAppStore } from 'stores/App'
+import { MENU_ITEMS } from 'components/MainMenu/constants.js'
+import { hexToBech32 } from 'src/utils/utils'
 
 export default {
   name: 'MainMenu',
@@ -80,13 +79,13 @@ export default {
     Logo,
     MenuItem,
     BaseIcon,
-    ProfilePopup
+    ProfilePopup,
   },
   props: {
     hideItemsRequiringSignIn: {
       type: Boolean,
       default: false,
-    }
+    },
   },
   emits: ['mobile-menu-close'],
   data() {
@@ -108,8 +107,8 @@ export default {
       this.$emit('mobile-menu-close')
       this.app.signIn()
     },
-    hexToBech32
-  }
+    hexToBech32,
+  },
 }
 </script>
 
@@ -134,7 +133,8 @@ menu {
     }
     &-logo {
       margin: 1rem 0;
-      svg, img {
+      svg,
+      img {
         display: block;
         width: 50px;
         height: 50px;

@@ -18,19 +18,19 @@ import 'emoji-mart-vue-fast/css/emoji-mart.css'
 export default {
   name: 'EmojiPicker',
   components: {
-    Picker
+    Picker,
   },
-emits: ['select'],
+  emits: ['select'],
   data() {
     return {
-      emojiIndex: new EmojiIndex(emojiData)
+      emojiIndex: new EmojiIndex(emojiData),
     }
   },
   methods: {
     onSelect(emoji) {
       this.$emit('select', emoji)
-    }
-  }
+    },
+  },
 }
 </script>
 

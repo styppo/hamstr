@@ -1,14 +1,32 @@
 <template>
   <div class="relay-settings">
-    <h3>Relays</h3>
+    <h3>{{ $t("Relays") }}</h3>
     <div v-for="relay in settings.relays" :key="relay" class="relay">
       <span class="relay-url">{{ relay }}</span>
-<!--      <q-icon v-if="isConnected(relay)" icon="fiber_manual_record" size="sm" class="connected" />-->
-      <q-btn icon="delete_outline" size="sm" class="btn-icon" flat round @click="removeRelay(relay)" />
+      <!--      <q-icon v-if="isConnected(relay)" icon="fiber_manual_record" size="sm" class="connected" />-->
+
+      <q-btn
+        icon="delete_outline"
+        size="sm"
+        class="btn-icon"
+        flat
+        round
+        @click="removeRelay(relay)"
+      >
+        <q-tooltip>{{ $t("Delete relay") }}</q-tooltip>
+      </q-btn>
     </div>
     <q-form class="add-relay" @submit.stop="addRelay">
-      <q-input v-model="newRelayUrl" label="Add a relay" dense />
-      <q-btn type="submit" icon="add_circle_outline" size="sm" flat round class="btn-icon" />
+      <q-input v-model="newRelayUrl" :label="$t('Add relay')" dense />
+      <q-btn
+        type="submit"
+        icon="add_circle_outline"
+        size="sm"
+        flat
+        round
+        :disabled="!newRelayUrl"
+        class="btn-icon"
+      />
     </q-form>
     <div class="buttons">
       <button
@@ -16,15 +34,15 @@
         :disabled="!changed"
         @click="settings.restoreDefaultRelays()"
       >
-        Restore defaults
+        {{ $t("Restore defaults") }}
       </button>
     </div>
   </div>
 </template>
 
 <script>
-import {useSettingsStore} from 'stores/Settings'
-import {Notify} from 'quasar'
+import { useSettingsStore } from 'stores/Settings'
+import { Notify } from 'quasar'
 // import {useNostrStore} from 'src/nostr/NostrStore'
 
 export default {
@@ -43,7 +61,7 @@ export default {
   computed: {
     changed() {
       return !this.settings.hasDefaultRelays()
-    }
+    },
   },
   methods: {
     addRelay() {
@@ -53,14 +71,14 @@ export default {
       } catch (e) {
         Notify.create({
           message: 'Invalid URL',
-          color: 'negative'
+          color: 'negative',
         })
         return
       }
       if (url.protocol !== 'wss:') {
         Notify.create({
           message: 'Must be a wss:// URL',
-          color: 'negative'
+          color: 'negative',
         })
         return
       }
@@ -71,7 +89,7 @@ export default {
       if (this.settings.hasRelay(href)) {
         Notify.create({
           message: 'Relay already exists',
-          color: 'negative'
+          color: 'negative',
         })
         return
       }
@@ -84,7 +102,7 @@ export default {
     // isConnected(url) {
     //   return this.nostr.client.isConnectedTo(url)
     // }
-  }
+  },
 }
 </script>
 
@@ -100,7 +118,7 @@ export default {
   .relay {
     display: flex;
     align-items: center;
-    padding: .5rem;
+    padding: 0.5rem;
     border-bottom: $border-dark;
     transition: 200ms ease;
     &:hover {
@@ -121,7 +139,7 @@ export default {
     }
     .btn-icon {
       position: absolute;
-      right: .5rem;
+      right: 0.5rem;
       top: 7px;
     }
   }
@@ -136,7 +154,7 @@ export default {
       font-weight: 600;
     }
     button + button {
-      margin-left: .5rem;
+      margin-left: 0.5rem;
     }
   }
 }
@@ -147,11 +165,11 @@ export default {
 .relay-settings .add-relay {
   .q-field__label {
     color: $color-light-gray;
-    margin: 0 .5rem;
+    margin: 0 0.5rem;
   }
   input {
     color: #fff;
-    padding: 0 .5rem;
+    padding: 0 0.5rem;
     font-weight: 500;
   }
   .q-field__control {

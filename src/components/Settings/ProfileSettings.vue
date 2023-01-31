@@ -1,32 +1,61 @@
 <template>
-  <q-form v-if="app.isSignedIn" class="profile-settings" @submit.stop="updateProfile">
-    <h3>Profile</h3>
+  <q-form
+    v-if="app.isSignedIn"
+    class="profile-settings"
+    @submit.stop="updateProfile"
+  >
+    <h3>{{ $t("Profile") }}</h3>
     <div class="input">
-      <q-input v-model="name" label="Name" maxlength="64" dense />
+      <q-input v-model="name" :label="$t('Name')" maxlength="64" dense />
     </div>
     <div class="input">
-      <q-input v-model="about" label="About" maxlength="150" autogrow dense />
+      <q-input
+        v-model="about"
+        :label="$t('About')"
+        maxlength="150"
+        autogrow
+        dense
+      />
     </div>
     <div class="input">
-      <q-input v-model="picture" label="Picture URL" dense />
-      <img v-if="picture" :src="picture" class="picture-preview" loading="lazy" />
+      <q-input v-model="picture" :label="$t('Picture URL')" dense />
+      <img
+        v-if="picture"
+        :src="picture"
+        class="picture-preview"
+        loading="lazy"
+      />
     </div>
     <div class="input">
-      <q-input v-model="nip05" label="NIP05 Identifier" dense />
-      <q-icon v-if="verified" name="verified" class="nip05-verified" size="sm" />
+      <q-input v-model="nip05" :label="$t('NIP05 Identifier')" dense />
+      <q-icon
+        v-if="verified"
+        name="verified"
+        class="nip05-verified"
+        size="sm"
+      />
     </div>
     <div class="buttons">
-      <button type="submit" :disabled="!changed" class="btn btn-sm btn-primary">Save</button>
-      <button class="btn btn-sm" :disabled="!changed" @click="setDataFromProfile">Reset</button>
+      <button type="submit" :disabled="!changed" class="btn btn-sm btn-primary">
+        {{ $t("Save") }}
+      </button>
+      <button
+        class="btn btn-sm"
+        :disabled="!changed"
+        @click="setDataFromProfile"
+      >
+        {{ $t("Reset") }}
+      </button>
     </div>
   </q-form>
 </template>
 
 <script>
-import {useNostrStore} from 'src/nostr/NostrStore'
-import {useAppStore} from 'stores/App'
+import { useNostrStore } from 'src/nostr/NostrStore'
+import { useAppStore } from 'stores/App'
 import Nip05 from 'src/utils/Nip05'
 import EventBuilder from 'src/nostr/EventBuilder'
+import { $t } from 'src/boot/i18n'
 
 export default {
   name: 'ProfileSettings',
@@ -55,18 +84,20 @@ export default {
       return this.nostr.getProfile(this.pubkey)
     },
     changed() {
-      return this.name !== (this.profile?.name || '')
-        || this.about !== (this.profile?.about || '')
-        || this.picture !== (this.profile?.picture || '')
-        || this.nip05 !== (this.profile?.nip05?.url || '')
+      return (
+        this.name !== (this.profile?.name || '') ||
+        this.about !== (this.profile?.about || '') ||
+        this.picture !== (this.profile?.picture || '') ||
+        this.nip05 !== (this.profile?.nip05?.url || '')
+      )
     },
   },
   methods: {
     setDataFromProfile() {
-      this.name = (this.profile?.name || '')
-      this.about = (this.profile?.about || '')
-      this.picture = (this.profile?.picture || '')
-      this.nip05 = (this.profile?.nip05.url || '')
+      this.name = this.profile?.name || ''
+      this.about = this.profile?.about || ''
+      this.picture = this.profile?.picture || ''
+      this.nip05 = this.profile?.nip05.url || ''
       this.verified = this.profile?.nip05.verified
     },
     async updateProfile() {
@@ -77,11 +108,11 @@ export default {
         nip05: this.nip05 || undefined,
       }
       const event = EventBuilder.metadata(this.pubkey, metadata).build()
-      if (!await this.app.signEvent(event)) return
-      if (!await this.nostr.publish(event)) {
+      if (!(await this.app.signEvent(event))) return
+      if (!(await this.nostr.publish(event))) {
         this.$q.notify({
-          message: 'Failed to update profile',
-          color: 'negative'
+          message: $t('Failed to update profile'),
+          color: 'negative',
         })
       }
     },
@@ -92,11 +123,11 @@ export default {
     },
     async nip05() {
       this.verified = await Nip05.verify(this.pubkey, this.nip05)
-    }
+    },
   },
   mounted() {
     this.setDataFromProfile()
-  }
+  },
 }
 </script>
 
@@ -134,7 +165,7 @@ export default {
       font-weight: 600;
     }
     button + button {
-      margin-left: .5rem;
+      margin-left: 0.5rem;
     }
   }
 }
@@ -145,11 +176,12 @@ export default {
 .profile-settings .input {
   .q-field__label {
     color: $color-light-gray;
-    margin: 0 .5rem;
+    margin: 0 0.5rem;
   }
-  input, textarea {
+  input,
+  textarea {
     color: #fff;
-    padding: 0 .5rem;
+    padding: 0 0.5rem;
     font-weight: 500;
   }
   .q-field__control {

@@ -1,5 +1,10 @@
 <template>
-  <q-dialog v-model="app.signInDialog.open" @before-show="updateFragment" @hide="onClose" ref="signInDialog">
+  <q-dialog
+    v-model="app.signInDialog.open"
+    @before-show="updateFragment"
+    @hide="onClose"
+    ref="signInDialog"
+  >
     <div class="sign-in-dialog">
       <q-btn
         v-if="showClose"
@@ -29,17 +34,39 @@
         <p class="prompt">
           {{ prompt }}
         </p>
-        <button v-if="nip07available" class="btn btn-primary" @click.stop="signInNip07()">Log in with Extension</button>
-        <button class="btn" :class="{'btn-primary': !nip07available}" @click.stop="fragment = 'sign-up'">
-          Create Account
+        <button
+          v-if="nip07available"
+          class="btn btn-primary"
+          @click.stop="signInNip07()"
+        >
+          {{ $t("Log in with Extension") }}
         </button>
-        <button v-if="!nip07available" class="btn" @click.stop="fragment = 'sign-in'">Log in</button>
-        <a v-else @click.stop="fragment = 'sign-in'">Log in with key</a>
+        <button
+          class="btn"
+          :class="{ 'btn-primary': !nip07available }"
+          @click.stop="fragment = 'sign-up'"
+        >
+          {{ $t("Create Account") }}
+        </button>
+        <button
+          v-if="!nip07available"
+          class="btn"
+          @click.stop="fragment = 'sign-in'"
+        >
+          {{ $t("Log in") }}
+        </button>
+        <a v-else @click.stop="fragment = 'sign-in'">{{
+          $t("Log in with key")
+        }}</a>
       </div>
 
       <SignUpForm v-if="fragment === 'sign-up'" @complete="onComplete" />
-      <SignInForm v-if="fragment === 'sign-in'" @complete="onComplete"/>
-      <SignInForm v-if="fragment === 'private-key'" @complete="onComplete" private-key-only />
+      <SignInForm v-if="fragment === 'sign-in'" @complete="onComplete" />
+      <SignInForm
+        v-if="fragment === 'private-key'"
+        @complete="onComplete"
+        private-key-only
+      />
     </div>
   </q-dialog>
 </template>
@@ -49,8 +76,8 @@ import Logo from 'components/Logo.vue'
 import UserAvatar from 'components/User/UserAvatar.vue'
 import SignUpForm from 'components/SignIn/SignUpForm.vue'
 import SignInForm from 'components/SignIn/SignInForm.vue'
-import {useAppStore} from 'stores/App'
-import {useSettingsStore} from 'stores/Settings'
+import { useAppStore } from 'stores/App'
+import { useSettingsStore } from 'stores/Settings'
 import Nip07 from 'src/utils/Nip07'
 
 export default {
@@ -59,13 +86,13 @@ export default {
     Logo,
     UserAvatar,
     SignInForm,
-    SignUpForm
+    SignUpForm,
   },
   props: {
     prompt: {
       type: String,
-      default: ''
-    }
+      default: '',
+    },
   },
   setup() {
     return {
@@ -89,7 +116,7 @@ export default {
     },
     nip07available() {
       return Nip07.isAvailable()
-    }
+    },
   },
   methods: {
     onClose() {
@@ -99,7 +126,7 @@ export default {
       this.fragment = 'welcome'
       this.pubkey = null
     },
-    onComplete({pubkey}) {
+    onComplete({ pubkey }) {
       this.pubkey = pubkey
       this.$refs.signInDialog.hide()
     },
@@ -117,7 +144,7 @@ export default {
       this.settings.addAccount(account)
       this.app.switchAccount(pubkey)
 
-      this.onComplete({pubkey})
+      this.onComplete({ pubkey })
     },
   },
 }
@@ -137,8 +164,8 @@ export default {
     position: absolute;
     width: 16px;
     height: 16px;
-    top: .5rem;
-    left: .5rem;
+    top: 0.5rem;
+    left: 0.5rem;
     fill: #fff;
   }
   .logo {
@@ -178,5 +205,4 @@ export default {
     width: 100%;
   }
 }
-
 </style>

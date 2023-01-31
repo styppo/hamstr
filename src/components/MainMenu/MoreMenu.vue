@@ -9,7 +9,7 @@
         <base-icon :icon="item.icon" />
       </div>
       <div class="content">
-        {{ item.name }}
+        {{ $t(item.name) }}
       </div>
     </div>
   </div>

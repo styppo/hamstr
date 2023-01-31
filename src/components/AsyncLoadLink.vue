@@ -2,9 +2,9 @@
   <div ref="link" class="async-load-link" @click="load">
     <q-spinner v-if="loading" size="sm" />
     <span v-else>
-      {{ noMore ? prefixNoMore : (!hasItems ? prefix : '') }}
+      {{ $t(noMore ? prefixNoMore : !hasItems ? prefix : "") }}
       <a>
-        {{ noMore ? labelNoMore : label }}
+        {{ $t(noMore ? labelNoMore : label) }}
       </a>
     </span>
   </div>
@@ -23,19 +23,19 @@ export default defineComponent({
     },
     label: {
       type: String,
-      default: 'Load more'
+      default: 'Load more',
     },
     labelNoMore: {
       type: String,
-      default: 'Try again?'
+      default: 'Try again?',
     },
     prefix: {
       type: String,
-      default: 'Nothing here.'
+      default: 'Nothing here.',
     },
     prefixNoMore: {
       type: String,
-      default: 'Nothing found.'
+      default: 'Nothing found.',
     },
     hasItems: {
       type: Boolean,
@@ -44,7 +44,7 @@ export default defineComponent({
     autoload: {
       type: Boolean,
       default: false,
-    }
+    },
   },
   data() {
     return {
@@ -65,7 +65,7 @@ export default defineComponent({
 
       this.loading = false
       this.$emit('loaded', result)
-    }
+    },
   },
   mounted() {
     if (this.autoload) {
@@ -78,7 +78,7 @@ export default defineComponent({
   },
   unmounted() {
     if (this.observer) this.observer.disconnect()
-  }
+  },
 })
 </script>
 

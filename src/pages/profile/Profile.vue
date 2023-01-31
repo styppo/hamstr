@@ -12,20 +12,23 @@
         <p class="about">{{ profile?.about }}</p>
         <p class="followers">
           <a @click="goToFollowers('following')">
-            <strong>{{ contacts?.length || 0 }}</strong> Following
+            <strong>{{ contacts?.length || 0 }}</strong> {{ $t("Following") }}
           </a>
           <a @click="goToFollowers('followers')">
-            <strong>{{ followers?.length ? `${followers?.length}+` : 0 }}</strong> Followers
+            <strong>{{
+              followers?.length ? `${followers?.length}+` : 0
+            }}</strong>
+            {{ $t("Followers") }}
           </a>
         </p>
         <p class="actions">
           <a @click="goToConversation">
             <BaseIcon icon="messages" />
-            <q-tooltip>Send private message</q-tooltip>
+            <q-tooltip>{{ $t("Send private message") }}</q-tooltip>
           </a>
-          <a :href="lightningLink" :class="{disabled: !lightningLink}">
+          <a :href="lightningLink" :class="{ disabled: !lightningLink }">
             <q-icon name="bolt" size="sm" />
-            <q-tooltip>Tip with Bitcoin Lightning</q-tooltip>
+            <q-tooltip>{{ $t("Tip with Bitcoin Lightning") }}</q-tooltip>
           </a>
         </p>
       </div>
@@ -39,10 +42,10 @@
         indicator-color="primary"
         :breakpoint="0"
       >
-        <q-tab name="posts" label="Posts" />
-        <q-tab name="replies" label="Replies" />
-        <q-tab name="reactions" label="Reactions" />
-        <q-tab name="relays" label="Relays" />
+        <q-tab name="posts" :label="$t('Posts')" />
+        <q-tab name="replies" :label="$t('Replies')" />
+        <q-tab name="reactions" :label="$t('Reactions')" />
+        <q-tab name="relays" :label="$t('Relays')" />
       </q-tabs>
     </div>
 
@@ -61,23 +64,21 @@
       </q-tab-panel>
       <q-tab-panel name="replies" class="no-padding">
         <template v-for="(thread, i) in replies">
-          <Thread
-            v-if="defer(i)"
-            :key="thread[1].id"
-            :thread="thread"
-          />
+          <Thread v-if="defer(i)" :key="thread[1].id" :thread="thread" />
         </template>
-        <AsyncLoadLink :load-fn="loadMorePosts" :has-items="!!replies?.length" />
+        <AsyncLoadLink
+          :load-fn="loadMorePosts"
+          :has-items="!!replies?.length"
+        />
       </q-tab-panel>
       <q-tab-panel name="reactions" class="no-padding">
         <template v-for="(thread, i) in reactions">
-          <Thread
-            v-if="defer(i)"
-            :key="thread[1].id"
-            :thread="thread"
-          />
+          <Thread v-if="defer(i)" :key="thread[1].id" :thread="thread" />
         </template>
-        <AsyncLoadLink :load-fn="loadMoreReactions" :has-items="!!reactions?.length" />
+        <AsyncLoadLink
+          :load-fn="loadMoreReactions"
+          :has-items="!!reactions?.length"
+        />
       </q-tab-panel>
       <q-tab-panel name="relays" class="no-padding">
         <ListPlaceholder :count="0" />
@@ -87,7 +88,7 @@
 </template>
 
 <script>
-import {defineComponent} from 'vue'
+import { defineComponent } from 'vue'
 import PageHeader from 'components/PageHeader.vue'
 import UserAvatar from 'components/User/UserAvatar.vue'
 import UserName from 'components/User/UserName.vue'
@@ -97,11 +98,11 @@ import ListPlaceholder from 'components/ListPlaceholder.vue'
 import FollowButton from 'components/User/FollowButton.vue'
 import BaseIcon from 'components/BaseIcon/index.vue'
 import AsyncLoadLink from 'components/AsyncLoadLink.vue'
-import {useAppStore} from 'stores/App'
-import {useNostrStore} from 'src/nostr/NostrStore'
-import {bech32ToHex, hexToBech32} from 'src/utils/utils'
+import { useAppStore } from 'stores/App'
+import { useNostrStore } from 'src/nostr/NostrStore'
+import { bech32ToHex, hexToBech32 } from 'src/utils/utils'
 import Defer from 'src/utils/Defer'
-import {EventKind} from 'src/nostr/model/Event'
+import { EventKind } from 'src/nostr/model/Event'
 import DateUtils from 'src/utils/DateUtils'
 
 export default defineComponent({
@@ -143,16 +144,18 @@ export default defineComponent({
       return this.nostr.getPostsByAuthor(this.pubkey)
     },
     posts() {
-      return this.notes?.filter(note => !note.hasAncestor())
+      return this.notes?.filter((note) => !note.hasAncestor())
     },
     replies() {
-      return this.notes?.filter(note => note.hasAncestor())
-        .map(note => [this.nostr.getNote(note.ancestor()), note])
+      return this.notes
+        ?.filter((note) => note.hasAncestor())
+        .map((note) => [this.nostr.getNote(note.ancestor()), note])
         .slice(0, 50)
     },
     reactions() {
-      return this.nostr.getReactionsByAuthor(this.pubkey)
-        .map(note => [this.nostr.getNote(note.ancestor()), note])
+      return this.nostr
+        .getReactionsByAuthor(this.pubkey)
+        .map((note) => [this.nostr.getNote(note.ancestor()), note])
         .slice(0, 50)
     },
     relays() {
@@ -174,7 +177,8 @@ export default defineComponent({
   },
   methods: {
     loadMorePosts() {
-      const oldest = this.notes?.[this.notes.length - 1]?.createdAt || DateUtils.now()
+      const oldest =
+        this.notes?.[this.notes.length - 1]?.createdAt || DateUtils.now()
       return this.nostr.fetch({
         kinds: [EventKind.NOTE],
         authors: [this.pubkey],
@@ -183,7 +187,9 @@ export default defineComponent({
       })
     },
     loadMoreReactions() {
-      const oldest = this.reactions?.[this.reactions.length - 1]?.createdAt || DateUtils.now()
+      const oldest =
+        this.reactions?.[this.reactions.length - 1]?.createdAt ||
+        DateUtils.now()
       return this.nostr.fetch({
         kinds: [EventKind.REACTION],
         authors: [this.pubkey],
@@ -197,7 +203,7 @@ export default defineComponent({
         params: {
           pubkey: hexToBech32(this.pubkey, 'npub'),
           tab,
-        }
+        },
       })
     },
     goToConversation() {
@@ -205,7 +211,7 @@ export default defineComponent({
         name: 'conversation',
         params: {
           pubkey: hexToBech32(this.pubkey, 'npub'),
-        }
+        },
       })
     },
   },
@@ -213,16 +219,18 @@ export default defineComponent({
     activeTab() {
       this.$router.replace({
         params: {
-          tab: this.activeTab
-        }
+          tab: this.activeTab,
+        },
       })
     },
   },
   mounted() {
-    this.nostr.fetchPostsByAuthor(this.pubkey, 50)
-      .then(() => this.loadingNotes = false)
-    this.nostr.fetchReactionsByAuthor(this.pubkey, 50)
-      .then(() => this.loadingReactions = false)
+    this.nostr
+      .fetchPostsByAuthor(this.pubkey, 50)
+      .then(() => (this.loadingNotes = false))
+    this.nostr
+      .fetchReactionsByAuthor(this.pubkey, 50)
+      .then(() => (this.loadingReactions = false))
     this.nostr.fetchFollowers(this.pubkey, 1000)
 
     // FIXME
@@ -230,7 +238,7 @@ export default defineComponent({
   },
   unmounted() {
     if (this.stream) this.nostr.cancelStream(this.stream)
-  }
+  },
 })
 </script>
 
@@ -262,7 +270,8 @@ export default defineComponent({
         a {
           cursor: pointer;
           color: $color-light-gray;
-          &:hover, &:active {
+          &:hover,
+          &:active {
             text-decoration: underline;
           }
           strong {
@@ -277,7 +286,8 @@ export default defineComponent({
         display: flex;
         a {
           text-decoration: none;
-          svg, i {
+          svg,
+          i {
             width: 24px;
             height: 24px;
             color: $color-light-gray;
@@ -285,20 +295,22 @@ export default defineComponent({
             transition: 120ms ease;
           }
           &.disabled {
-            svg, i {
+            svg,
+            i {
               color: $color-dark-gray !important;
               fill: $color-dark-gray !important;
             }
           }
           &:hover {
-            svg, i {
+            svg,
+            i {
               fill: $color-fg;
               color: $color-fg;
             }
           }
         }
         a + a {
-          margin-left: .5rem;
+          margin-left: 0.5rem;
         }
       }
     }
