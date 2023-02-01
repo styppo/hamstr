@@ -18,11 +18,11 @@ export const TagType = {
 }
 
 export class Tag {
-  constructor(type, ref, relay = null, meta = null) {
+  constructor(type, ref, relay = null, marker = null) {
     this.type = type
     this.ref = ref
     this.relay = relay
-    this.meta = meta
+    this.marker = marker
   }
 
   static from(array) {
@@ -37,17 +37,20 @@ export class Tag {
 }
 
 export class EventRefs extends Array {
-  constructor(refs) {
-    // FIXME limit number of refs here
-    super(...refs)
+  constructor(tags) {
+    // FIXME limit number of tags here
+    super(...tags.map(tag => tag.ref))
+    this.tags = tags
   }
 
   root() {
-    return this[0]
+    return this.tags.find(tag => tag.marker === 'root')?.ref || this[0]
   }
 
   ancestor() {
-    return this[this.length - 1]
+    return this.tags.find(tag => tag.marker === 'reply')?.ref
+      || this.tags.find(tag => tag.marker === 'root')?.ref
+      || this[this.length - 1]
   }
 
   isEmpty() {
@@ -109,6 +112,6 @@ export default class Event {
   }
 
   eventRefs() {
-    return new EventRefs(this.eventTags().map(tag => tag.ref))
+    return new EventRefs(this.eventTags())
   }
 }

@@ -26,7 +26,7 @@ export default class Note {
   }
 
   hasAncestor() {
-    return !this.eventRefs().isEmpty()
+    return this.eventTags().some(tag => tag.marker !== 'mention')
   }
 
   canReply() {
@@ -54,7 +54,7 @@ export default class Note {
   }
 
   eventRefs() {
-    return new EventRefs(this.eventTags().map(tag => tag.ref))
+    return new EventRefs(this.eventTags())
   }
 
   relatedPubkeys() {

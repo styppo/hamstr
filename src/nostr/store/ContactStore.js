@@ -30,7 +30,7 @@ export const useContactStore = defineStore('contact', {
         newContacts.push({
           pubkey: tag.ref,
           relay: tag.relay,
-          name: tag.meta,
+          name: tag.marker,
         })
       }
 
