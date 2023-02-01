@@ -127,6 +127,7 @@ export default {
   .message p {
     overflow: hidden;
     text-overflow: ellipsis;
+    max-height: 1.5em;
   }
 }
 </style>
