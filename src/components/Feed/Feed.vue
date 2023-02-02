@@ -31,6 +31,12 @@ import DateUtils from 'src/utils/DateUtils'
 import Bots from 'src/utils/bots'
 
 const feedOrder = (a, b) => b[0].createdAt - a[0].createdAt
+const maxDate = (max) => (note) => {
+  if (note.createdAt > max)
+    note.createdAt = max
+  return note
+}
+const now = () => new Date().getTime() / 1000
 
 const MAX_ITEMS_VISIBLE = 25
 
@@ -94,7 +100,8 @@ export default {
         const items = notes
           .concat(data)
           .filter((note) => this.filterNote(note, this.feed.hideBots))
-          .map((note) => [note]) // TODO Single element thread
+          .map(maxDate(now()))
+          .map(note => [note]) // TODO Single element thread
           .sort(feedOrder)
           .filter(
             (item, pos, array) => !pos || item[0].id !== array[pos - 1][0].id
@@ -110,6 +117,7 @@ export default {
       })
       this.stream.on('update', (note) => {
         if (!this.filterNote(note, this.feed.hideBots)) return
+        note = maxDate(now())(note)
         if (note.createdAt >= this.timestampNewest) {
           this.newer.push([note]) // TODO Single element thread
         } else if (note.createdAt >= this.timestampOldest) {
