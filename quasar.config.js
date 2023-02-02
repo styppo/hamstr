@@ -12,7 +12,7 @@
 const ESLintPlugin = require('eslint-webpack-plugin')
 
 
-const { configure } = require('quasar/wrappers');
+const { configure } = require('quasar/wrappers')
 
 module.exports = configure(function (ctx) {
   return {
@@ -230,8 +230,6 @@ module.exports = configure(function (ctx) {
           .use(ESLintPlugin, [{ extensions: [ 'js' ] }])
       },
 
-
-
       chainWebpackPreload (chain) {
         chain.plugin('eslint-webpack-plugin')
           .use(ESLintPlugin, [{ extensions: [ 'js' ] }])
@@ -239,4 +237,4 @@ module.exports = configure(function (ctx) {
 
     }
   }
-});
+})
