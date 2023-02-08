@@ -5,8 +5,11 @@ const RELAYS = [
   'wss://relay.snort.social',
   'wss://relay.nostr.ch',
   'wss://nos.lol',
+  'wss://nostr-pub.semisol.dev',
+  'wss://nostr.einundzwanzig.space',
+  'wss://nostr.sg',
 ]
-const RELAYS_VERSION = 1
+const RELAYS_VERSION = 2
 
 export const useSettingsStore = defineStore('settings', {
   state: () => ({
@@ -30,7 +33,7 @@ export const useSettingsStore = defineStore('settings', {
   },
   actions: {
     init() {
-      if (this.relaysVersion < RELAYS_VERSION) {
+      if (this.relaysVersion < RELAYS_VERSION && this.hasSubsetOfDefaultRelays()) {
         this.relays = [].concat(RELAYS)
         this.relaysVersion = RELAYS_VERSION
       }
@@ -64,8 +67,7 @@ export const useSettingsStore = defineStore('settings', {
     },
     removeRelay(url) {
       const idx = this.relays.indexOf(url)
-      if (idx < 0) return
-      this.relays.splice(idx, 1)
+      if (idx >= 0) this.relays.splice(idx, 1)
     },
     restoreDefaultRelays() {
       this.relays = [].concat(RELAYS)
@@ -73,6 +75,10 @@ export const useSettingsStore = defineStore('settings', {
     hasDefaultRelays() {
       return this.relays.length === RELAYS.length
         && this.relays.every((url, idx) => url === RELAYS[idx])
+    },
+    hasSubsetOfDefaultRelays() {
+      return this.relays.length < RELAYS.length
+        && this.relays.every((url, idx) => RELAYS.indexOf(url) >= 0)
     },
   },
   persist: true,
