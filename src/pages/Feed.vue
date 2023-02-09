@@ -132,7 +132,7 @@ export default defineComponent({
         && !this.contacts?.length
         && !this.initialized
       ) {
-        this.activeFeed = 'global'
+        // this.activeFeed = 'global'
         this.initialized = true
       }
     },
