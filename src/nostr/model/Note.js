@@ -62,13 +62,37 @@ export default class Note {
   }
 
   contentTagRefs() {
+    return Note.contentTagRefs(this)
+  }
+
+  static contentTagRefs(event) {
     const regex = /#\[([0-9]+)]/g
     let refs = []
     let match
-    while ((match = regex.exec(this.content))) {
+    while ((match = regex.exec(event.content))) {
       refs.push(match[1])
     }
     return refs
+  }
+
+  isRepost() {
+    return Note.isRepost(this)
+  }
+
+  static isRepost(event) {
+    if (!/^#\[([0-9]+)]$/.test(event.content)) return false
+    return event.tags[Note.contentTagRefs(event)[0]]?.type === TagType.EVENT
+  }
+
+  static mentionsPubkey(event, pubkey) {
+    if (event.tags.some(tag => tag.type === TagType.PUBKEY
+      && tag.ref === pubkey
+      && tag.marker === 'mention'
+    )) return true
+
+    return Note.contentTagRefs(event)
+      .map(idx => event.tags[idx])
+      .some(tag => tag.type === TagType.PUBKEY && tag.ref === pubkey)
   }
 
   isRepostOrTag() {
@@ -76,7 +100,7 @@ export default class Note {
   }
 
   static isRepostOrTag(event) {
-    return /#\[([0-9]+)]/.test(event.content)
+    return /^#\[([0-9]+)]$/.test(event.content)
   }
 
   isReaction() {
@@ -85,7 +109,7 @@ export default class Note {
 
   static isReaction(event) {
     return event.kind === EventKind.REACTION
-      || (!event.eventRefs().isEmpty() && Note.isReactionContent(event.content))
+      || (event.hasAncestor() && Note.isReactionContent(event.content))
   }
 
   static isReactionContent(content) {

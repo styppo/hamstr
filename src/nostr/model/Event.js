@@ -114,4 +114,8 @@ export default class Event {
   eventRefs() {
     return new EventRefs(this.eventTags())
   }
+
+  hasAncestor() {
+    return this.eventTags().some(tag => tag.marker !== 'mention')
+  }
 }
