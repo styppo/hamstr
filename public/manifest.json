@@ -1,0 +1,15 @@
+{
+  "short_name": "Hamstr",
+  "name": "Hamstr - Nostr client",
+  "start_url": "/home",
+  "display": "standalone",
+  "theme_color": "#15202b",
+  "background_color": "#15202b",
+  "icons": [
+    {
+      "src": "icons/favicon-256x256.png",
+      "sizes": "256x256",
+      "type": "image/png"
+    }
+  ]
+}
