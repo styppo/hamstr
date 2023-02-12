@@ -1,7 +1,7 @@
 <template>
   <div
     class="post"
-    :class="{clickable}"
+    :class="{ clickable }"
     @click.stop="clickable && goToThread(note.id)"
   >
     <div class="post-author">
@@ -21,7 +21,7 @@
           <span class="created-at">{{ createdAt }}</span>
         </p>
         <p v-if="note.hasAncestor()" class="in-reply-to">
-          Replying to
+          {{ $t("Replying to") }}
           <a @click.stop="goToProfile(ancestor?.author)">
             <UserName v-if="ancestor?.author" :pubkey="ancestor?.author" />
           </a>
@@ -42,8 +42,8 @@ import UserAvatar from 'components/User/UserAvatar.vue'
 import UserName from 'components/User/UserName.vue'
 import PostRenderer from 'components/Post/Renderer/PostRenderer.vue'
 import PostActions from 'components/Post/PostActions.vue'
-import {useAppStore} from 'stores/App'
-import {useNostrStore} from 'src/nostr/NostrStore'
+import { useAppStore } from 'stores/App'
+import { useNostrStore } from 'src/nostr/NostrStore'
 import routerMixin from 'src/router/mixin'
 import DateUtils from 'src/utils/DateUtils'
 
@@ -59,7 +59,7 @@ export default {
   props: {
     note: {
       type: Object,
-      required: true
+      required: true,
     },
     connectorTop: {
       type: Boolean,
@@ -112,14 +112,18 @@ export default {
     },
   },
   mounted() {
-    const updateInterval = DateUtils.now() - this.note.createdAt >= 3600 // 1h
-      ? 3600 // 1h
-      : 60 // 1m
-    this.refreshTimer = setInterval(() => this.refreshCounter++, updateInterval * 1000)
+    const updateInterval =
+      DateUtils.now() - this.note.createdAt >= 3600 // 1h
+        ? 3600 // 1h
+        : 60 // 1m
+    this.refreshTimer = setInterval(
+      () => this.refreshCounter++,
+      updateInterval * 1000
+    )
   },
   unmounted() {
     clearInterval(this.refreshTimer)
-  }
+  },
 }
 </script>
 
@@ -161,7 +165,7 @@ export default {
   }
   &-content {
     margin-left: 12px;
-    padding: 1rem 0 .4rem;
+    padding: 1rem 0 0.4rem;
     flex-grow: 1;
     max-width: 570px;
     &-header {
@@ -210,7 +214,7 @@ export default {
     }
     &-body {
       color: #fff;
-      margin-bottom: .5rem;
+      margin-bottom: 0.5rem;
     }
     &-actions {
     }
@@ -222,7 +226,7 @@ export default {
     &-content {
       max-width: calc(100% - 48px - 1rem);
       &-body {
-        margin-bottom: .5rem;
+        margin-bottom: 0.5rem;
       }
     }
   }

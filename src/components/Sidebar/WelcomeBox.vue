@@ -1,23 +1,35 @@
 <template>
   <div class="welcome" v-if="!app.isSignedIn">
     <div class="welcome-header">
-      <h3>New to Nostr?</h3>
+      <h3>{{ $t("New to Nostr?") }}</h3>
     </div>
     <div class="welcome-content">
-      <button v-if="nip07available" class="btn btn-primary" @click.stop="signInNip07()">Log in with Extension</button>
-      <button class="btn" :class="{'btn-primary': !nip07available}" @click.stop="signUp">
-        Create Account
+      <button
+        v-if="nip07available"
+        class="btn btn-primary"
+        @click.stop="signInNip07()"
+      >
+        {{ $t("Log in with Extension") }}
       </button>
-      <button v-if="!nip07available" class="btn" @click.stop="signIn">Log in</button>
-      <a v-else @click.stop="signIn">Log in with key</a>
+      <button
+        class="btn"
+        :class="{ 'btn-primary': !nip07available }"
+        @click.stop="signUp"
+      >
+        {{ $t("Create Account") }}
+      </button>
+      <button v-if="!nip07available" class="btn" @click.stop="signIn">
+        {{ $t("Log in") }}
+      </button>
+      <a v-else @click.stop="signIn"> {{ $t("Log in with key") }}</a>
     </div>
   </div>
 </template>
 
 <script>
-import {useAppStore} from 'stores/App'
-import {useNostrStore} from 'src/nostr/NostrStore'
-import {useSettingsStore} from 'stores/Settings'
+import { useAppStore } from 'stores/App'
+import { useNostrStore } from 'src/nostr/NostrStore'
+import { useSettingsStore } from 'stores/Settings'
 import Nip07 from 'src/utils/Nip07'
 
 export default {
@@ -56,8 +68,8 @@ export default {
   },
   mounted() {
     this.nip07available = Nip07.isAvailable()
-    setTimeout(() => this.nip07available = Nip07.isAvailable(), 300)
-  }
+    setTimeout(() => (this.nip07available = Nip07.isAvailable()), 300)
+  },
 }
 </script>
 
@@ -82,7 +94,7 @@ export default {
     text-align: center;
     button {
       width: 100%;
-      padding: .5rem;
+      padding: 0.5rem;
       &:first-child {
         margin-bottom: 1rem;
       }
@@ -98,5 +110,4 @@ export default {
     }
   }
 }
-
 </style>

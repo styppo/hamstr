@@ -12,7 +12,8 @@
     />
     <p v-if="!conversation?.length" class="placeholder">
       <template v-if="counterparty !== app.myPubkey">
-        This is the beginning of your message history with <UserName :pubkey="counterparty" clickable />.
+        {{ $t("This is the beginning of your message history with") }}
+        <UserName :pubkey="counterparty" clickable />.
       </template>
       <template v-else>
         Keep private notes by sending messages to yourself.
@@ -21,7 +22,12 @@
   </div>
 
   <div class="conversation-reply">
-    <MessageEditor :recipient="counterparty" :placeholder="placeholder" @publish="onPublish" autofocus />
+    <MessageEditor
+      :recipient="counterparty"
+      :placeholder="$t(placeholder)"
+      @publish="onPublish"
+      autofocus
+    />
   </div>
 </template>
 
@@ -31,13 +37,13 @@ import UserCard from 'components/User/UserCard.vue'
 import MessageEditor from 'components/Message/MessageEditor.vue'
 import UserName from 'components/User/UserName.vue'
 import ChatMessage from 'components/Message/ChatMessage.vue'
-import {useMessageStore} from 'src/nostr/store/MessageStore'
-import {useAppStore} from 'stores/App'
-import {bech32ToHex} from 'src/utils/utils'
+import { useMessageStore } from 'src/nostr/store/MessageStore'
+import { useAppStore } from 'stores/App'
+import { bech32ToHex } from 'src/utils/utils'
 
 export default {
   name: 'Conversation',
-  components: {ChatMessage, UserName, MessageEditor, PageHeader, UserCard},
+  components: { ChatMessage, UserName, MessageEditor, PageHeader, UserCard },
   setup() {
     return {
       app: useAppStore(),
@@ -50,10 +56,12 @@ export default {
     },
     conversation() {
       if (!this.app.isSignedIn) return
-      return this.messages.getConversation(this.app.myPubkey, this.counterparty)
+      return this.messages.getConversation(
+        this.app.myPubkey,
+        this.counterparty
+      )
     },
     placeholder() {
-      // TODO i18n
       return this.app.myPubkey === this.counterparty
         ? 'Jot something down'
         : 'Message'
@@ -81,7 +89,7 @@ export default {
   },
   unmounted() {
     this.resizeObserver.disconnect()
-  }
+  },
 }
 </script>
 
@@ -107,7 +115,11 @@ export default {
 }
 
 .conversation-reply {
-  background: linear-gradient(to bottom, rgba($color: $color-bg, $alpha: 0), rgba($color: $color-bg, $alpha: 1) 6%);
+  background: linear-gradient(
+    to bottom,
+    rgba($color: $color-bg, $alpha: 0),
+    rgba($color: $color-bg, $alpha: 1) 6%
+  );
   position: fixed;
   bottom: 0;
   z-index: 600;
@@ -140,5 +152,4 @@ export default {
     padding-bottom: 1rem;
   }
 }
-
 </style>

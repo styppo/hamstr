@@ -2,7 +2,7 @@
   <div ref="button" class="async-load-button">
     <q-btn
       :loading="loading"
-      :label="noMore ? labelNoMore : label"
+      :label="$t(noMore ? labelNoMore : label)"
       @click="load"
       size="md"
       flat
@@ -23,16 +23,16 @@ export default defineComponent({
     },
     label: {
       type: String,
-      default: 'Load more'
+      default: 'Load more',
     },
     labelNoMore: {
       type: String,
-      default: 'No more items. Try again?'
+      default: 'No more items. Try again?',
     },
     autoload: {
       type: Boolean,
       default: false,
-    }
+    },
   },
   data() {
     return {
@@ -53,7 +53,7 @@ export default defineComponent({
 
       this.loading = false
       this.$emit('loaded', result)
-    }
+    },
   },
   mounted() {
     if (this.autoload) {
@@ -66,7 +66,7 @@ export default defineComponent({
   },
   unmounted() {
     if (this.observer) this.observer.disconnect()
-  }
+  },
 })
 </script>
 

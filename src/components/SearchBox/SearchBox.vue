@@ -1,6 +1,6 @@
 <template>
   <div class="relative-position">
-    <div class="searchbox" :class="{focused}">
+    <div class="searchbox" :class="{ focused }">
       <div class="searchbox-wrapper">
         <div class="searchbox-icon">
           <BaseIcon icon="search" />
@@ -11,12 +11,12 @@
               v-model="query"
               ref="input"
               type="text"
-              placeholder="Search profiles"
+              :placeholder="$t('Search profiles')"
               @focus="toggleFocus"
               @blur="toggleFocus"
               @keyup="search"
               @keyup.esc="$refs.input.blur()"
-            >
+            />
           </q-form>
         </div>
       </div>
@@ -70,7 +70,10 @@ export default {
     },
     async search() {
       if (this.query) {
-        this.results = (await this.provider.queryProfiles(this.query)).slice(0, 200)
+        this.results = (await this.provider.queryProfiles(this.query)).slice(
+          0,
+          200
+        )
       } else {
         this.results = []
       }
@@ -80,7 +83,7 @@ export default {
 </script>
 
 <style lang="scss">
-@import 'assets/theme/colors.scss';
+@import "assets/theme/colors.scss";
 
 .searchbox {
   height: 50px;
@@ -126,9 +129,9 @@ export default {
     max-height: 70vh;
     overflow: hidden;
     background-color: $color-bg;
-    border-radius: .5rem;
+    border-radius: 0.5rem;
     z-index: 600;
-    margin-top: -.75rem;
+    margin-top: -0.75rem;
     box-shadow: $shadow-white;
     overflow-y: scroll;
     scrollbar-color: transparent transparent;
@@ -136,10 +139,12 @@ export default {
       width: 0;
       height: 0;
     }
-    &::-webkit-scrollbar-thumb { /* Foreground */
+    &::-webkit-scrollbar-thumb {
+      /* Foreground */
       background: $color-dark-gray;
     }
-    &::-webkit-scrollbar-track { /* Background */
+    &::-webkit-scrollbar-track {
+      /* Background */
       background: transparent;
     }
     &-item {
@@ -152,7 +157,7 @@ export default {
     }
     .query-example {
       color: $color-light-gray;
-      font-size: .95rem;
+      font-size: 0.95rem;
       padding: 1rem;
     }
   }

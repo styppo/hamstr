@@ -18,7 +18,8 @@
         :connector="ancestors?.length > 0"
       />
       <div v-else style="padding-left: 1.5rem">
-        <q-spinner size="sm" style="margin-right: .5rem"/> Loading...
+        <q-spinner size="sm" style="margin-right: 0.5rem" />
+        {{ $t("Loading...") }}
       </div>
     </q-item>
 
@@ -28,18 +29,18 @@
       </div>
     </div>
 
-    <div style="min-height: 80vh;" />
+    <div style="min-height: 80vh" />
   </q-page>
 </template>
 
 <script>
-import {defineComponent} from 'vue'
+import { defineComponent } from 'vue'
 import PageHeader from 'components/PageHeader.vue'
 import Thread from 'components/Post/Thread.vue'
 import HeroPost from 'components/Post/HeroPost.vue'
-import {useNostrStore} from 'src/nostr/NostrStore'
-import {NoteOrder} from 'src/nostr/store/NoteStore'
-import {bech32ToHex} from 'src/utils/utils'
+import { useNostrStore } from 'src/nostr/NostrStore'
+import { NoteOrder } from 'src/nostr/store/NoteStore'
+import { bech32ToHex } from 'src/utils/utils'
 
 export default defineComponent({
   name: 'ThreadPage',
@@ -50,7 +51,7 @@ export default defineComponent({
   },
   setup() {
     return {
-      nostr: useNostrStore()
+      nostr: useNostrStore(),
     }
   },
   data() {
@@ -72,9 +73,7 @@ export default defineComponent({
     },
     rootId() {
       if (!this.noteLoaded) return
-      return this.note.hasAncestor()
-        ? this.note.root()
-        : this.note.id
+      return this.note.hasAncestor() ? this.note.root() : this.note.id
     },
     root() {
       if (!this.rootId) return
@@ -89,7 +88,9 @@ export default defineComponent({
       const ancestors = this.allAncestors(this.note)
       // Sanity check
       if (ancestors.length > 0 && ancestors[0].id !== this.rootId) {
-        console.error(`Invalid thread structure: expected root ${this.rootId} but found ${ancestors[0].id}`)
+        console.error(
+          `Invalid thread structure: expected root ${this.rootId} but found ${ancestors[0].id}`
+        )
         // return
       }
       return this.collectPredecessors(ancestors, this.note)
@@ -118,13 +119,14 @@ export default defineComponent({
       if (!ancestors || !ancestors.length) return []
 
       const ancestor = ancestors.pop()
-      const replies = this.nostr.getRepliesTo(ancestor.id, NoteOrder.CREATION_DATE_ASC)
-      const targetIdx = replies.findIndex(reply => reply.id === target.id)
+      const replies = this.nostr.getRepliesTo(
+        ancestor.id,
+        NoteOrder.CREATION_DATE_ASC
+      )
+      const targetIdx = replies.findIndex((reply) => reply.id === target.id)
       const predecessors = [ancestor].concat(replies.slice(0, targetIdx))
 
-      return this
-        .collectPredecessors(ancestors, ancestor)
-        .concat(predecessors)
+      return this.collectPredecessors(ancestors, ancestor).concat(predecessors)
     },
 
     collectChildren(target, ancestor) {
@@ -132,8 +134,13 @@ export default defineComponent({
 
       // Get same-level successors
       if (ancestor) {
-        const ancestorReplies = this.nostr.getRepliesTo(ancestor.id, NoteOrder.CREATION_DATE_ASC)
-        const targetIdx = ancestorReplies.findIndex(reply => reply.id === target.id)
+        const ancestorReplies = this.nostr.getRepliesTo(
+          ancestor.id,
+          NoteOrder.CREATION_DATE_ASC
+        )
+        const targetIdx = ancestorReplies.findIndex(
+          (reply) => reply.id === target.id
+        )
         const successors = ancestorReplies.slice(targetIdx + 1)
         if (successors.length) {
           children.push(successors)
@@ -141,7 +148,10 @@ export default defineComponent({
       }
 
       // Get children of target
-      const targetReplies = this.nostr.getRepliesTo(target.id, NoteOrder.CREATION_DATE_DESC)
+      const targetReplies = this.nostr.getRepliesTo(
+        target.id,
+        NoteOrder.CREATION_DATE_DESC
+      )
       for (const reply of targetReplies) {
         children.push(this.unrollLongest(reply))
       }
@@ -152,7 +162,10 @@ export default defineComponent({
     // Unrolls linear replies until first "fork"
     unrollLinear(root) {
       const thread = [root]
-      let replies = this.nostr.getRepliesTo(root.id, NoteOrder.CREATION_DATE_ASC)
+      let replies = this.nostr.getRepliesTo(
+        root.id,
+        NoteOrder.CREATION_DATE_ASC
+      )
       while (replies.length === 1) {
         thread.push(replies[0])
         root = replies[0]
@@ -164,7 +177,10 @@ export default defineComponent({
     // Unrolls the longest thread in the subtree
     unrollLongest(root) {
       let threads = []
-      let replies = this.nostr.getRepliesTo(root.id, NoteOrder.CREATION_DATE_ASC)
+      let replies = this.nostr.getRepliesTo(
+        root.id,
+        NoteOrder.CREATION_DATE_ASC
+      )
       for (const reply of replies) {
         threads.push(this.unrollLongest(reply))
       }
@@ -205,7 +221,7 @@ export default defineComponent({
       if (this.rootLoaded) {
         this.startStream()
       }
-    }
+    },
   },
   mounted() {
     this.startStream()
@@ -217,7 +233,7 @@ export default defineComponent({
   unmounted() {
     this.closeStream()
     this.resizeObserver.disconnect()
-  }
+  },
 })
 </script>
 

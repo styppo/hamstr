@@ -1,17 +1,25 @@
 <template>
   <PostRenderer v-if="note" :note="note" />
-  <span v-else-if="!decryptFailed" class="click-to-decrypt" @click="clickToDecrypt && decrypt()">Click to decrypt</span>
-  <span v-else class="decrypt-failed" @click="decrypt">Decryption failed</span>
+  <span
+    v-else-if="!decryptFailed"
+    class="click-to-decrypt"
+    @click="clickToDecrypt && decrypt()"
+  >
+    {{ $t("Click to decrypt") }}
+  </span>
+  <span v-else class="decrypt-failed" @click="decrypt">
+    {{ $t("Decryption failed") }}
+  </span>
 </template>
 
 <script>
-import {useAppStore} from 'stores/App'
+import { useAppStore } from 'stores/App'
 import PostRenderer from 'components/Post/Renderer/PostRenderer.vue'
 import Note from 'src/nostr/model/Note'
 
 export default {
   name: 'EncryptedMessage',
-  components: {PostRenderer},
+  components: { PostRenderer },
   props: {
     message: {
       type: Object,
@@ -20,7 +28,7 @@ export default {
     clickToDecrypt: {
       type: Boolean,
       default: false,
-    }
+    },
   },
   setup() {
     return {
@@ -38,17 +46,21 @@ export default {
       const note = new Note(this.message.id, this.message)
       note.content = this.message.plaintext
       return note
-    }
+    },
   },
   methods: {
     async decrypt() {
       if (this.message.plaintext) return
       try {
         const messageId = this.message.id
-        const counterparty = this.message.author === this.app.myPubkey
-          ? this.message.recipient
-          : this.message.author
-        const plaintext = await this.app.decryptMessage(counterparty, this.message.content)
+        const counterparty =
+          this.message.author === this.app.myPubkey
+            ? this.message.recipient
+            : this.message.author
+        const plaintext = await this.app.decryptMessage(
+          counterparty,
+          this.message.content
+        )
         // The message can change while we are decrypting it, so we need to make sure not to cache the wrong message.
         if (this.message.id === messageId) {
           this.message.cachePlaintext(plaintext)
@@ -57,7 +69,7 @@ export default {
         console.error('Failed to decrypt message', e)
         this.decryptFailed = true
       }
-    }
+    },
   },
   async mounted() {
     if (this.app.activeAccount.canDecrypt()) {
@@ -69,8 +81,8 @@ export default {
       if (this.app.activeAccount.canDecrypt()) {
         await this.decrypt()
       }
-    }
-  }
+    },
+  },
 }
 </script>
 

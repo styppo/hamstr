@@ -14,7 +14,7 @@
         <div class="inline-controls-item">
           <BaseIcon icon="emoji" />
           <q-menu ref="menuEmojiPicker">
-            <EmojiPicker @select="onEmojiSelected"/>
+            <EmojiPicker @select="onEmojiSelected" />
           </q-menu>
         </div>
       </div>
@@ -38,9 +38,10 @@
 import BaseIcon from 'components/BaseIcon/index.vue'
 import EmojiPicker from 'components/CreatePost/EmojiPicker.vue'
 import AutoSizeTextarea from 'components/CreatePost/AutoSizeTextarea.vue'
-import {useAppStore} from 'stores/App'
-import {useNostrStore} from 'src/nostr/NostrStore'
+import { useAppStore } from 'stores/App'
+import { useNostrStore } from 'src/nostr/NostrStore'
 import EventBuilder from 'src/nostr/EventBuilder'
+import { $t } from 'src/boot/i18n'
 
 export default {
   name: 'MessageEditor',
@@ -61,7 +62,7 @@ export default {
     autofocus: {
       type: Boolean,
       default: false,
-    }
+    },
   },
   emits: ['publish'],
   data() {
@@ -95,10 +96,17 @@ export default {
     async publishMessage() {
       this.publishing = true
 
-      const ciphertext = await this.app.encryptMessage(this.recipient, this.content)
+      const ciphertext = await this.app.encryptMessage(
+        this.recipient,
+        this.content
+      )
       if (!ciphertext) return
-      const event = EventBuilder.message(this.app.myPubkey, this.recipient, ciphertext).build()
-      if (!await this.app.signEvent(event)) return
+      const event = EventBuilder.message(
+        this.app.myPubkey,
+        this.recipient,
+        ciphertext
+      ).build()
+      if (!(await this.app.signEvent(event))) return
 
       if (await this.nostr.publish(event)) {
         this.reset()
@@ -106,8 +114,8 @@ export default {
         this.$emit('publish', event)
       } else {
         this.$q.notify({
-          message: `Failed to send message`,
-          color: 'negative'
+          message: $t(`Failed to send message`),
+          color: 'negative',
         })
       }
 
@@ -118,7 +126,7 @@ export default {
     if (this.autofocus) {
       this.$nextTick(this.focus.bind(this))
     }
-  }
+  },
 }
 </script>
 
@@ -136,7 +144,7 @@ export default {
     border-radius: 1rem;
     position: relative;
     padding: 12px 36px 12px 1rem;
-    margin-right: .5rem;
+    margin-right: 0.5rem;
     textarea {
       display: block;
       width: 100%;
@@ -164,11 +172,11 @@ export default {
       width: 32px;
       height: 32px;
       border-radius: 999px;
-      cursor:pointer;
+      cursor: pointer;
       padding: 5px;
       svg {
         width: 100%;
-        fill: $color-primary
+        fill: $color-primary;
       }
       &:hover {
         background-color: rgba($color: $color-primary, $alpha: 0.3);

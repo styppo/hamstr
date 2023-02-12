@@ -1,15 +1,11 @@
 <template>
-  <div class="page-header" :class="{dense}">
-    <div
-      v-if="backButton"
-      class="back-button"
-      @click="$router.go(-1)"
-    >
+  <div class="page-header" :class="{ dense }">
+    <div v-if="backButton" class="back-button" @click="$router.go(-1)">
       <base-icon icon="back" />
     </div>
-    <div :class="{'profile-info': !!subline}">
+    <div :class="{ 'profile-info': !!subline }">
       <slot>
-        <h2>{{ title || titleFromRoute() || 'Home' }}</h2>
+        <h2>{{ $t(title || titleFromRoute() || "Home") }}</h2>
         <span v-if="subline">{{ subline }}</span>
       </slot>
     </div>
@@ -31,7 +27,7 @@ export default defineComponent({
   name: 'PageHeader',
   components: {
     Logo,
-    BaseIcon
+    BaseIcon,
   },
   props: {
     title: {
@@ -53,14 +49,14 @@ export default defineComponent({
     dense: {
       type: Boolean,
       default: false,
-    }
+    },
   },
   methods: {
     titleFromRoute() {
       const route = this.$route.name?.toLowerCase()
       return route?.charAt(0).toUpperCase() + route?.substring(1)
-    }
-  }
+    },
+  },
 })
 </script>
 
@@ -116,14 +112,14 @@ export default defineComponent({
   }
   &.dense {
     .back-button {
-      margin-right: .5rem;
+      margin-right: 0.5rem;
     }
   }
 }
 
 @media screen and (max-width: $phone) {
   .page-header {
-    padding: .4rem 1rem;
+    padding: 0.4rem 1rem;
     .logo {
       display: block;
       position: absolute;

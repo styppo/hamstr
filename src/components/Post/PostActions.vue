@@ -2,29 +2,30 @@
   <div class="post-actions" :class="flavor">
     <div class="action-item comment" @click.stop="comment">
       <BaseIcon icon="comment" />
-      <span>{{ stats.comments || '' }}</span>
+      <span>{{ stats.comments || "" }}</span>
     </div>
     <div class="action-item repost" @click.stop="repost">
       <BaseIcon icon="repost" />
-      <span>{{ stats.shares || '' }}</span>
+      <span>{{ stats.shares || "" }}</span>
     </div>
-    <div class="action-item like" :class="{active: liked}" @click.stop="like">
+    <div class="action-item like" :class="{ active: liked }" @click.stop="like">
       <BaseIcon :icon="liked ? 'like_filled' : 'like'" />
-      <span>{{ stats.reactions || '' }}</span>
+      <span>{{ stats.reactions || "" }}</span>
     </div>
   </div>
 </template>
 
 <script>
 import BaseIcon from 'components/BaseIcon/index.vue'
-import {useNostrStore} from 'src/nostr/NostrStore'
-import {useStatStore} from 'src/nostr/store/StatStore'
-import {useAppStore} from 'stores/App'
+import { useNostrStore } from 'src/nostr/NostrStore'
+import { useStatStore } from 'src/nostr/store/StatStore'
+import { useAppStore } from 'stores/App'
 import EventBuilder from 'src/nostr/EventBuilder'
+import { $t } from 'src/boot/i18n'
 
 export default {
   name: 'PostActions',
-  components: {BaseIcon},
+  components: { BaseIcon },
   emits: ['comment', 'repost'],
   props: {
     note: {
@@ -34,13 +35,13 @@ export default {
     flavor: {
       type: String,
       default: 'list',
-    }
+    },
   },
   setup() {
     return {
       app: useAppStore(),
       stat: useStatStore(),
-      nostr: useNostrStore()
+      nostr: useNostrStore(),
     }
   },
   computed: {
@@ -57,7 +58,7 @@ export default {
   methods: {
     comment() {
       if (this.flavor === 'list') {
-        this.app.createPost({ancestor: this.note.id})
+        this.app.createPost({ ancestor: this.note.id })
       } else {
         this.$emit('comment')
       }
@@ -75,21 +76,21 @@ export default {
     },
     async publishLike() {
       const event = EventBuilder.reaction(this.note, this.app.myPubkey).build()
-      if (!await this.app.signEvent(event)) return
-      if (!await this.nostr.publish(event)) {
+      if (!(await this.app.signEvent(event))) return
+      if (!(await this.nostr.publish(event))) {
         this.$q.notify({
-          message: 'Failed to publish reaction',
+          message: $t('Failed to publish reaction'),
           color: 'negative',
         })
       }
     },
     async deleteLike() {
-      const ids = this.ourReactions.map(r => r.id)
+      const ids = this.ourReactions.map((r) => r.id)
       const event = EventBuilder.delete(this.app.myPubkey, ids).build()
-      if (!await this.app.signEvent(event)) return
-      if (!await this.nostr.publish(event)) {
+      if (!(await this.app.signEvent(event))) return
+      if (!(await this.nostr.publish(event))) {
         this.$q.notify({
-          message: 'Failed to delete reaction',
+          message: $t('Failed to delete reaction'),
           color: 'negative',
         })
       }
@@ -109,7 +110,7 @@ export default {
   max-width: 490px;
   width: 100%;
   margin: auto;
-  padding: .5rem 0 .5rem 16px;
+  padding: 0.5rem 0 0.5rem 16px;
   &.list {
     width: calc(100% + 9px);
     margin-left: -9px;
@@ -140,7 +141,8 @@ export default {
     span {
       color: $color-light-gray;
     }
-    &.active, &:hover {
+    &.active,
+    &:hover {
       &.comment {
         svg {
           fill: $post-action-blue;

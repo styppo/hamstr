@@ -1,20 +1,28 @@
 <template>
   <div class="sign-up">
-    <h3>Create Account</h3>
+    <h3>{{ $t("Create Account") }}</h3>
     <q-form @submit.stop="signUp">
-      <label for="username">What's your name?</label>
-      <input v-model="username" ref="input" id="username" autocomplete="false" />
-      <button type="submit" class="btn btn-primary" :disabled="!validUsername">Create</button>
+      <label for="username">{{ $t("What's your name?") }}</label>
+      <input
+        v-model="username"
+        ref="input"
+        id="username"
+        autocomplete="false"
+      />
+      <button type="submit" class="btn btn-primary" :disabled="!validUsername">
+        {{ $t("Create") }}
+      </button>
     </q-form>
   </div>
 </template>
 
 <script>
-import {useAppStore} from 'stores/App'
-import {useNostrStore} from 'src/nostr/NostrStore'
-import {useSettingsStore} from 'stores/Settings'
-import {generatePrivateKey} from 'nostr-tools'
+import { useAppStore } from 'stores/App'
+import { useNostrStore } from 'src/nostr/NostrStore'
+import { useSettingsStore } from 'stores/Settings'
+import { generatePrivateKey } from 'nostr-tools'
 import EventBuilder from 'src/nostr/EventBuilder'
+import { $t } from 'src/boot/i18n'
 
 export default {
   name: 'SignUpForm',
@@ -36,28 +44,30 @@ export default {
       const privkey = generatePrivateKey()
 
       const settings = useSettingsStore()
-      const account = settings.addAccount({privkey})
+      const account = settings.addAccount({ privkey })
       const app = useAppStore()
       app.switchAccount(account.pubkey)
 
-      const event = EventBuilder.metadata(account.pubkey, {name: this.username}).build()
+      const event = EventBuilder.metadata(account.pubkey, {
+        name: this.username,
+      }).build()
       await app.signEvent(event)
       if (await useNostrStore().publish(event)) {
         this.$emit('complete', {
           pubkey: account.pubkey,
-          name: this.username
+          name: this.username,
         })
       } else {
         this.$q.notify({
-          message: 'Failed to create profile',
+          message: $t('Failed to create profile'),
           color: 'negative',
         })
       }
-    }
+    },
   },
   mounted() {
     this.$refs.input.focus()
-  }
+  },
 }
 </script>
 

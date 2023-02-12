@@ -2,11 +2,9 @@
   <div v-if="app.isSignedIn && contacts?.length" class="following">
     <div class="following-wrapper">
       <div class="following-header">
-        <h3>Following</h3>
+        <h3>{{ $t("Following") }}</h3>
       </div>
-      <div
-        class="following-body"
-      >
+      <div class="following-body">
         <UserCard
           v-for="contact in contacts"
           :key="contact.pubkey"
@@ -23,13 +21,13 @@
 
 <script>
 import UserCard from 'components/User/UserCard.vue'
-import {useNostrStore} from 'src/nostr/NostrStore'
-import {useAppStore} from 'stores/App'
+import { useNostrStore } from 'src/nostr/NostrStore'
+import { useAppStore } from 'stores/App'
 import routerMixin from 'src/router/mixin'
 
 export default {
   name: 'FollowingBox',
-  components: {UserCard},
+  components: { UserCard },
   mixins: [routerMixin],
   setup() {
     return {
@@ -43,7 +41,7 @@ export default {
     },
     contacts() {
       return this.nostr.getContacts(this.pubkey)?.slice(0, 20)
-    }
+    },
   },
 }
 </script>
@@ -74,10 +72,12 @@ export default {
       width: 0;
       height: 0;
     }
-    &::-webkit-scrollbar-thumb { /* Foreground */
+    &::-webkit-scrollbar-thumb {
+      /* Foreground */
       background: $color-dark-gray;
     }
-    &::-webkit-scrollbar-track { /* Background */
+    &::-webkit-scrollbar-track {
+      /* Background */
       background: transparent;
     }
     &-item {
@@ -104,7 +104,11 @@ export default {
     right: 0;
     height: 1.2rem;
     border-radius: 0 0 1rem 1rem;
-    background: linear-gradient(180deg, rgba(29, 41, 53, 0), rgba(29, 41, 53, 1));
+    background: linear-gradient(
+      180deg,
+      rgba(29, 41, 53, 0),
+      rgba(29, 41, 53, 1)
+    );
   }
 }
 </style>

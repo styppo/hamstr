@@ -10,10 +10,11 @@
           size="sm"
           class="feed-selector"
           :options="[
-            {value: 'following', icon: 'group'},
-            {value: 'global', icon: 'public'},
+            { value: 'following', icon: 'group', title: $t('Following') },
+            { value: 'global', icon: 'public', title: $t('Global') },
           ]"
-        />
+        >
+        </q-btn-toggle>
       </template>
     </PageHeader>
 
@@ -30,22 +31,23 @@
 </template>
 
 <script>
-import {defineComponent} from 'vue'
+import { defineComponent } from 'vue'
 import PageHeader from 'components/PageHeader.vue'
 import PostEditor from 'components/CreatePost/PostEditor.vue'
 import Feed from 'components/Feed/Feed.vue'
-import {useAppStore} from 'stores/App'
-import {useNostrStore} from 'src/nostr/NostrStore'
-import {EventKind} from 'src/nostr/model/Event'
-import {NoteOrder, useNoteStore} from 'src/nostr/store/NoteStore'
+import { useAppStore } from 'stores/App'
+import { useNostrStore } from 'src/nostr/NostrStore'
+import { EventKind } from 'src/nostr/model/Event'
+import { NoteOrder, useNoteStore } from 'src/nostr/store/NoteStore'
 
-const ZERO_PUBKEY = '0000000000000000000000000000000000000000000000000000000000000000'
+const ZERO_PUBKEY =
+  '0000000000000000000000000000000000000000000000000000000000000000'
 
 const myContacts = () => {
   const app = useAppStore()
   const nostr = useNostrStore()
   const contacts = nostr.getContacts(app.myPubkey)
-  return contacts?.map(contact => contact.pubkey).concat(app.myPubkey)
+  return contacts?.map((contact) => contact.pubkey).concat(app.myPubkey)
 }
 
 const Feeds = {
@@ -74,7 +76,9 @@ const Feeds = {
       let notes = []
       const store = useNoteStore()
       for (const author of authors) {
-        notes = notes.concat(store.postsByAuthor(author, NoteOrder.CREATION_DATE_DESC))
+        notes = notes.concat(
+          store.postsByAuthor(author, NoteOrder.CREATION_DATE_DESC)
+        )
       }
       return notes
     },
@@ -122,15 +126,14 @@ export default defineComponent({
       if (this.initialized) return
       if (!this.contacts) return
       this.initialized = true
-      this.activeFeed = this.contacts?.length
-        ? 'following'
-        : 'global'
+      this.activeFeed = this.contacts?.length ? 'following' : 'global'
     },
     onFeedLoaded(feed) {
-      if (this.activeFeed === 'following'
-        && feed?.name === this.activeFeed
-        && !this.contacts?.length
-        && !this.initialized
+      if (
+        this.activeFeed === 'following' &&
+        feed?.name === this.activeFeed &&
+        !this.contacts?.length &&
+        !this.initialized
       ) {
         // this.activeFeed = 'global'
         this.initialized = true
@@ -145,7 +148,7 @@ export default defineComponent({
   },
   mounted() {
     this.initFeed()
-  }
+  },
 })
 </script>
 

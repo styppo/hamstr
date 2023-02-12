@@ -1,7 +1,7 @@
 <template>
   <textarea
     v-model="text"
-    :placeholder="placeholder"
+    :placeholder="$t(placeholder)"
     :disabled="disabled"
     :rows="rows"
     @input="resize"
@@ -30,7 +30,7 @@ export default {
     },
     placeholder: {
       type: String,
-      default: 'What\'s happening?',
+      default: "What's happening?",
     },
     disabled: {
       type: Boolean,
@@ -43,7 +43,7 @@ export default {
     submitOnEnter: {
       type: Boolean,
       default: false,
-    }
+    },
   },
   emits: ['update:modelValue', 'submit'],
   data() {
@@ -78,7 +78,11 @@ export default {
     },
     insertText(text) {
       const textarea = this.$refs.textarea
-      textarea.setRangeText(text, textarea.selectionStart, textarea.selectionEnd)
+      textarea.setRangeText(
+        text,
+        textarea.selectionStart,
+        textarea.selectionEnd
+      )
 
       textarea.focus()
       if (textarea.selectionStart === textarea.selectionEnd) {
@@ -107,10 +111,9 @@ export default {
     if (this.text) {
       this.resize()
     }
-  }
+  },
 }
 </script>
 
 <style scoped>
-
 </style>
