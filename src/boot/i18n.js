@@ -9,6 +9,8 @@ const i18n = createI18n({
   fallbackLocale: 'en',
   globalInjection: true,
   messages,
+  silentTranslationWarn: true,
+  silentFallbackWarn: true
 })
 
 export default boot(({ app }) => {
