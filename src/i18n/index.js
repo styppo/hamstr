@@ -1,7 +1,12 @@
 import en from './en'
 import es from './es'
 
-export default {
-  en,
-  es,
+const messages = {
+  es: {
+    ...es
+  },
+  en: {
+    ...en
+  }
 }
+export default messages
