@@ -8,8 +8,9 @@ const RELAYS = [
   'wss://nostr-pub.semisol.dev',
   'wss://nostr.einundzwanzig.space',
   'wss://nostr.sg',
+  'wss://relay.nostrica.com',
 ]
-const RELAYS_VERSION = 2
+const RELAYS_VERSION = 3
 
 export const useSettingsStore = defineStore('settings', {
   state: () => ({
