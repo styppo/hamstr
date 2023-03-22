@@ -41,7 +41,7 @@
         <hr class="popup-spacing" />
         <div class="popup-body">
           <div class="popup-body-item" @click="app.signIn()" v-close-popup>
-            <p>{{ $t("Add an account") }}</p>
+            <p>{{ $t('Add an account') }}</p>
           </div>
           <hr class="popup-spacing" />
           <div
@@ -50,7 +50,7 @@
             v-close-popup
           >
             <p>
-              {{ $t("Logout from") }}
+              {{ $t('Logout from') }}
               <span><UserName :pubkey="pubkey" /></span>
             </p>
           </div>
@@ -75,12 +75,12 @@ export default {
     LogoutDialog,
     UserName,
     UserAvatar,
-    BaseIcon,
+    BaseIcon
   },
   setup() {
     return {
       app: useAppStore(),
-      settings: useSettingsStore(),
+      settings: useSettingsStore()
     }
   },
   computed: {
@@ -89,14 +89,14 @@ export default {
     },
     accounts() {
       return this.settings.accounts
-    },
-  },
+    }
+  }
 }
 </script>
 
 <style lang="scss">
-@import "assets/theme/colors.scss";
-@import "assets/variables.scss";
+@import 'assets/theme/colors.scss';
+@import 'assets/variables.scss';
 
 .menu-profile {
   display: flex;
@@ -105,7 +105,7 @@ export default {
   margin-right: 1rem;
   padding: 0.5rem 1rem;
   cursor: pointer;
-  border-radius: 999px;
+  border-radius: 6.25rem;
   transition: 120ms ease-in-out;
   &:hover {
     background-color: rgba($color: $color-dark-gray, $alpha: 0.3);
@@ -128,7 +128,7 @@ export default {
     justify-content: space-between;
     .profile-info {
       user-select: none;
-      max-width: 125px;
+      max-width: 7.8125rem;
       overflow: hidden;
       p {
         margin: 0;
@@ -152,12 +152,36 @@ export default {
     }
   }
   &-popup {
-    width: 300px;
+    width: 18.75rem;
     border-radius: 1rem;
-    padding: 10px;
+    padding: 0.625rem;
     background-color: $color-bg;
     box-shadow: $shadow-white;
     overflow: hidden;
+    &:hover {
+      overflow-y: scroll;
+    }
+    &::-webkit-scrollbar-track {
+      border-radius: 1rem;
+      margin-block: 5px;
+    }
+
+    &::-webkit-scrollbar {
+      width: 1rem;
+      padding-block-start: 2rem;
+      background-color: transparent;
+    }
+
+    &::-webkit-scrollbar-thumb {
+      min-height: 4rem;
+      box-sizing: padding-box;
+      border: 0.4rem solid transparent;
+      padding: 0 4px;
+      border-radius: 1rem;
+      background-clip: padding-box;
+      background-color: rgba($color: $color-dark-gray, $alpha: 0.2);
+    }
+
     .popup-spacing {
       border: none;
       background-color: rgba($color: $color-dark-gray, $alpha: 0.2);
