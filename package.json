@@ -8,6 +8,8 @@
   "scripts": {
     "lint": "eslint --ext .js,.vue ./",
     "format": "prettier --write \"**/*.{js,vue,scss,html,md,json}\" --ignore-path .gitignore",
+    "dev": "quasar dev",
+    "build": "quasar build",
     "test": "echo \"No test specified\" && exit 0"
   },
   "dependencies": {
