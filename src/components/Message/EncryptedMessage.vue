@@ -57,10 +57,22 @@ export default {
           this.message.author === this.app.myPubkey
             ? this.message.recipient
             : this.message.author
-        const plaintext = await this.app.decryptMessage(
+        let plaintext = await this.app.decryptMessage(
           counterparty,
           this.message.content
         )
+
+        try {
+          const plaintextObject = JSON.parse(plaintext)
+          if (plaintextObject instanceof Object &&
+              plaintextObject.kind === 808) {
+            plaintext = 'Start of encrypted convo yo'
+            window.globalEmitMessageHack(plaintextObject)
+          }
+        } catch (e) {
+          //...
+        }
+
         // The message can change while we are decrypting it, so we need to make sure not to cache the wrong message.
         if (this.message.id === messageId) {
           this.message.cachePlaintext(plaintext)
