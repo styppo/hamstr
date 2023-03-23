@@ -67,16 +67,20 @@ export default {
           if (plaintextObject instanceof Object &&
               plaintextObject.kind === 808) {
             plaintext = 'Start of encrypted convo yo'
-            window.globalEmitMessageHack(plaintextObject)
+            console.log('sending ==========================================')
+            window.hiPhilipp(plaintextObject)
           }
         } catch (e) {
+          console.error('big problems here', e)
           //...
         }
 
+        console.log(this.message, plaintext)
         // The message can change while we are decrypting it, so we need to make sure not to cache the wrong message.
         if (this.message.id === messageId) {
           this.message.cachePlaintext(plaintext)
         }
+        console.log(this.message)
       } catch (e) {
         console.error('Failed to decrypt message', e)
         this.decryptFailed = true

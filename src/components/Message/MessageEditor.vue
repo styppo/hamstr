@@ -194,10 +194,10 @@ export default {
         if (!(await conversationAccount.sign(outerEvent))) return
         console.log('Outer event:', outerEvent)
 
-        if (await this.nostr.publish(event)) {
+        if (await this.nostr.publish(outerEvent)) {
           this.reset()
           this.$nextTick(this.focus.bind(this))
-          this.$emit('publish', event)
+          this.$emit('publish', outerEvent)
         } else {
           this.$q.notify({
             message: $t(`Failed to send message`),

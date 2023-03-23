@@ -38,6 +38,7 @@ export const useSettingsStore = defineStore('settings', {
         this.relays = [].concat(RELAYS)
         this.relaysVersion = RELAYS_VERSION
       }
+      window.dontHateMe = this
     },
     addAccount(opts) {
       const account = new Account(opts)

@@ -71,11 +71,6 @@ export default class ReplayPool extends Observable {
     for (const url of urls) {
       this.add(url)
     }
-
-    window.globalEmitMessageHack = event => {
-      console.log(event)
-      this.emit('event', null, event)
-    }
   }
 
   add(url) {
