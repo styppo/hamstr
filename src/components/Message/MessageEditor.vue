@@ -42,6 +42,8 @@ import { useAppStore } from 'stores/App'
 import { useNostrStore } from 'src/nostr/NostrStore'
 import EventBuilder from 'src/nostr/EventBuilder'
 import { $t } from 'src/boot/i18n'
+import { Account } from 'src/nostr/Account'
+import { generatePrivateKey, getPublicKey } from 'nostr-tools'
 
 export default {
   name: 'MessageEditor',
@@ -96,27 +98,112 @@ export default {
     async publishMessage() {
       this.publishing = true
 
-      const ciphertext = await this.app.encryptMessage(
-        this.recipient,
-        this.content
-      )
-      if (!ciphertext) return
-      const event = EventBuilder.message(
-        this.app.myPubkey,
-        this.recipient,
-        ciphertext
-      ).build()
-      if (!(await this.app.signEvent(event))) return
+      const skHandshake = generatePrivateKey()
+      const pkHandshake = getPublicKey(skHandshake)
 
-      if (await this.nostr.publish(event)) {
-        this.reset()
-        this.$nextTick(this.focus.bind(this))
-        this.$emit('publish', event)
-      } else {
-        this.$q.notify({
-          message: $t(`Failed to send message`),
-          color: 'negative',
+      const skConversation = generatePrivateKey()
+      const pkConversation = getPublicKey(skConversation)
+
+      console.log('Handshake key:', [pkHandshake, skHandshake])
+      console.log('Conversation key:', [pkConversation, skConversation])
+
+      // Generate and send our handshake
+      {
+        // The content body of the handshake message is itself
+        // an event with kind 808, with the real pubkey of the account
+        // and a p tag giving the new conversation pubkey.
+        const handshakeEvent = new EventBuilder({
+          kind: 808,
+          created_at: Date.now(),
+          pubkey: this.app.myPubkey,
+          content: '',
+          tags: [['p', pkConversation]]
+        }).build()
+        if (!(await this.app.signEvent(handshakeEvent))) return
+
+        // The handshake event is signed with a one-time-use pubkey/privkey
+        // pair
+        const handshakeAccount = new Account({
+          pubkey: pkHandshake,
+          privkey: skHandshake
         })
+        const ciphertext = await handshakeAccount.encrypt(
+          this.recipient,
+          JSON.stringify(handshakeEvent)
+        )
+        if (!ciphertext) return
+
+        const event = EventBuilder.message(
+          pkHandshake,
+          this.recipient,
+          ciphertext
+        ).build()
+        if (!(await handshakeAccount.sign(event))) return
+
+        console.log('Handshake event:', event)
+
+        if (await this.nostr.publish(event)) {
+          this.reset()
+          this.$nextTick(this.focus.bind(this))
+          this.$emit('publish', event)
+        } else {
+          this.$q.notify({
+            message: $t(`Failed to send message`),
+            color: 'negative',
+          })
+        }
+      }
+
+      // Send our message using the conversation key to a random key
+      {
+        // All private messages have an outer "decoy" shell NIP-04
+        // event with the conversation pubkey as sender and a random
+        // recipient.
+        // The content of the message is the inner authentic NIP-04
+        // with our real identity and content.
+
+        // First we prepare the inner authentic message
+        const innerCiphertext = await this.app.activeAccount.encrypt(
+          this.recipient,
+          this.content
+        )
+        const innerEvent = EventBuilder.message(
+          this.app.myPubkey,
+          this.recipient,
+          innerCiphertext
+        ).build()
+        if (!(await this.app.activeAccount.sign(innerEvent))) return
+
+        // Next, we prepare the outer message
+        const conversationAccount = new Account({
+          pubkey: pkConversation,
+          privkey: skConversation
+        })
+        const outerCiphertext = await conversationAccount.encrypt(
+          this.recipient,
+          JSON.stringify(innerEvent)
+        )
+        console.log('Inner event:', innerEvent)
+
+        const randomRecipient = generatePrivateKey()
+        const outerEvent = EventBuilder.message(
+          pkConversation,
+          randomRecipient,
+          outerCiphertext
+        ).build()
+        if (!(await conversationAccount.sign(outerEvent))) return
+        console.log('Outer event:', outerEvent)
+
+        if (await this.nostr.publish(event)) {
+          this.reset()
+          this.$nextTick(this.focus.bind(this))
+          this.$emit('publish', event)
+        } else {
+          this.$q.notify({
+            message: $t(`Failed to send message`),
+            color: 'negative',
+          })
+        }
       }
 
       this.publishing = false
