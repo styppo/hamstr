@@ -57,22 +57,26 @@ export default {
           this.message.author === this.app.myPubkey
             ? this.message.recipient
             : this.message.author
-        let plaintext = await this.app.decryptMessage(
+        const plaintext = await this.app.decryptMessage(
           counterparty,
           this.message.content
         )
 
+        // If the message plaintext can be parsed as JSON
+        // we want to check the contents for an kind: 808
+        // handshake event
+        let plaintextObject
         try {
-          const plaintextObject = JSON.parse(plaintext)
-          if (plaintextObject instanceof Object &&
-              plaintextObject.kind === 808) {
-            plaintext = 'Start of encrypted convo yo'
-            console.log('sending ==========================================')
-            window.hiPhilipp(plaintextObject)
-          }
+          plaintextObject = JSON.parse(plaintext)
         } catch (e) {
-          console.error('big problems here', e)
-          //...
+          // ...
+        }
+
+        if (plaintextObject &&
+            plaintextObject instanceof Object &&
+            plaintextObject.kind === 808) {
+          window.removeMessage(messageId) // hide this message from the user
+          window.hiPhilipp(plaintextObject) // send the message through the app
         }
 
         console.log(this.message, plaintext)

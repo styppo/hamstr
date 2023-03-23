@@ -56,6 +56,10 @@ export const useMessageStore = defineStore('message', {
   },
   actions: {
     addEvent(event) {
+      if (!window.removeMessage) {
+        window.removeMessage = this.removeEvent.bind(this)
+      }
+
       const message = Message.from(event)
       if (!message) return false
 
@@ -84,6 +88,26 @@ export const useMessageStore = defineStore('message', {
       }
 
       return message
+    },
+    removeEvent(id) {
+      const message = this.messages[id]
+      if (!message) return
+
+      const bySender = this.bySender[message.author]
+      for (const recipient of message.recipients) {
+        const subArray = bySender[recipient]
+        const index = subArray.indexOf(message)
+        subArray.splice(index, 1)
+        if (!subArray.length) delete bySender[recipient]
+      }
+      for (const recipient of message.recipients) {
+        const subArray = this.byRecipient[recipient][message.author]
+        const index = subArray.indexOf(message)
+        subArray.splice(index, 1)
+        if (!subArray.length) delete this.byRecipient[recipient][message.author]
+      }
+
+      delete this.messages[id]
     },
     markAsRead(pubkey, counterparty) {
       return useMessageStatusStore().markAsRead(pubkey, counterparty)
