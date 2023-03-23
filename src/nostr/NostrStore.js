@@ -119,6 +119,9 @@ export const useNostrStore = defineStore('nostr', {
           return useContactStore().addEvent(event)
         case EventKind.DM:
           return useMessageStore().addEvent(event)
+        case 808:
+          console.log(event, 'how')
+          return useMessageStore().addEvent(event)
         case EventKind.DELETE:
           // TODO metadata, contacts?
           useNoteStore().deleteEvent(event)
