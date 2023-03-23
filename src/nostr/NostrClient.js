@@ -6,6 +6,7 @@ export default class NostrClient {
     this.pool = new RelayPool(relays)
     this.pool.on('notice', this.onNotice.bind(this))
     this.pool.on('ok', this.onOk.bind(this))
+    window.clientSubscribe = this.subscribe.bind(this)
   }
 
   connect() {

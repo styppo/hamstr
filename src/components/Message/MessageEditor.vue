@@ -28,6 +28,7 @@ import AutoSizeTextarea from 'components/CreatePost/AutoSizeTextarea.vue'
 import { useAppStore } from 'stores/App'
 import { useNostrStore } from 'src/nostr/NostrStore'
 import EventBuilder from 'src/nostr/EventBuilder'
+import Event from 'src/nostr/model/Event'
 import { $t } from 'src/boot/i18n'
 import { Account } from 'src/nostr/Account'
 import { generatePrivateKey, getPublicKey } from 'nostr-tools'
@@ -93,6 +94,30 @@ export default {
         skConversation = generatePrivateKey()
         pkConversation = getPublicKey(skConversation)
         window.localStorage.setItem(this.recipient, skConversation)
+
+        const subConv = window.clientSubscribe({
+          kinds: [4],
+          authors: [pkConversation],
+          limit: 0,
+        }, `dm:${pkConversation.substr(0, 40)}`)
+        console.log('subscription', subConv)
+        subConv.on('event', async event => {
+          console.log('event ========================', event)
+          const account = new Account({
+            pubkey: pkConversation,
+            privkey: skConversation
+          })
+          let plaintext = await account.decrypt(
+            this.recipient,
+            event.content
+          )
+          if (plaintext) {
+            const event2 = new Event(JSON.parse(plaintext))
+            console.log('BIG OL MESSAGE ===================================', event, event2)
+            window.hiPhilipp(event2)
+          }
+        })
+
         const skHandshake = generatePrivateKey()
         const pkHandshake = getPublicKey(skHandshake)
         console.log('Handshake key:', [pkHandshake, skHandshake])
