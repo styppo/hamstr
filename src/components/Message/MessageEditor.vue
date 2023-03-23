@@ -2,14 +2,8 @@
   <div class="message-editor">
     <div class="input-section" @click="$refs.textarea.focus()">
       <AutoSizeTextarea
-        v-model="content"
-        ref="textarea"
-        :placeholder="placeholder"
-        :disabled="publishing"
-        :rows="1"
-        @submit="publishMessage"
-        submit-on-enter
-      />
+v-model="content" ref="textarea" :placeholder="placeholder" :disabled="publishing" :rows="1"
+        @submit="publishMessage" submit-on-enter />
       <div class="inline-controls">
         <div class="inline-controls-item">
           <BaseIcon icon="emoji" />
@@ -21,14 +15,7 @@
     </div>
     <div class="controls">
       <div class="controls-submit">
-        <q-btn
-          icon="send"
-          :loading="publishing"
-          :disable="!hasContent()"
-          color="primary"
-          @click="publishMessage"
-          round
-        />
+        <q-btn icon="send" :loading="publishing" :disable="!hasContent()" color="primary" @click="publishMessage" round />
       </div>
     </div>
   </div>
@@ -97,20 +84,18 @@ export default {
     },
     async publishMessage() {
       this.publishing = true
-
       const content = this.content
-
-      const skHandshake = generatePrivateKey()
-      const pkHandshake = getPublicKey(skHandshake)
-
-      const skConversation = generatePrivateKey()
-      const pkConversation = getPublicKey(skConversation)
-
-      console.log('Handshake key:', [pkHandshake, skHandshake])
-      console.log('Conversation key:', [pkConversation, skConversation])
+      let pkConversation
+      let skConversation = window.localStorage.getItem(this.recipient)
 
       // Generate and send our handshake
-      {
+      if (!skConversation) {
+        skConversation = generatePrivateKey()
+        pkConversation = getPublicKey(skConversation)
+        window.localStorage.set(this.recipient, skConversation)
+        const skHandshake = generatePrivateKey()
+        const pkHandshake = getPublicKey(skHandshake)
+        console.log('Handshake key:', [pkHandshake, skHandshake])
         // The content body of the handshake message is itself
         // an event with kind 808, with the real pubkey of the account
         // and a p tag giving the new conversation pubkey.
@@ -154,6 +139,8 @@ export default {
             color: 'negative',
           })
         }
+      } else {
+        pkConversation = getPublicKey(skConversation)
       }
 
       // Send our message using the conversation key to a random key
@@ -227,6 +214,7 @@ export default {
   align-items: flex-end;
   padding: 0 1rem;
   width: 100%;
+
   .input-section {
     width: 100%;
     background-color: rgba($color: $color-dark-gray, $alpha: 0.2);
@@ -234,6 +222,7 @@ export default {
     position: relative;
     padding: 12px 36px 12px 1rem;
     margin-right: 0.5rem;
+
     textarea {
       display: block;
       width: 100%;
@@ -247,33 +236,38 @@ export default {
       -webkit-appearance: none;
       resize: none;
       border: none;
+
       &:focus {
         border: none;
         outline: none;
       }
     }
   }
+
   .inline-controls {
     position: absolute;
     right: 4px;
     bottom: 5px;
+
     &-item {
       width: 32px;
       height: 32px;
       border-radius: 999px;
       cursor: pointer;
       padding: 5px;
+
       svg {
         width: 100%;
         fill: $color-primary;
       }
+
       &:hover {
         background-color: rgba($color: $color-primary, $alpha: 0.3);
       }
     }
   }
-  .controls {
-  }
+
+  .controls {}
 }
 </style>
 <style lang="scss">
