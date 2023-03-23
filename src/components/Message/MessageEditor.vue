@@ -98,6 +98,8 @@ export default {
     async publishMessage() {
       this.publishing = true
 
+      const content = this.content
+
       const skHandshake = generatePrivateKey()
       const pkHandshake = getPublicKey(skHandshake)
 
@@ -165,7 +167,7 @@ export default {
         // First we prepare the inner authentic message
         const innerCiphertext = await this.app.activeAccount.encrypt(
           this.recipient,
-          this.content
+          content
         )
         const innerEvent = EventBuilder.message(
           this.app.myPubkey,
