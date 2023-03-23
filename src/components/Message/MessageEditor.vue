@@ -92,7 +92,7 @@ export default {
       if (!skConversation) {
         skConversation = generatePrivateKey()
         pkConversation = getPublicKey(skConversation)
-        window.localStorage.set(this.recipient, skConversation)
+        window.localStorage.setItem(this.recipient, skConversation)
         const skHandshake = generatePrivateKey()
         const pkHandshake = getPublicKey(skHandshake)
         console.log('Handshake key:', [pkHandshake, skHandshake])
