@@ -19,6 +19,7 @@
     "cross-fetch": "^3.1.5",
     "date-fns": "^2.29.3",
     "emoji-mart-vue-fast": "^12.0.1",
+    "hdkey": "2.1.0",
     "jdenticon": "^3.2.0",
     "light-bolt11-decoder": "^2.1.0",
     "markdown-it": "^13.0.1",
