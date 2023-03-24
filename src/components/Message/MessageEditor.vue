@@ -85,24 +85,28 @@ export default {
     },
     async publishMessage() {
       this.publishing = true
-      const content = this.content
-      let pkConversation
-      let skConversation = window.localStorage.getItem(this.recipient)
 
-      // Generate and send our handshake
+      // Save the content property, as it's subject to be reset
+      const content = this.content
+
+      let skConversation = window.localStorage.getItem(this.recipient)
+      let pkConversation = skConversation && getPublicKey(skConversation)
+
+      // If we haven't generated a conversation sk/pk we should now
+      // and then send our handshake message
       if (!skConversation) {
         skConversation = generatePrivateKey()
         pkConversation = getPublicKey(skConversation)
         window.localStorage.setItem(this.recipient, skConversation)
 
+        // Subscribe to the conversation
         const subConv = window.clientSubscribe({
           kinds: [4],
           authors: [pkConversation],
           limit: 0,
-        }, `dm:${pkConversation.substr(0, 40)}`)
-        console.log('subscription', subConv)
+        }, `dm:${Date.now()}`)
         subConv.on('event', async event => {
-          console.log('event ========================', event)
+          console.log('CONVERSATION EVENT', event)
           const account = new Account({
             pubkey: pkConversation,
             privkey: skConversation
@@ -113,35 +117,43 @@ export default {
           )
           if (plaintext) {
             const event2 = new Event(JSON.parse(plaintext))
-            console.log('BIG OL MESSAGE ===================================', event, event2)
             window.hiPhilipp(event2)
           }
         })
 
-        const skHandshake = generatePrivateKey()
-        const pkHandshake = getPublicKey(skHandshake)
-        console.log('Handshake key:', [pkHandshake, skHandshake])
-        // The content body of the handshake message is itself
-        // an event with kind 808, with the real pubkey of the account
-        // and a p tag giving the new conversation pubkey.
+
+        // The content body of the handshake message is a JSON
+        // object with three properties {"pubkey":"", "convkey":"", "sig":""}
+        // with the real pubkey of the user trying to message you,
+        // the conversation pubkey where the messages are being posted to,
+        // and a signature for a fake event that looks as follows:
         const handshakeEvent = new EventBuilder({
-          kind: 808,
-          created_at: Date.now(),
+          kind: 0,
           pubkey: this.app.myPubkey,
           content: '',
           tags: [['p', pkConversation]]
         }).build()
+        handshakeEvent.created_at = 0 // Override default created_at
         if (!(await this.app.signEvent(handshakeEvent))) return
+        console.log('GENERATED HANDSHAKE', handshakeEvent)
+
+        const handshakeMessage = JSON.stringify({
+          pubkey: this.app.myPubkey,
+          convkey: pkConversation,
+          sig: handshakeEvent.sig
+        })
 
         // The handshake event is signed with a one-time-use pubkey/privkey
         // pair
+        const skHandshake = generatePrivateKey()
+        const pkHandshake = getPublicKey(skHandshake)
         const handshakeAccount = new Account({
           pubkey: pkHandshake,
           privkey: skHandshake
         })
         const ciphertext = await handshakeAccount.encrypt(
           this.recipient,
-          JSON.stringify(handshakeEvent)
+          `INCOGNITO DIRECT MESSAGE\n\nYour client doesn't support incognito direct messages\n\n---------\n${handshakeMessage}`
         )
         if (!ciphertext) return
 

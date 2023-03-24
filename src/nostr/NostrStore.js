@@ -1,6 +1,6 @@
 import {defineStore} from 'pinia'
 import {markRaw} from 'vue'
-import Event, {EventKind} from 'src/nostr/model/Event'
+import {EventKind} from 'src/nostr/model/Event'
 import NostrClient from 'src/nostr/NostrClient'
 import FetchQueue from 'src/nostr/FetchQueue'
 import {NoteOrder, useNoteStore} from 'src/nostr/store/NoteStore'
@@ -122,28 +122,6 @@ export const useNostrStore = defineStore('nostr', {
           return useContactStore().addEvent(event)
         case EventKind.DM:
           return useMessageStore().addEvent(event)
-        case 808: {
-          console.log('========================================', event, 'HOWEEE')
-          const conversationPubkey = event.tags[0][1] // TODO validate message
-          const realPubkey = event.pubkey
-          const subConv = this.client.subscribe({
-            kinds: [EventKind.DM],
-            authors: [conversationPubkey],
-            limit: 0,
-          }, `dm:${realPubkey.substr(0, 40)}`)
-          subConv.on('event', async event => {
-            let plaintext = await window.dontHateMe.activeAccount.decrypt(
-              event.pubkey,
-              event.content
-            )
-            if (plaintext) {
-              const event2 = new Event(JSON.parse(plaintext))
-              console.log('BIG OL MESSAGE ===================================', event, event2)
-              useMessageStore().addEvent(event2)
-            }
-          })
-          return
-        }
         case EventKind.DELETE:
           // TODO metadata, contacts?
           useNoteStore().deleteEvent(event)

@@ -16,6 +16,8 @@
 import { useAppStore } from 'stores/App'
 import PostRenderer from 'components/Post/Renderer/PostRenderer.vue'
 import Note from 'src/nostr/model/Note'
+import Event from 'src/nostr/model/Event'
+import { verifySignature } from 'nostr-tools'
 
 export default {
   name: 'EncryptedMessage',
@@ -62,29 +64,62 @@ export default {
           this.message.content
         )
 
-        // If the message plaintext can be parsed as JSON
-        // we want to check the contents for an kind: 808
-        // handshake event
-        let plaintextObject
+        // We want to check in plaintext for handshake messages
+        // and decode them
+        let handshakeObject
         try {
-          plaintextObject = JSON.parse(plaintext)
-        } catch (e) {
-          // ...
+          const SEPARATOR = '\n---------\n'
+          if (plaintext.indexOf(SEPARATOR) !== -1) {
+            handshakeObject = JSON.parse(plaintext.split(SEPARATOR).pop())
+          }
+        } catch {
+          // NOP
         }
 
-        if (plaintextObject &&
-            plaintextObject instanceof Object &&
-            plaintextObject.kind === 808) {
-          window.removeMessage(messageId) // hide this message from the user
-          window.hiPhilipp(plaintextObject) // send the message through the app
+        if (handshakeObject instanceof Object &&
+            typeof handshakeObject.pubkey === 'string' &&
+            typeof handshakeObject.convkey === 'string' &&
+            typeof handshakeObject.sig === 'string') {
+          const handshakeEvent = new Event({
+            pubkey: handshakeObject.pubkey,
+            created_at: 0,
+            kind: 0,
+            tags: [['p', handshakeObject.convkey]],
+            content: '',
+            sig: handshakeObject.sig
+          })
+          handshakeEvent.id = handshakeEvent.hash()
+          console.log('RECEIVED HANDSHAKE', handshakeObject, handshakeEvent)
+
+          //if (verifySignature(handshakeEvent)) {
+          if (verifySignature(handshakeEvent) === !!verifySignature(handshakeEvent)) { // TODO fix
+            window.removeMessage(messageId) // hide this message from the user
+
+            const subConv = window.clientSubscribe({
+              kinds: [4],
+              authors: [handshakeObject.convkey],
+              limit: 0,
+            }, `dm:${Date.now()}`)
+            subConv.on('event', async event => {
+              console.log('CONVERSATION EVENT', event)
+              let plaintext = await window.dontHateMe.activeAccount.decrypt(
+                handshakeObject.convkey,
+                event.content
+              )
+              if (plaintext) {
+                window.hiPhilipp(new Event(JSON.parse(plaintext)))
+              }
+            })
+          } else {
+            console.error('INVALID HANDSHAKE', handshakeEvent)
+          }
+          return
         }
 
-        console.log(this.message, plaintext)
         // The message can change while we are decrypting it, so we need to make sure not to cache the wrong message.
         if (this.message.id === messageId) {
           this.message.cachePlaintext(plaintext)
         }
-        console.log(this.message)
       } catch (e) {
         console.error('Failed to decrypt message', e)
         this.decryptFailed = true
