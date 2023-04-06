@@ -11,7 +11,7 @@ npm install
 
 ### Start the app in development mode
 ```bash
-quasar dev
+npm run dev
 ```
 
 
@@ -33,6 +33,6 @@ npm run format
 
 ### Build the app for production
 ```bash
-quasar build
+npm run build
 ```
 

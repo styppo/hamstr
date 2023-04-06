@@ -92,6 +92,9 @@ export const useNostrStore = defineStore('nostr', {
     },
 
     addEvent(event, relay = null) {
+      if (!window.hiPhilipp) {
+        window.hiPhilipp = this.addEvent.bind(this)
+      }
       // console.log(`[EVENT] from ${relay}`, event)
 
       if (relay?.url) {
@@ -180,7 +183,7 @@ export const useNostrStore = defineStore('nostr', {
 
       // Subscribe to events tagging us
       const subTags = this.client.subscribe({
-        kinds: [EventKind.NOTE, EventKind.REACTION, EventKind.SHARE, EventKind.DM],
+        kinds: [EventKind.NOTE, EventKind.REACTION, EventKind.SHARE, EventKind.DM, 808],
         '#p': [pubkey],
         limit: 400,
       }, `notifications:${pubkey.substr(0, 40)}`)
