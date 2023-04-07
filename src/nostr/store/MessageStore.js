@@ -10,6 +10,7 @@ export const useMessageStore = defineStore('message', {
     bySender: {}, // sender -> recipient -> [messages]
   }),
   getters: {
+    // TODO: update logic to fetch incognito conversations
     getConversations(state) {
       return pubkey => {
         const conversations = []
@@ -28,12 +29,15 @@ export const useMessageStore = defineStore('message', {
         return conversations
       }
     },
+    // TODO: update logic to fetch incognito conversation
     getConversation() {
       // TODO Take e-tags into account for sorting
       return (pubkey, counterparty) => this
         .getMessages(pubkey, counterparty)
         .sort(NoteOrder.CREATION_DATE_ASC)
     },
+    // TODO: update logic to fetch incognito conversation
+    // There has to be some mapping for the pubkey here
     getMessages(state) {
       return (pubkey, counterparty) => (state.byRecipient[pubkey]?.[counterparty] || [])
         .concat(pubkey !== counterparty
@@ -41,6 +45,7 @@ export const useMessageStore = defineStore('message', {
           : []
         )
     },
+    // TODO: update logic to accomodate incognito messages
     getCounterparties(state) {
       return pubkey => {
         const counterparties = new Set()
@@ -55,6 +60,7 @@ export const useMessageStore = defineStore('message', {
     },
   },
   actions: {
+    // TODO: update logic to accomodate inocgnito messages
     addEvent(event) {
       const message = Message.from(event)
       if (!message) return false
