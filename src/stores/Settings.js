@@ -9,6 +9,7 @@ const RELAYS = [
   'wss://nostr.einundzwanzig.space',
   'wss://nostr.sg',
   'wss://relay.nostrica.com',
+  'wss://soloco.nl',
 ]
 const RELAYS_VERSION = 3
 
